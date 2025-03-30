@@ -1,0 +1,90 @@
++-----+
+| NLP |
++-----+
+
+What is a corpus, and how is it used in NLP?
+https://medium.com/@BAVL/what-is-a-corpus-and-how-is-it-used-in-nlp-dfd420cbc233
+
+CountVectorizer vs TfidfVectorizer
+https://www.kaggle.com/code/zeeshanlatif/countvectorizer-vs-tfidfvectorizer
+
+Python | Lemmatization with NLTK
+https://www.geeksforgeeks.org/python-lemmatization-with-nltk/
+
+Python – Lemmatization Approaches with Examples
+https://www.geeksforgeeks.org/python-lemmatization-approaches-with-examples/
+
+Stemming and Lemmatization in Python
+https://www.datacamp.com/tutorial/stemming-lemmatization-python
+
+
++------+
+| BEIR |
++------+
+
+BEIR (Benchmarking IR) consists of a homogenous benchmark for diverse sentence or passage level IR tasks. 
+It provides a common and easy framework for the cross-domain evaluation of your retrieval models.
+https://huggingface.co/BeIR
+https://huggingface.co/datasets/BeIR/scidocs
+https://huggingface.co/datasets/BeIR/scidocs-generated-queries
+https://huggingface.co/datasets/BeIR/scidocs-qrels
+
+An Introduction to Text Pre-processing and Vectorization with Python
+https://medium.com/data-insight/an-introduction-to-text-pre-processing-and-vectorization-with-python-1a2c8f150d35
+
+
++-------+
+| arXiv |
++-------+
+
+Terms of Use for arXiv APIs
+https://info.arxiv.org/help/api/tou.html
+# (...)
+# When using the legacy APIs (including OAI-PMH, RSS, and the arXiv API),
+# make no more than one request every three seconds, and limit requests to a single connection at a time.
+# These limits may change in the future.
+# (...)
+
+arXiv API User's Manual
+https://info.arxiv.org/help/api/user-manual.html
+# (...)
+# the titles of an article can be searched, as well as the author list, abstracts, comments and journal reference. 
+# To search one of these fields, we simply prepend the field prefix followed by a colon to our search term. 
+# For example, suppose we wanted to find all articles by the author Adrian Del Maestro. 
+# We could construct the following query http://export.arxiv.org/api/query?search_query=au:del_maestro
+# This returns nine results. The following table lists the field prefixes for all the fields that can be searched.
+# prefix explanation
+# ti	 Title
+# au	 Author
+# abs	 Abstract
+# co	 Comment
+# jr	 Journal Reference
+# cat	 Subject Category
+# rn	 Report Number
+# id	 Id (use id_list instead)
+# all	 All of the above
+# (...)
+# The API provides one date filter, submittedDate, that allow you to select data within a given date range of when the data was submitted to arXiv. 
+# The expected format is [YYYYMMDDTTTT+TO+YYYYMMDDTTTT] were the TTTT is provided in 24 hour time to the minute, in GMT. 
+# We could construct the following query using submittedDate.
+# https://export.arxiv.org/api/query?search_query=au:del_maestro+AND+submittedDate:[202301010600+TO+202401010600]
+# (...)
+
+
++-----+
+| XML |
++-----+
+
+How to Parse XML in Python
+https://scrapingant.com/blog/python-parse-xml
+
+
++-------------+
+| python venv |
++-------------+
+
+conda deactivate (in case of an existing conda venv)
+python3 -m venv appvenv
+source appvenv/bin/activate
+pip freeze > requirements.txt
+deactivate
