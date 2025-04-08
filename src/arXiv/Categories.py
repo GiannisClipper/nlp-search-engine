@@ -1,13 +1,11 @@
-import re
-
-# Regex Cheat Sheet – Python
-# https://www.geeksforgeeks.org/python-regex-cheat-sheet/
-
 # arXiv API User's Manual
 # https://info.arxiv.org/help/api/user-manual.html
 
 # Categories within Computer Science
 # https://arxiv.org/archive/cs -> downloads/categories.txt
+
+import re
+from  . import settings
 
 class Categories:
 
@@ -15,7 +13,7 @@ class Categories:
 
         self._categories = []
 
-        with open( 'downloads/categories.txt', 'r', encoding='utf-8' ) as f:
+        with open( settings.catgs_filename, 'r', encoding='utf-8' ) as f:
             for line in f:
                 # e.g. match='cs.SI - Social and Information Networks '
                 result = re.search( r"^\w{2}\.{1}\w{2}\s\-\s[\w\s]+", line )

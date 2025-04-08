@@ -8,6 +8,12 @@ source appvenv/bin/activate
 pip freeze > requirements.txt
 deactivate
 
++-----------------------+
+| python module running |
++-----------------------+
+
+$ python3 -m folder.filename (without the .py)
+
 
 +-----+
 | NLP |
@@ -96,6 +102,9 @@ https://scrapingant.com/blog/python-parse-xml
 +-------+
 | regex |
 +-------+
+
+Regex Cheat Sheet – Python
+https://www.geeksforgeeks.org/python-regex-cheat-sheet/
 
 Online helpers
 http://www.pyregex.com/

@@ -1,8 +1,8 @@
 import os
 import json
 
-import settings
-from Categories import Categories
+from  . import settings
+from .Categories import Categories
 
 class Dataset:
 
