@@ -1,3 +1,14 @@
++-------------+
+| python venv |
++-------------+
+
+conda deactivate (in case of an existing conda venv)
+python3 -m venv appvenv
+source appvenv/bin/activate
+pip freeze > requirements.txt
+deactivate
+
+
 +-----+
 | NLP |
 +-----+
@@ -36,6 +47,9 @@ https://medium.com/data-insight/an-introduction-to-text-pre-processing-and-vecto
 +-------+
 | arXiv |
 +-------+
+
+arXiv: Η ελεύθερη πύλη της επιστημονικής γνώσης
+https://edu.ellak.gr/2025/03/28/arxiv-i-eleftheri-pili-tis-epistimonikis-gnosis/
 
 Terms of Use for arXiv APIs
 https://info.arxiv.org/help/api/tou.html
@@ -79,12 +93,44 @@ How to Parse XML in Python
 https://scrapingant.com/blog/python-parse-xml
 
 
-+-------------+
-| python venv |
-+-------------+
++-------+
+| regex |
++-------+
 
-conda deactivate (in case of an existing conda venv)
-python3 -m venv appvenv
-source appvenv/bin/activate
-pip freeze > requirements.txt
-deactivate
+Online helpers
+http://www.pyregex.com/
+https://regex101.com/
+
+regex: \"(.*?)\"
+to get all content in delimiters
+? -> as few as possible
+
+Python Tutorial: re Module - How to Write and Match Regular Expressions (Regex)
+https://www.youtube.com/watch?v=K8L6KVGG-7o
+#
+# metacharacters need to be escaped: . ^ $ * + ? { } [ ] \ | ( )
+#
+# .     - Any character except new line
+# \d    - Digit (0-9)
+# \D    - Not a Digit
+# \w    - Word Character (a-z, A-Z, 0-9, _)
+# \W    - Not a Word Character
+# \s    - Whitespace (space, tab, newline)
+# \S    - Not Whitespace
+#
+# \b    - Word Boundary
+# \B    - Not a word Boundary
+# ^     - Beginning of string
+# $     - End of string
+#
+# []    - Matches characters in brackets
+# [^]   - Matches characters NOT in brackets
+# |     - Either or
+# ()    - Group
+#
+# *     - 0 or more
+# +     - 1 or more
+# ?     - 0 or 1
+# {3}   - Exact number
+# {3,5} - Range (min,max)
+

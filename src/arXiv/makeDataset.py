@@ -48,6 +48,13 @@ for catg_id, _ in Categories( settings.catgs_filter ).toTuples():
         if title !=None and title.text != None:
             title = " ".join( title.text.split( "\n" ) ).strip()
 
+        published = entry.find( '{http://www.w3.org/2005/Atom}published' )
+        if published !=None and published.text != None:
+            published = published.text[:10]
+
+        updated = entry.find( '{http://www.w3.org/2005/Atom}updated' )
+        if updated !=None and updated.text != None:
+            updated = updated.text[:10]
 
         summary = entry.find( '{http://www.w3.org/2005/Atom}summary' )
         if summary != None and summary.text != None:
@@ -66,7 +73,9 @@ for catg_id, _ in Categories( settings.catgs_filter ).toTuples():
                 'catg_ids': [ catg_id ],
                 'title': title,
                 'summary': summary,
-                'authors': authors
+                'authors': authors,
+                'published': published,
+                'updated': updated,
             }
         # add only category if an entry was already added (from other category)
         else:
