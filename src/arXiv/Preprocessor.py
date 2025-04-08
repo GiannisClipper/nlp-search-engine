@@ -2,13 +2,13 @@ import re
 import time
 from abc import ABC, abstractmethod
 
-import nltk # type: ignore
+import nltk
 nltk.download( 'stopwords' )
 nltk.download( 'wordnet' )
 
-from nltk.corpus import stopwords # type: ignore
-from nltk.stem import SnowballStemmer # type: ignore
-from nltk.stem import WordNetLemmatizer # type: ignore
+from nltk.corpus import stopwords
+from nltk.stem import SnowballStemmer
+from nltk.stem import WordNetLemmatizer
 
 # abstract class 
 class Transformer( ABC ):
