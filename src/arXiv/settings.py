@@ -5,20 +5,11 @@ file_path = os.path.dirname( os.path.realpath( __file__ ) )
 catgs_filename = f'{file_path}/downloads/categories.txt'
 dataset_filename = f'{file_path}/datasets/dataset.jsonl'
 
-pickle_filenames = {
-    'preprocessor': f'{file_path}/pickles/preprocessor.pkl',
-
-    'vocabulary': f'{file_path}/pickles/vocabulary.pkl',
-
-    'count': {
-        'vectorizer': f'{file_path}/pickles/count_vectorizer.pkl',
-        'corpus_repr': f'{file_path}/pickles/count_corpus_repr.pkl'
-    },
-
-    'tfidf': {
-        'vectorizer': f'{file_path}/pickles/tfidf_vectorizer.pkl',
-        'corpus_repr': f'{file_path}/pickles/tfidf_corpus_repr.pkl'
-    }
+pickle_paths = {
+    'preprocessors': f'{file_path}/pickles/preprocessors',
+    'vocabularies': f'{file_path}/pickles/vocabularies',
+    'vectorizers': f'{file_path}/pickles/vectorizers',
+    'corpus_repr': f'{file_path}/pickles/corpus_repr',
 }
 
 # to select specific categories (not all)
