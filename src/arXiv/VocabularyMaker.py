@@ -36,7 +36,6 @@ class VocabularyMaker:
     def save( self, descr ):
 
         print( f'Saving vocabulary {descr}.pkl in disk...' )
-        # vocab_descr = ''
         with open( f"{pickle_paths[ 'vocabularies' ]}/{descr}.pkl", 'wb' ) as f:
             pickle.dump( self._tokenMaker.tokens, f )
 
@@ -55,4 +54,4 @@ if __name__ == "__main__":
         SingleTokenMaker()
     )
     vocabularyMaker.make()
-    vocabularyMaker.save( 'title-summary-lower-punct-specials-stops-lemm-single' )
+    vocabularyMaker.save( 'title-summary_lower-punct-specials-stops-lemm_single' )

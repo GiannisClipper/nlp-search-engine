@@ -24,3 +24,9 @@ class Categories:
     
     def toTuples( self ):
         return self._categories
+
+
+if __name__ == "__main__":
+    catgs = Categories()
+    for catg in catgs.toTuples():
+        print( catg )
