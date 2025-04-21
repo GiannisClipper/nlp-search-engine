@@ -19,7 +19,7 @@ class VocabularyMaker:
 
     def make( self ) -> tuple[str,...]:
         print( f'\nPreprocessing...' )
-        corpus = self._corpusLoader.make()
+        corpus = self._corpusLoader.load()
         corpus = self._preprocessor.transform( corpus )
         step = len( corpus ) // 5 if len( corpus ) > 5 else 1 
         print( f'corpus[::{step}]:', corpus[::step] )

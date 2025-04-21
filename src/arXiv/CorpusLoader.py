@@ -9,7 +9,7 @@ class CorpusLoader( ABC ):
         pass
 
     @abstractmethod
-    def make( self ) -> list[str]:
+    def load( self ) -> list[str]:
         pass
 
     def __str__( self ):
@@ -19,7 +19,7 @@ class CorpusLoader( ABC ):
 # concatenates titles & summaries
 class TitleSummaryCorpusLoader( CorpusLoader ):
 
-    def make( self ) -> list[str]:
+    def load( self ) -> list[str]:
         ds = Dataset()
         records = ds.toDictList()
         corpus = []
