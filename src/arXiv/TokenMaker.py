@@ -7,30 +7,38 @@ from nltk.tokenize import word_tokenize
 from nltk import ngrams
 
 # abstract class 
-class Tokenizer( ABC ):
-    def __init__( self, text:str ):
+class TokenMaker( ABC ):
+
+    @abstractmethod
+    def make( self, text:str ) -> tuple[str,...]:
         self._tokens = tuple( word_tokenize( text ) )
 
     @property
-    def tokens( self ) -> tuple[str]:
+    def tokens( self ) -> tuple[str,...]:
         return self._tokens
 
     def __str__( self ):
         return self.__class__.__name__
 
-class SingleTokenizer( Tokenizer ):
-    def __init__( self, text:str ):
-        super().__init__( text )
+
+class SingleTokenMaker( TokenMaker ):
+
+    def make( self, text:str ) -> tuple[str,...]:
+        super().make( text )
         singles = {}
         for token in self._tokens:
             singles[ token ] = singles.get( token, 0 ) + 1
         singles = list( singles.items() )
         singles.sort( key=lambda x: x[1], reverse=True )
         self._tokens = tuple( x[0] for x in singles )
+        return self._tokens
 
-class TwogrammTokenizer( Tokenizer ):
-    def __init__( self, text:str ):
-        super().__init__( text )
+
+
+class TwogrammTokenMaker( TokenMaker ):
+
+    def make( self, text:str ) -> tuple[str,...]:
+        super().make( text )
         self._tokens = tuple( x + ' ' + y for x, y in ngrams( self._tokens, 2 ) )
         twograms = {}
         for token in self._tokens:
@@ -38,3 +46,5 @@ class TwogrammTokenizer( Tokenizer ):
         twograms = list( twograms.items() )
         twograms.sort( key=lambda x: x[1], reverse=True )
         self._tokens =  tuple( x[0] for x in twograms )
+        return self._tokens
+
