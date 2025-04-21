@@ -2,85 +2,110 @@ import pickle
 import time
 import random
 import math
-import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity # type: ignore
 
-from Dataset import Dataset
+from .Dataset import Dataset
+from .Preprocessor import LemmPreprocessor
 
-print( f'\nLoad corpus...' )
+from .settings import pickle_paths
+
+from .helpers.decorators import with_time_counter
+from .helpers.computators import compute_similarities0, compute_similarities1
+
+# +-------------+
+# | Load corpus |
+# +-------------+
+
+print( f'\nLoading corpus...' )
 ds = Dataset()
 corpus = ds.toDictList()
 
-print( f'\nLoad preprocessor...' )
-preprocessor = None
-with open( 'pickles/preprocessor.pkl', 'rb' ) as f:
-    preprocessor = pickle.load( f )
-print( f'Transformers: {str( preprocessor )}' )
+# +-------------------+
+# | Init preprocessor |
+# +-------------------+
 
-print( f'\nLoad vectorizer...' )
-vectorizer = None
-with open( 'pickles/vectorizer.pkl', 'rb' ) as f:
+preprocessor = LemmPreprocessor()
+
+# +-----------------+
+# | Load vectorizer |
+# +-----------------+
+
+vec_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
+# vec_descr = 'title-summary_lower-punct-specials-stops-lemm_single_count'
+
+print( f'\nLoading vectorizer {vec_descr}...' )
+with open( f"{pickle_paths[ 'vectorizers' ]}/{vec_descr}.pkl", 'rb' ) as f:
     vectorizer = pickle.load( f )
 
 vocabulary = vectorizer.get_feature_names_out()
-print( 'Vocabulary[::500]:', len( vocabulary ), vocabulary[::500] )
+step = len( vocabulary ) // 50 if len( vocabulary ) > 50 else 1 
+print( f'\nVocabulary[::{step}]:', len( vocabulary ), vocabulary[::step] )
 
-print( f'\nLoad corpus representations...' )
-corpus_repr = None
-with open( 'pickles/corpus_repr.pkl', 'rb' ) as f:
+# +---------------------------+
+# | Load the tfidf vectorizer |
+# +---------------------------+
+
+# print( f'\nLoading tfidf vectorizer...' )
+# with open( pickle_filenames[ 'tfidf' ][ 'vectorizer' ], 'rb' ) as f:
+#     vectorizer = pickle.load( f )
+
+# vocabulary = vectorizer.get_feature_names_out()
+# print( 'Vocabulary[::500]:', len( vocabulary ), vocabulary[::500] )
+
+# +----------------------------+
+# | Load the count corpus repr |
+# +----------------------------+
+
+print( f'\nLoad count corpus representations...' )
+with open( f"{pickle_paths[ 'corpus_repr' ]}/{vec_descr}.pkl", 'rb' ) as f:
     corpus_repr = pickle.load( f )
 corpus_repr = corpus_repr.toarray()
 print( f'Dimensions: {corpus_repr.shape}' )
 
-print( '\nCompute similarities...', end=' ' )
-def compute_similarities( single_repr, corpus_repr ):
-    similarities = []
-    for i in range( corpus_repr.shape[ 0 ] ):
-        sim = cosine_similarity( single_repr.reshape(1,-1), corpus_repr[i].reshape(1,-1) )
-        similarities.append( sim[0][0] )
+# +----------------------------+
+# | Load the tfidf corpus repr |
+# +----------------------------+
+
+# print( f'\nLoad tfidf corpus representations...' )
+# corpus_repr = None
+# with open( pickle_filenames[ 'tfidf' ][ 'corpus_repr' ], 'rb' ) as f:
+#     corpus_repr = pickle.load( f )
+# corpus_repr = corpus_repr.toarray()
+# print( f'Dimensions: {corpus_repr.shape}' )
+
+# +-------------------+
+# | Prepare the query |
+# +-------------------+
+
+print( '\nPrepare query...' )
+# random_record = random.randint( 0, corpus_repr.shape[0]-1 )
+# query = corpus_repr[ random_record ]
+query = "Available literature about databases (both SQL and NoSQL), especially somehow relevant to semantics?"
+query_preprocessed = preprocessor.transform( [ query ] )
+query_repr = vectorizer.transform( query_preprocessed )
+
+# +----------------------+
+# | Compute similarities |
+# +----------------------+
+
+@with_time_counter
+def compute_similarities( message=None, *args, **kwargs ):
+    similarities = compute_similarities1( query_repr, corpus_repr )
+
+    similarities = [ ( x[0][ 'id' ], x[0][ 'catg_ids' ], x[1] ) for x in zip( corpus, similarities ) ]
+    similarities.sort( key=lambda x: x[2], reverse=True )
     return similarities
 
-# about 3 times slower: ~8 secs (compute_similarities) vs ~24 secs (compute_similarities2)
-# def compute_similarities2( single_repr, corpus_repr ):
-
-#     similarities = []
-
-#     # keep in dict only pos with non zero values
-#     single_repr_d = dict( [ ( i, r ) for i, r in enumerate( single_repr ) if r != 0 ] )
-#     for i in range( corpus_repr.shape[ 0 ] ):
-
-#         # keep in dict only pos with non zero values
-#         text_repr_d = dict( [ ( i, r ) for i, r in enumerate( corpus_repr[i] ) if r != 0 ] )
-
-#         # find the common positions
-#         union = set( list( single_repr_d.keys() ) + list( text_repr_d.keys() ) )
-
-#         # get the values from the common positions only
-#         x = np.array( [ single_repr[ j ] for j in union ] ).reshape(1,-1)
-#         y = np.array([ corpus_repr[ i ][ j ] for j in union ] ).reshape(1,-1)
-
-#         sim = cosine_similarity( x, y )
-#         similarities.append( sim[0][0] )
-
-#     return similarities
-
-random_record = random.randint( 0, corpus_repr.shape[0]-1 )
-start_time = time.time()
-random_repr = corpus_repr[ random_record ]
-
-random_repr = preprocessor.transform( [ "Literature about databases (both SQL and NoSQL) and if they are somehow related to semantics?" ] )
-random_repr = vectorizer.transform( random_repr )
-
-similarities = compute_similarities( random_repr, corpus_repr )
-print( f'({round(time.time()-start_time, 1)} secs)' )
-
-similarities = [ ( x[0][ 'id' ], x[0][ 'catg_ids' ], x[1] ) for x in zip( corpus, similarities ) ]
-# print( random_record, similarities[ random_record ] )
-similarities.sort( key=lambda x: x[2], reverse=True )
+similarities = compute_similarities( 'Computing similarities...' )
+print()
 for i in range( 20 ):
     print( similarities[ i ] )
 
-# #####################################################
+# with open( './tests/test_sim_results_1.pkl', 'wb' ) as f:
+#     pickle.dump( [ s[0] for s in similarities ][:10], f )
+
+# +-----------------+
+# | Compute metrics |
+# +-----------------+
 
 gains = [ s[2] for s in similarities[:20] ]
 random.shuffle( gains )

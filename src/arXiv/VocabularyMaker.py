@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 import pickle
 
 from .CorpusLoader import CorpusLoader, TitleSummaryCorpusLoader
-from .Preprocessor import Preprocessor, LemmPreprocessor
+from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 
 from .TokenMaker import TokenMaker, SingleTokenMaker
 from .settings import pickle_paths
@@ -48,10 +48,17 @@ class VocabularyMaker:
 
 # RUN: python -m arXiv.VocabularyMaker
 if __name__ == "__main__": 
+
+    voc_decsr = 'title-summary_lower-punct-specials-stops-stemm_single'
+    PreprocessorClass = StemmPreprocessor
+
+    # voc_decsr = 'title-summary_lower-punct-specials-stops-lemm_single'
+    # PreprocessorClass = LemmPreprocessor
+
     vocabularyMaker = VocabularyMaker(
         TitleSummaryCorpusLoader(),
-        LemmPreprocessor(),
+        PreprocessorClass(),
         SingleTokenMaker()
     )
     vocabularyMaker.make()
-    vocabularyMaker.save( 'title-summary_lower-punct-specials-stops-lemm_single' )
+    vocabularyMaker.save( voc_decsr )

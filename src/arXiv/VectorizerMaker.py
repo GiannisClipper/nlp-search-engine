@@ -2,7 +2,7 @@ import pickle
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 from .CorpusLoader import CorpusLoader, TitleSummaryCorpusLoader
-from .Preprocessor import Preprocessor, LemmPreprocessor
+from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 from .VocabularyLoader import VocabularyLoader
 
 from .settings import pickle_paths
@@ -21,7 +21,7 @@ class VectorizerMaker:
         self._corpusLoader = corpusLoader
         self._preprocessor = preprocessor
         self._vocabularyLoader = vocabularyLoader
-        self._VectorizerClass = Vectorizer
+        self._VectorizerClass = VectorizerClass
 
     def make( self ):
         print( f'\nPreprocessing...' )
@@ -55,19 +55,51 @@ class VectorizerMaker:
 # RUN: python -m arXiv.VectorizerMaker
 if __name__ == "__main__": 
 
-    voc_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
-
-    # vec_descr = 'title-summary_lower-punct-specials-stops-lemm_single_count'
-    # Vectorizer = CountVectorizer
-
-    vec_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
-    Vectorizer = TfidfVectorizer
-
+    # CountVectorizer - stemming
+    voc_descr = 'title-summary_lower-punct-specials-stops-stemm_single'
+    vec_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
     vectorizerMaker = VectorizerMaker(
         TitleSummaryCorpusLoader(),
-        LemmPreprocessor(),
+        StemmPreprocessor(),
         VocabularyLoader( voc_descr ),
         CountVectorizer
     )
     vectorizerMaker.make()
     vectorizerMaker.save( vec_descr )
+
+    # CountVectorizer - lemmatize
+    # voc_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
+    # vec_descr = 'title-summary_lower-punct-specials-stops-lemm_single_count'
+    # vectorizerMaker = VectorizerMaker(
+    #     TitleSummaryCorpusLoader(),
+    #     LemmPreprocessor(),
+    #     VocabularyLoader( voc_descr ),
+    #     CountVectorizer
+    # )
+    # vectorizerMaker.make()
+    # vectorizerMaker.save( vec_descr )
+
+    # TfidfVectorizer - stemming
+    # voc_descr = 'title-summary_lower-punct-specials-stops-stemm_single'
+    # vec_descr = 'title-summary_lower-punct-specials-stops-stemm_single_tfidf'
+    # vectorizerMaker = VectorizerMaker(
+    #     TitleSummaryCorpusLoader(),
+    #     StemmPreprocessor(),
+    #     VocabularyLoader( voc_descr ),
+    #     TfidfVectorizer
+    # )
+    # vectorizerMaker.make()
+    # vectorizerMaker.save( vec_descr )
+
+    # TfidfVectorizer - lemmatize
+    # voc_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
+    # vec_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
+    # vectorizerMaker = VectorizerMaker(
+    #     TitleSummaryCorpusLoader(),
+    #     LemmPreprocessor(),
+    #     VocabularyLoader( voc_descr ),
+    #     TfidfVectorizer
+    # )
+    # vectorizerMaker.make()
+    # vectorizerMaker.save( vec_descr )
+
