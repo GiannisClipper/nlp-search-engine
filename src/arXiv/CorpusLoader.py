@@ -4,7 +4,7 @@ from .Dataset import Dataset
 
 
 # abstract class 
-class CorpusMaker( ABC ):
+class CorpusLoader( ABC ):
     def __init__( self ):
         pass
 
@@ -17,7 +17,7 @@ class CorpusMaker( ABC ):
 
 
 # concatenates titles & summaries
-class TitleSummaryCorpusMaker( CorpusMaker ):
+class TitleSummaryCorpusLoader( CorpusLoader ):
 
     def make( self ) -> list[str]:
         ds = Dataset()

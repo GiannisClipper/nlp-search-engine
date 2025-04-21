@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import pickle
 
-from .CorpusMaker import CorpusMaker, TitleSummaryCorpusMaker
+from .CorpusLoader import CorpusLoader, TitleSummaryCorpusLoader
 from .Preprocessor import Preprocessor, LemmPreprocessor
 
 from .TokenMaker import TokenMaker, SingleTokenMaker
@@ -12,14 +12,14 @@ from .helpers.decorators import with_time_counter
 
 class VocabularyMaker:
 
-    def __init__( self, corpusMaker:CorpusMaker, preprocessor:Preprocessor, tokenMaker:TokenMaker ):
-        self._corpusMaker = corpusMaker
+    def __init__( self, corpusLoader:CorpusLoader, preprocessor:Preprocessor, tokenMaker:TokenMaker ):
+        self._corpusLoader = corpusLoader
         self._preprocessor = preprocessor
         self._tokenMaker = tokenMaker
 
     def make( self ) -> tuple[str,...]:
         print( f'\nPreprocessing...' )
-        corpus = self._corpusMaker.make()
+        corpus = self._corpusLoader.make()
         corpus = self._preprocessor.transform( corpus )
         step = len( corpus ) // 5 if len( corpus ) > 5 else 1 
         print( f'corpus[::{step}]:', corpus[::step] )
@@ -47,9 +47,10 @@ class VocabularyMaker:
         return self.__class__
 
 
-if __name__ == "__main__":
+# RUN: python -m arXiv.VocabularyMaker
+if __name__ == "__main__": 
     vocabularyMaker = VocabularyMaker(
-        TitleSummaryCorpusMaker(),
+        TitleSummaryCorpusLoader(),
         LemmPreprocessor(),
         SingleTokenMaker()
     )
