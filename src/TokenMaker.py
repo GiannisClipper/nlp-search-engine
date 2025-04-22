@@ -34,7 +34,6 @@ class SingleTokenMaker( TokenMaker ):
         return self._tokens
 
 
-
 class TwogrammTokenMaker( TokenMaker ):
 
     def make( self, text:str ) -> tuple[str,...]:

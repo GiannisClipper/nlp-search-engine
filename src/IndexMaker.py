@@ -1,3 +1,4 @@
+import sys
 from abc import ABC, abstractmethod
 
 import nltk
@@ -6,15 +7,11 @@ from nltk.tokenize import word_tokenize
 
 import pytrie
 
-from .helpers.Pickle import PickleLoader, PickleSaver
-
 from .CorpusLoader import CorpusLoader, TitleSummaryCorpusLoader
 from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
-from .VocabularyLoader import VocabularyLoader
-
-from .settings import pickle_paths
 
 from .helpers.decorators import with_time_counter
+from .helpers.Pickle import PickleLoader, PickleSaver
 
 
 class AbstractIndexMaker( ABC ):
@@ -84,19 +81,41 @@ class IndexMaker( AbstractIndexMaker ):
 # RUN: python -m arXiv.IndexMaker
 if __name__ == "__main__": 
 
-    # stemming
-    vocabulary_descr = 'title-summary_lower-punct-specials-stops-stemm_single'
-    vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl"
+    from .arXiv.settings import pickle_paths
 
-    index_descr = 'title-summary_lower-punct-specials-stops-stemm_single_index'
-    index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
+    option = None
+    if len( sys.argv ) > 1:
+        option = sys.argv[ 1 ]
 
-    indexMaker = IndexMaker(
-        TitleSummaryCorpusLoader(),
-        StemmPreprocessor(),
-        PickleLoader( vocabulary_filename )
-    )
+    match option:
 
-    index = indexMaker.make()
-    print()
-    PickleSaver( index_filename ).save( index )
+        case 'stemm-single':
+
+            vocabulary_descr = 'title-summary_lower-punct-specials-stops-stemm_single'
+            vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl"
+            indexMaker = IndexMaker(
+                TitleSummaryCorpusLoader(),
+                StemmPreprocessor(),
+                PickleLoader( vocabulary_filename )
+            )
+            index = indexMaker.make()
+
+            index_filename = f"{pickle_paths[ 'indexes' ]}/{vocabulary_descr}.pkl"
+            PickleSaver( index_filename ).save( index )
+
+        case 'lemm-single':
+
+            vocabulary_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
+            vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl"
+            indexMaker = IndexMaker(
+                TitleSummaryCorpusLoader(),
+                LemmPreprocessor(),
+                PickleLoader( vocabulary_filename )
+            )
+            index = indexMaker.make()
+
+            index_filename = f"{pickle_paths[ 'indexes' ]}/{vocabulary_descr}.pkl"
+            PickleSaver( index_filename ).save( index )
+
+        case _:
+            raise Exception( 'No valid parameters passed.' )

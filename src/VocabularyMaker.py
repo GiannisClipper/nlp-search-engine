@@ -1,14 +1,13 @@
+import sys
 from abc import ABC, abstractmethod
-
-import pickle
 
 from .CorpusLoader import CorpusLoader, TitleSummaryCorpusLoader
 from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 
 from .TokenMaker import TokenMaker, SingleTokenMaker
-from .settings import pickle_paths
 
 from .helpers.decorators import with_time_counter
+from .helpers.Pickle import PickleSaver
 
 class VocabularyMaker:
 
@@ -33,12 +32,6 @@ class VocabularyMaker:
         print( f'\nVocabulary[::{step}]:', len( tokens ), tokens[::step] )
         return tokens
 
-    def save( self, descr ):
-
-        print( f'Saving vocabulary {descr}.pkl in disk...' )
-        with open( f"{pickle_paths[ 'vocabularies' ]}/{descr}.pkl", 'wb' ) as f:
-            pickle.dump( self._tokenMaker.tokens, f )
-
     def vocabulary( self ):
         return self._tokenMaker.tokens
 
@@ -46,19 +39,42 @@ class VocabularyMaker:
         return self.__class__
 
 
-# RUN: python -m arXiv.VocabularyMaker
+# RUN: python -m src.VocabularyMaker [parameter]
 if __name__ == "__main__": 
 
-    voc_decsr = 'title-summary_lower-punct-specials-stops-stemm_single'
-    PreprocessorClass = StemmPreprocessor
+    from .arXiv.settings import pickle_paths
 
-    # voc_decsr = 'title-summary_lower-punct-specials-stops-lemm_single'
-    # PreprocessorClass = LemmPreprocessor
+    option = None
+    if len( sys.argv ) > 1:
+        option = sys.argv[ 1 ]
 
-    vocabularyMaker = VocabularyMaker(
-        TitleSummaryCorpusLoader(),
-        PreprocessorClass(),
-        SingleTokenMaker()
-    )
-    vocabularyMaker.make()
-    vocabularyMaker.save( voc_decsr )
+    match option:
+
+        case 'stemm-single':
+
+            vocabularyMaker = VocabularyMaker(
+                TitleSummaryCorpusLoader(),
+                StemmPreprocessor(),
+                SingleTokenMaker()
+            )
+            vocabulary = vocabularyMaker.make()
+
+            vocabulary_decsr = 'title-summary_lower-punct-specials-stops-stemm_single'
+            vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_decsr}.pkl"
+            PickleSaver( vocabulary_filename ).save( vocabulary )
+
+        case 'lemm-single':
+
+            vocabularyMaker = VocabularyMaker(
+                TitleSummaryCorpusLoader(),
+                LemmPreprocessor(),
+                SingleTokenMaker()
+            )
+            vocabulary = vocabularyMaker.make()
+
+            vocabulary_decsr = 'title-summary_lower-punct-specials-stops-lemm_single'
+            vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_decsr}.pkl"
+            PickleSaver( vocabulary_filename ).save( vocabulary )
+
+        case _:
+            raise Exception( 'No valid parameters passed.' )

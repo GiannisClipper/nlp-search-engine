@@ -1,20 +1,20 @@
+import sys
 from abc import ABC, abstractmethod
 
 import nltk
 nltk.download( 'punkt_tab' ) # required by word_tokenize()
 from nltk.tokenize import word_tokenize
+
 import numpy as np
 import math
 
-from .Dataset import Dataset
 from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
-from .helpers.Pickle import PickleLoader
-
-from .helpers.computators import compute_similarities0, compute_similarities1
-
-from .settings import pickle_paths
 
 from .helpers.decorators import with_time_counter
+from .helpers.computators import compute_similarities0, compute_similarities1
+from .helpers.Pickle import PickleLoader
+
+
 
 
 class AbstractDocumentFinder( ABC ):
@@ -25,7 +25,7 @@ class AbstractDocumentFinder( ABC ):
         vectorizerLoader:PickleLoader,
         corpusReprLoader:PickleLoader,
         indexLoader:PickleLoader,
-        dataset:Dataset
+        dataset:object
     ):
         self._preprocessor = preprocessor
         self._vectorizer = vectorizerLoader.load()
@@ -106,27 +106,65 @@ class DocumentFinder( AbstractDocumentFinder ):
 
         return compute_similarities( 'Computing similarities...' )
 
-# RUN: python -m arXiv.DocumentFinder
+# RUN: python -m src.DocumentFinder [parameters] [query]
 if __name__ == "__main__": 
 
-    # stemming
-    vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_tfidf'
-    vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
-    corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
+    from .arXiv.Dataset import Dataset
+    from .arXiv.settings import pickle_paths
 
-    index_descr = 'title-summary_lower-punct-specials-stops-stemm_single_index'
-    index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-
-    documentFinder = DocumentFinder(
-        StemmPreprocessor(), 
-        PickleLoader( vectorizer_filename ),
-        PickleLoader( corpus_repr_filename ),
-        PickleLoader( index_filename ),
-        Dataset()
-    )
+    option = None
+    if len( sys.argv ) >= 2:
+        option = sys.argv[ 1 ]
 
     query = "Available literature about databases (both SQL and NoSQL), especially somehow relevant to semantics?"
-    results = documentFinder.find( query )
+    if len( sys.argv ) >= 3:
+        query = sys.argv[ 2 ]
+
+    results = None
+
+    match option:
+
+        case 'stemm-single-count':
+
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
+            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
+            corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
+
+            index_descr = 'title-summary_lower-punct-specials-stops-stemm_single'
+            index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
+
+            documentFinder = DocumentFinder(
+                StemmPreprocessor(), 
+                PickleLoader( vectorizer_filename ),
+                PickleLoader( corpus_repr_filename ),
+                PickleLoader( index_filename ),
+                Dataset()
+            )
+
+            results = documentFinder.find( query )
+
+        case 'lemm-single-tfidf':
+
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
+            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
+            corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
+
+            index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
+            index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
+
+            documentFinder = DocumentFinder(
+                LemmPreprocessor(), 
+                PickleLoader( vectorizer_filename ),
+                PickleLoader( corpus_repr_filename ),
+                PickleLoader( index_filename ),
+                Dataset()
+            )
+
+            results = documentFinder.find( query )
+
+        case _:
+            raise Exception( 'No valid parameters passed.' )
+
 
     if not results:
         print( 'No results found' )

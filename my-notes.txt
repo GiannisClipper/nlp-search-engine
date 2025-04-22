@@ -35,6 +35,7 @@ Stemming and Lemmatization in Python
 https://www.datacamp.com/tutorial/stemming-lemmatization-python
 
 
+
 +------+
 | BEIR |
 +------+
@@ -97,6 +98,7 @@ https://info.arxiv.org/help/api/user-manual.html
 
 How to Parse XML in Python
 https://scrapingant.com/blog/python-parse-xml
+
 
 
 +-------+
