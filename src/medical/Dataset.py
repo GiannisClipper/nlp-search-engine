@@ -9,7 +9,7 @@ class Dataset:
 
     def __init__( self ):
 
-        self._records = {}
+        self._records = []
         # check if the dataset exists
         if not os.path.exists( medicalSettings.dataset_filename ):
             raise Exception( f'{medicalSettings.dataset_filename} not exists.' )
@@ -30,15 +30,17 @@ class Dataset:
                 }
 
                 # to include only the documents matching to ids (as proposed in course's examples)
-                if record[ 'id' ] in ids: 
-                    self._records[ record[ 'id' ] ] = record
+                if record[ 'id' ] in ids:
+                    self._records.append( record )
 
-    def toDict( self ):
+    def toDict( self ) -> dict:
+        return { r['id']: r for r in self._records }
+
+    def toList( self ) -> list[dict]:
         return self._records
 
-    def toList( self ):
-        return [ x for x in self._records.values() ]
-
+    def toListTitlesAbstracts( self ) -> list[str]:
+        return [ r[ 'title' ] + '-' + r[ 'abstract' ] for r in self._records ]
 
 if __name__ == "__main__":
     ds = Dataset()

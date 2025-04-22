@@ -10,7 +10,7 @@ class Dataset:
 
     def __init__( self ):
 
-        self._records = {}
+        self._records = []
         # check if the dataset exists
         if not os.path.exists( arxivSettings.dataset_filename ):
             raise Exception( f'{arxivSettings.dataset_filename} not exists.' )
@@ -19,13 +19,16 @@ class Dataset:
         with open( arxivSettings.dataset_filename, 'r', encoding='utf-8' ) as f:
             for line in f:
                 record = dict( json.loads( line ) )
-                self._records[ record[ 'id' ] ] = record
+                self._records.append( record )
 
-    def toDict( self ):
+    def toDict( self ) -> dict:
+        return { r['id']: r for r in self._records }
+
+    def toList( self ) -> list[dict]:
         return self._records
-
-    def toList( self ):
-        return [ x for x in self._records.values() ]
+    
+    def toListTitlesSummaries( self ) -> list[str]:
+        return [ r[ 'title' ] + '-' + r[ 'summary' ] for r in self._records ]
 
     def analyze( self ):
 
@@ -50,7 +53,7 @@ class Dataset:
         # print results
         print( "Total records:", len( records ) )
         print( "Records per category:", catg_ids )
-        print( "Total categories:", sum( catg_ids.values() ) )
+        print( "Total (per category):", sum( catg_ids.values() ) )
         print( "Summary lengths:", summary_lengths )
 
         # to check records encountered in many categories
