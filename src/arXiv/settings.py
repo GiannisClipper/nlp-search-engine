@@ -8,6 +8,7 @@ dataset_filename = f'{file_path}/datasets/dataset.jsonl'
 pickle_paths = {
     'preprocessors': f'{file_path}/pickles/preprocessors',
     'vocabularies': f'{file_path}/pickles/vocabularies',
+    'indexes': f'{file_path}/pickles/indexes',
     'vectorizers': f'{file_path}/pickles/vectorizers',
     'corpus_repr': f'{file_path}/pickles/corpus_repr',
 }
