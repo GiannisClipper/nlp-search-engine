@@ -1,5 +1,4 @@
 import pickle
-import time
 import random
 import math
 
@@ -17,7 +16,7 @@ from .helpers.computators import compute_similarities0, compute_similarities1
 
 print( f'\nLoading corpus...' )
 ds = Dataset()
-corpus = ds.toDictList()
+corpus = ds.toList()
 
 # +-------------------+
 # | Init preprocessor |
@@ -89,7 +88,7 @@ query_repr = vectorizer.transform( query_preprocessed )
 
 @with_time_counter
 def compute_similarities( message=None, *args, **kwargs ):
-    similarities = compute_similarities1( query_repr, corpus_repr )
+    similarities = compute_similarities0( query_repr, corpus_repr )
 
     similarities = [ ( x[0][ 'id' ], x[0][ 'catg_ids' ], x[1] ) for x in zip( corpus, similarities ) ]
     similarities.sort( key=lambda x: x[2], reverse=True )

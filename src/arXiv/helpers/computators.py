@@ -16,9 +16,12 @@ def compute_similarities1( single_repr, corpus_repr ):
 
     similarities = []
 
-    # keep in dict only pos with non zero values
     single_repr = single_repr.toarray() # to convert Compressed Sparse Row matrix 
     print(single_repr.shape, single_repr)
+    corpus_repr = corpus_repr.toarray() # to convert Compressed Sparse Row matrix 
+    print(corpus_repr.shape, corpus_repr[0])
+
+    # keep in dict only pos with non zero values
     single_repr_d = dict( [ ( i, r ) for i, r in enumerate( single_repr[ 0 ] ) if r != 0 ] )
     for i in range( corpus_repr.shape[ 0 ] ):
 

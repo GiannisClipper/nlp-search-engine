@@ -88,7 +88,7 @@ if __name__ == "__main__":
     vocabulary_descr = 'title-summary_lower-punct-specials-stops-stemm_single'
     vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl"
 
-    index_descr = 'title-summary_lower-punct-specials-stops-stemm_index'
+    index_descr = 'title-summary_lower-punct-specials-stops-stemm_single_index'
     index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
 
     indexMaker = IndexMaker(
@@ -98,4 +98,5 @@ if __name__ == "__main__":
     )
 
     index = indexMaker.make()
+    print()
     PickleSaver( index_filename ).save( index )
