@@ -7,7 +7,6 @@ from nltk.tokenize import word_tokenize
 
 import pytrie
 
-from .CorpusLoader import CorpusLoader, TitleSummaryCorpusLoader
 from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 
 from .helpers.decorators import with_time_counter
@@ -18,11 +17,11 @@ class AbstractIndexMaker( ABC ):
 
     def __init__( 
         self, 
-        corpusLoader:CorpusLoader, 
+        corpus:list[str], 
         preprocessor:Preprocessor, 
         vocabularyLoader:PickleLoader
     ):
-        self._corpusLoader = corpusLoader
+        self._corpus = corpus
         self._preprocessor = preprocessor
         self._vocabularyLoader = vocabularyLoader
 
@@ -38,8 +37,7 @@ class IndexMaker( AbstractIndexMaker ):
 
     def make( self ):
         print( f'\nPreprocessing...' )
-        corpus = self._corpusLoader.load()
-        corpus = self._preprocessor.transform( corpus )
+        corpus = self._preprocessor.transform( self._corpus )
         vocabulary = self._vocabularyLoader.load()
 
         @with_time_counter
@@ -78,10 +76,26 @@ class IndexMaker( AbstractIndexMaker ):
         return create_index( '\nCreating index...', corpus=corpus, vocabulary=vocabulary )
 
 
-# RUN: python -m arXiv.IndexMaker
-if __name__ == "__main__": 
+def make_and_save( 
+    pickle_paths:dict,
+    vocabulary_descr:str, 
+    corpus:list[str], 
+    PreprocessorClass, 
+):
+    vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl"
+    indexMaker = IndexMaker(
+        corpus,
+        PreprocessorClass(),
+        PickleLoader( vocabulary_filename )
+    )
+    index = indexMaker.make()
 
-    from .arXiv.settings import pickle_paths
+    index_filename = f"{pickle_paths[ 'indexes' ]}/{vocabulary_descr}.pkl"
+    PickleSaver( index_filename ).save( index )
+
+
+# RUN: python -m arXiv.IndexMaker [option]
+if __name__ == "__main__": 
 
     option = None
     if len( sys.argv ) > 1:
@@ -89,33 +103,35 @@ if __name__ == "__main__":
 
     match option:
 
-        case 'stemm-single':
-
-            vocabulary_descr = 'title-summary_lower-punct-specials-stops-stemm_single'
-            vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl"
-            indexMaker = IndexMaker(
-                TitleSummaryCorpusLoader(),
-                StemmPreprocessor(),
-                PickleLoader( vocabulary_filename )
+        case 'arxiv-stemm-single':
+            from .arXiv.Dataset import Dataset
+            from .arXiv.settings import pickle_paths
+            make_and_save(
+                pickle_paths,
+                vocabulary_descr='title-summary_lower-punct-specials-stops-stemm_single',
+                corpus=Dataset().toListTitlesSummaries(),
+                PreprocessorClass=StemmPreprocessor
             )
-            index = indexMaker.make()
 
-            index_filename = f"{pickle_paths[ 'indexes' ]}/{vocabulary_descr}.pkl"
-            PickleSaver( index_filename ).save( index )
-
-        case 'lemm-single':
-
-            vocabulary_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
-            vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl"
-            indexMaker = IndexMaker(
-                TitleSummaryCorpusLoader(),
-                LemmPreprocessor(),
-                PickleLoader( vocabulary_filename )
+        case 'arxiv-lemm-single':
+            from .arXiv.Dataset import Dataset
+            from .arXiv.settings import pickle_paths
+            make_and_save(
+                pickle_paths,
+                vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_single',
+                corpus=Dataset().toListTitlesSummaries(),
+                PreprocessorClass=LemmPreprocessor
             )
-            index = indexMaker.make()
 
-            index_filename = f"{pickle_paths[ 'indexes' ]}/{vocabulary_descr}.pkl"
-            PickleSaver( index_filename ).save( index )
+        case 'medical-lemm-single':
+            from .medical.Dataset import Dataset
+            from .medical.settings import pickle_paths
+            make_and_save(
+                pickle_paths,
+                vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_single',
+                corpus=Dataset().toListTitlesAbstracts(),
+                PreprocessorClass=LemmPreprocessor
+            )
 
         case _:
             raise Exception( 'No valid parameters passed.' )
