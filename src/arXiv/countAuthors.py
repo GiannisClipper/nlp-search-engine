@@ -1,9 +1,9 @@
 
-from Dataset import Dataset
+from .Dataset import Dataset
 
 print( f'Load corpus...' )
 ds = Dataset()
-records = ds.toDictList()
+records = ds.toList()
 authors = []
 for i in range( len( records ) ):
     authors += records[ i ][ 'authors' ]

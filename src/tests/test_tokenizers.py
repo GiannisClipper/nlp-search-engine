@@ -8,7 +8,7 @@ from arXiv.Tokenizer import SingleTokenizer, TwogrammTokenizer
 
 print( f'Load corpus...' )
 ds = Dataset()
-records = ds.toDictList()
+records = ds.toList()
 corpus = []
 for i in range( len( records ) ):
     corpus.append( records[ i ][ 'title' ] + '-' + records[ i ][ 'summary' ] )

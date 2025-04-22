@@ -21,7 +21,7 @@ class TitleSummaryCorpusLoader( CorpusLoader ):
 
     def load( self ) -> list[str]:
         ds = Dataset()
-        records = ds.toDictList()
+        records = ds.toList()
         corpus = []
         for i in range( len( records ) ):
             corpus.append( records[ i ][ 'title' ] + '-' + records[ i ][ 'summary' ] )

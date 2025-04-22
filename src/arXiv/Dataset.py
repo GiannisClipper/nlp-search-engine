@@ -22,7 +22,7 @@ class Dataset:
     def toDict( self ):
         return self._records
 
-    def toDictList( self ):
+    def toList( self ):
         return [ x for x in self._records.values() ]
 
     def analyze( self ):
@@ -34,7 +34,7 @@ class Dataset:
         summary_lengths = { 'le128': 0, 'le256': 0, 'le512': 0, 'gt512': 0 }
 
         # analyze the records
-        records = self.toDictList()
+        records = self.toList()
         for record in records:
             for catg_id in record[ 'catg_ids' ]:
                 catg_ids[ catg_id ] += 1
