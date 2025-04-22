@@ -15,8 +15,6 @@ from .helpers.computators import compute_similarities0, compute_similarities1
 from .helpers.Pickle import PickleLoader
 
 
-
-
 class AbstractDocumentFinder( ABC ):
 
     def __init__( 
@@ -25,13 +23,13 @@ class AbstractDocumentFinder( ABC ):
         vectorizerLoader:PickleLoader,
         corpusReprLoader:PickleLoader,
         indexLoader:PickleLoader,
-        dataset:object
+        corpus:list[dict],
     ):
         self._preprocessor = preprocessor
         self._vectorizer = vectorizerLoader.load()
         self._corpus_repr = corpusReprLoader.load()
         self._index = indexLoader.load()
-        self._corpus = dataset.toList()
+        self._corpus = corpus
 
     @abstractmethod
     def find( self, query:str ):
@@ -91,22 +89,56 @@ class DocumentFinder( AbstractDocumentFinder ):
             filtered_corpus_repr.reshape( len( doc_weights ), -1 )
 
             similarities = compute_similarities0( query_repr, filtered_corpus_repr )
-
             results = []
             # for key, similarity in zip( filtered_keys, similarities ):
             for ( key, weight ), similarity in zip( doc_weights, similarities ):
-                results.append( (
-                    self._corpus[ key ][ 'id' ],
-                    self._corpus[ key ][ 'catg_ids' ],
-                    similarity
-                ) )
-            
-            results.sort( key=lambda x: x[2], reverse=True )
+                results.append( ( self._corpus[ key ], round( float( similarity ), 4 ) ) )
+                    
+            results.sort( key=lambda x: x[1], reverse=True )
             return results
 
         return compute_similarities( 'Computing similarities...' )
 
-# RUN: python -m src.DocumentFinder [parameters] [query]
+
+def find_and_show( 
+    pickle_paths:dict,
+    vectorizer_descr:str,
+    index_descr:str,
+    PreprocessorClass, 
+    corpus:list[dict], 
+):
+    vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
+    corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
+    index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
+
+    documentFinder = DocumentFinder(
+        preprocessor=StemmPreprocessor(), 
+        vectorizerLoader=PickleLoader( vectorizer_filename ),
+        corpusReprLoader=PickleLoader( corpus_repr_filename ),
+        indexLoader=PickleLoader( index_filename ),
+        corpus=corpus
+    )
+
+    results = documentFinder.find( query )
+
+    if not results:
+        print( 'No results found' )
+
+    else:
+        cleaned_results = []
+        for result in results:
+            if 'catg_ids' in result[ 0 ]:
+                cleaned_results.append( ( result[0][ 'id' ], result[0][ 'catg_ids' ], result[1] ) )
+            else:
+                cleaned_results.append( ( result[0][ 'id' ], result[0][ 'url' ], result[1] ) )
+
+        limit = 20 if len( cleaned_results ) > 20 else len( cleaned_results )
+        print()
+        for i in range( limit ):
+            print( cleaned_results[ i ] )
+
+
+# RUN: python -m src.DocumentFinder [option]
 if __name__ == "__main__": 
 
     from .arXiv.Dataset import Dataset
@@ -116,7 +148,7 @@ if __name__ == "__main__":
     if len( sys.argv ) >= 2:
         option = sys.argv[ 1 ]
 
-    query = "Available literature about databases (both SQL and NoSQL), especially somehow relevant to semantics?"
+    query = "Is there any available literature about databases (both SQL and NoSQL), especially somehow relevant to semantics?"
     if len( sys.argv ) >= 3:
         query = sys.argv[ 2 ]
 
@@ -124,53 +156,39 @@ if __name__ == "__main__":
 
     match option:
 
-        case 'stemm-single-count':
-
-            vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
-            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
-            corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
-
-            index_descr = 'title-summary_lower-punct-specials-stops-stemm_single'
-            index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-
-            documentFinder = DocumentFinder(
-                StemmPreprocessor(), 
-                PickleLoader( vectorizer_filename ),
-                PickleLoader( corpus_repr_filename ),
-                PickleLoader( index_filename ),
-                Dataset()
+        case 'arxiv-stemm-single-count':
+            from .arXiv.Dataset import Dataset
+            from .arXiv.settings import pickle_paths
+            find_and_show(
+                pickle_paths,
+                vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count',
+                index_descr = 'title-summary_lower-punct-specials-stops-stemm_single',
+                PreprocessorClass=StemmPreprocessor,
+                corpus=Dataset().toList()
             )
 
-            results = documentFinder.find( query )
-
-        case 'lemm-single-tfidf':
-
-            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
-            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
-            corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
-
-            index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
-            index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-
-            documentFinder = DocumentFinder(
-                LemmPreprocessor(), 
-                PickleLoader( vectorizer_filename ),
-                PickleLoader( corpus_repr_filename ),
-                PickleLoader( index_filename ),
-                Dataset()
+        case 'arxiv-lemm-single-tfidf':
+            from .arXiv.Dataset import Dataset
+            from .arXiv.settings import pickle_paths
+            find_and_show(
+                pickle_paths,
+                vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf',
+                index_descr = 'title-summary_lower-punct-specials-stops-lemm_single',
+                PreprocessorClass=LemmPreprocessor,
+                corpus=Dataset().toList()
             )
 
-            results = documentFinder.find( query )
+        case 'medical-lemm-single-tfidf':
+            from .medical.Dataset import Dataset
+            from .medical.settings import pickle_paths
+            find_and_show(
+                pickle_paths,
+                vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf',
+                index_descr = 'title-summary_lower-punct-specials-stops-lemm_single',
+                PreprocessorClass=LemmPreprocessor,
+                corpus=Dataset().toList()
+            )
 
         case _:
-            raise Exception( 'No valid parameters passed.' )
+            raise Exception( 'No valid option.' )
 
-
-    if not results:
-        print( 'No results found' )
-
-    else:
-        limit = 20 if len( results ) > 20 else len( results )
-        print()
-        for i in range( limit ):
-            print( results[ i ] )
