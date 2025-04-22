@@ -1,7 +1,7 @@
 import sys
 from abc import ABC, abstractmethod
 
-from .CorpusLoader import CorpusLoader, TitleSummaryCorpusLoader
+from .arXiv.CorpusLoader import CorpusLoader
 from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 
 from .TokenMaker import TokenMaker, SingleTokenMaker
@@ -42,39 +42,75 @@ class VocabularyMaker:
 # RUN: python -m src.VocabularyMaker [parameter]
 if __name__ == "__main__": 
 
-    from .arXiv.settings import pickle_paths
+    dataset_option = None
+    if len( sys.argv ) >= 2:
+        dataset_option = sys.argv[ 1 ]
 
     option = None
-    if len( sys.argv ) > 1:
-        option = sys.argv[ 1 ]
+    if len( sys.argv ) >= 3:
+        option = sys.argv[ 2 ]
 
-    match option:
+    match dataset_option:
 
-        case 'stemm-single':
+        case 'arxiv':
 
-            vocabularyMaker = VocabularyMaker(
-                TitleSummaryCorpusLoader(),
-                StemmPreprocessor(),
-                SingleTokenMaker()
-            )
-            vocabulary = vocabularyMaker.make()
+            from .arXiv.settings import pickle_paths
+            from .arXiv.CorpusLoader import TitleSummaryCorpusLoader
 
-            vocabulary_decsr = 'title-summary_lower-punct-specials-stops-stemm_single'
-            vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_decsr}.pkl"
-            PickleSaver( vocabulary_filename ).save( vocabulary )
+            match option:
 
-        case 'lemm-single':
+                case 'stemm-single':
 
-            vocabularyMaker = VocabularyMaker(
-                TitleSummaryCorpusLoader(),
-                LemmPreprocessor(),
-                SingleTokenMaker()
-            )
-            vocabulary = vocabularyMaker.make()
+                    vocabularyMaker = VocabularyMaker(
+                        TitleSummaryCorpusLoader(),
+                        StemmPreprocessor(),
+                        SingleTokenMaker()
+                    )
+                    vocabulary = vocabularyMaker.make()
 
-            vocabulary_decsr = 'title-summary_lower-punct-specials-stops-lemm_single'
-            vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_decsr}.pkl"
-            PickleSaver( vocabulary_filename ).save( vocabulary )
+                    vocabulary_decsr = 'title-summary_lower-punct-specials-stops-stemm_single'
+                    vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_decsr}.pkl"
+                    PickleSaver( vocabulary_filename ).save( vocabulary )
+
+                case 'lemm-single':
+
+                    vocabularyMaker = VocabularyMaker(
+                        TitleSummaryCorpusLoader(),
+                        LemmPreprocessor(),
+                        SingleTokenMaker()
+                    )
+                    vocabulary = vocabularyMaker.make()
+
+                    vocabulary_decsr = 'title-summary_lower-punct-specials-stops-lemm_single'
+                    vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_decsr}.pkl"
+                    PickleSaver( vocabulary_filename ).save( vocabulary )
+
+                case _:
+                    raise Exception( 'No valid option.' )
+                
+        case 'medical':
+
+            from .medical.settings import pickle_paths
+            from .medical.CorpusLoader import TitleAbstractCorpusLoader
+
+            match option:
+
+                case 'lemm-single':
+
+                    vocabularyMaker = VocabularyMaker(
+                        TitleAbstractCorpusLoader(),
+                        LemmPreprocessor(),
+                        SingleTokenMaker()
+                    )
+                    vocabulary = vocabularyMaker.make()
+
+                    vocabulary_decsr = 'title-summary_lower-punct-specials-stops-lemm_single'
+                    vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_decsr}.pkl"
+                    PickleSaver( vocabulary_filename ).save( vocabulary )
+
+                case _:
+                    raise Exception( 'No valid option.' )
 
         case _:
-            raise Exception( 'No valid parameters passed.' )
+            raise Exception( 'No valid dataset option.' )
+

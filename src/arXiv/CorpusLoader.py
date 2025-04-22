@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from .arXiv.Dataset import Dataset as ArxivDataset
+from .Dataset import Dataset as ArxivDataset
 
 # abstract class 
 class CorpusLoader( ABC ):
