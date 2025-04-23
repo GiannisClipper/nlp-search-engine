@@ -134,4 +134,4 @@ if __name__ == "__main__":
             )
 
         case _:
-            raise Exception( 'No valid parameters passed.' )
+            raise Exception( 'No valid option.' )
