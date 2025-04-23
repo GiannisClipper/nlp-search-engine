@@ -14,7 +14,7 @@ from .helpers.computators import compute_similarities0, compute_similarities1
 from .helpers.Pickle import PickleLoader
 
 
-class AbstractDocumentFinder( ABC ):
+class AbstractDocFinder( ABC ):
 
     def __init__( 
         self,
@@ -38,7 +38,7 @@ class AbstractDocumentFinder( ABC ):
         return self.__class__
 
 
-class DocumentFinder( AbstractDocumentFinder ):
+class DocFinder( AbstractDocFinder ):
 
     def find( self, query:str ):
 
@@ -56,17 +56,24 @@ class DocumentFinder( AbstractDocumentFinder ):
 
             # select through index some documents to compare
             doc_selection = self._docSelector.select( query_terms )
+            if len( doc_selection ) == 0:
+                return []
 
+            # get the corresponding corpus representations
             filtered_corpus_repr = np.array( [ self._corpus_repr[ key ] for key in doc_selection ] )
             filtered_corpus_repr.reshape( len( doc_selection ), -1 )
 
+            # compute the similarities
             similarities = compute_similarities0( query_repr, filtered_corpus_repr )
+
+            # put together document ids and similarities
             results = []
-            # for key, similarity in zip( filtered_keys, similarities ):
             for key, similarity in zip( doc_selection, similarities ):
                 results.append( ( self._corpus[ key ], round( float( similarity ), 4 ) ) ) # type: ignore
-                    
+
+            # greater similarities at the top
             results.sort( key=lambda x: x[1], reverse=True )
+
             return results
 
         return compute_similarities( 'Computing similarities...' )
@@ -85,7 +92,7 @@ def find_and_show(
     index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
     index = PickleLoader( index_filename ).load()
 
-    documentFinder = DocumentFinder(
+    docFinder = DocFinder(
         preprocessor=PreprocessorClass(), 
         vectorizerLoader=PickleLoader( vectorizer_filename ),
         corpusReprLoader=PickleLoader( corpus_repr_filename ),
@@ -93,7 +100,7 @@ def find_and_show(
         docSelector=DocSelectorClass( corpus, index )
     )
 
-    results = documentFinder.find( query )
+    results = docFinder.find( query )
 
     if not results:
         print( 'No results found' )
