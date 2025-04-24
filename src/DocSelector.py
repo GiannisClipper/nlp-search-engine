@@ -12,7 +12,7 @@ class AbstractDocSelector( ABC ):
         self._index = index
 
     @abstractmethod
-    def select( self, terms:list[str]|tuple[str,...] )->list[str]:
+    def select( self, terms:list[str]|tuple[str,...] ) -> list[str]:
         pass
 
     def __str__( self ):
@@ -43,7 +43,7 @@ class HalfTermsDocSelector( AbstractDocSelector ):
 
 class TermsWeightDocSelector( AbstractDocSelector ):
 
-    def select( self, terms:list[str]|tuple[str,...] )->list[str]:
+    def select( self, terms:list[str]|tuple[str,...] ) -> list[str]:
 
         term_weights = {}
         doc_stats = {}
@@ -55,7 +55,7 @@ class TermsWeightDocSelector( AbstractDocSelector ):
                 # compute a term weight like idf (+1 to avoid zero division)
                 term_weights[ term ] = math.log10( len( self._corpus ) / ( 1 + len( self._index[ term ].keys() ) ) )
 
-                # iterate all docs the term is ocuured within
+                # iterate all docs the term is ocurred within
                 for key in self._index[ term ].keys():
                     if key not in doc_stats:
                         doc_stats[ key ] = 0
@@ -71,10 +71,10 @@ class TermsWeightDocSelector( AbstractDocSelector ):
 
 class DocSelector( AbstractDocSelector ):
 
-    def select( self, terms:list[str]|tuple[str,...] )->list[str]:
+    def select( self, terms:list[str]|tuple[str,...] ) -> list[str]:
 
         result1 = HalfTermsDocSelector( self._corpus, self._index ).select( terms )
         result2 = TermsWeightDocSelector( self._corpus, self._index ).select( terms )
-
+        # print( 'result1:', result1, 'result2:', result2 )
         return list( set( result1 + result2 ) )
 

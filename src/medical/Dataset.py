@@ -150,7 +150,7 @@ class ResultMetrics:
 
     def show( self ):
 
-        print( '    ID        TP       FT       FN      PREC    RECALL     F1   ' )
+        print( '    ID        TP       FP       FN      PREC    RECALL     F1   ' )
         print( '---------- -------- -------- -------- -------- -------- --------' )
 
         for id, tp, fp, fn, precision, recall, f1 in zip( self._ids, self._tp, self._fp, self._fn, self._precision, self._recall, self._f1 ):

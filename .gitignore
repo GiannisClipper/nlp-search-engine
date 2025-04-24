@@ -2,3 +2,4 @@ __pycache__/
 appvenv/
 local/
 pickles/
+pretrained_models/

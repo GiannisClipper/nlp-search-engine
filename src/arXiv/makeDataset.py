@@ -2,8 +2,8 @@ import os
 import json
 import xml.etree.ElementTree as ET
 
-import settings
-from Categories import Categories
+from . import settings
+from .Categories import Categories
 
 # check if the dataset already exists
 if os.path.exists( settings.dataset_filename ):

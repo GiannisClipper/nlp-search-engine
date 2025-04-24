@@ -77,6 +77,17 @@ class Preprocessor:
         return ', '.join( [ str( t ) for t in self._transformations ] )
 
 
+class NaivePreprocessor( Preprocessor ):
+
+    def __init__( self ):
+        super().__init__( [
+            LowerConverter(), 
+            PunctRemover(), 
+            SpecialsRemover(),
+            StopwordsRemover(), 
+        ] )
+
+
 class StemmPreprocessor( Preprocessor ):
 
     def __init__( self ):
