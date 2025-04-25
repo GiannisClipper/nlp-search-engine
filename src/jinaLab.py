@@ -24,12 +24,23 @@ def load_pretrained_model():
 
     @with_time_counter
     def load( message=None, *args, **kwargs ):
-        print( 'Loading model...' )
         model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
         model.max_seq_length = 1024 # control your input sequence length up to 8192
         return model
 
     print( 'Loading jina-embeddings model...' )
+    return load()
+
+def load_sentence_embeddings():
+
+    @with_time_counter
+    def load( message=None, *args, **kwargs ):
+        vectorizer_descr = 'jina-embeddings-sentences'
+        filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
+        embeddings = PickleLoader( filename ).load()
+        return embeddings
+
+    print( 'Loading sentence embeddings...' )
     return load()
 
 def make_vectorizers():
@@ -115,6 +126,7 @@ def ask_queries():
     print( 'ASK QUERIES' )
 
     model = load_pretrained_model()
+    embeddings = load_sentence_embeddings()
 
     # init sentences
     # --------------
@@ -123,89 +135,97 @@ def ask_queries():
     # REMARK: Same results either using origin dentences or preprocessed
     # it was checked against the 1st and 3rd queries.    
 
-    queries = Queries().toList()[2:3]
+    queries = Queries().toList()[:10]
     results= []
     for q in queries:
 
-        # prepare query
-        # ------------- 
-        print( q ) 
-        query_preprocessed = LemmPreprocessor().transform( [ q[ 'query' ] ] )[ 0 ]
-        query_terms = tuple( word_tokenize( query_preprocessed ) )
+        @with_time_counter
+        def ask( message=None, *args, **kwargs ):
 
-        # query_repr = model.encode( [ q[ 'query' ] ] )
-        query_repr = model.encode( [ query_preprocessed ] )
-        # REMARK: Same results either using origin dentences or preprocessed
-        # it was checked against the 1st and 3rd queries.    
+            # prepare query
+            # ------------- 
+            query_preprocessed = LemmPreprocessor().transform( [ q[ 'query' ] ] )[ 0 ]
+            query_terms = tuple( word_tokenize( query_preprocessed ) )
 
-        # select docs
-        # ----------- 
-        corpus = Dataset().toList()
-        index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
-        index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-        index = PickleLoader( index_filename ).load()
-        doc_selection = DocSelector( corpus, index ).select( query_terms )
-        print( 'Selected docs:', len( doc_selection ), doc_selection )
+            # query_repr = model.encode( [ q[ 'query' ] ] )
+            query_repr = model.encode( [ query_preprocessed ] )
+            # REMARK: Same results either using origin dentences or preprocessed
+            # it was checked against the 1st and 3rd queries.    
 
-        #-------------------------------------------------------------
-        # CHECK HOW MANY SELECTED DOCS MATCH TO QUERY RESULTS
-        #-------------------------------------------------------------
-        y = set( QueriesResults().toDict()[ q[ 'id' ] ] )
-        y_hat = set( [ corpus[int(i)]['id'] for i in doc_selection ] )
-        tp = len( y & y_hat )  # intersection of correct and retrieved
-        fp = len( y_hat - y )  # retrieved but not correct
-        fn = len( y - y_hat )  # correct but not retrieved
-        print( f'tp:{tp}, fp:{fp}, fn:{fn}')
-        # print( 'y:', y )
-        # print( 'y_hat:', y_hat )
-        # exit()
-        #-------------------------------------------------------------
+            # select docs
+            # ----------- 
+            corpus = Dataset().toList()
+            index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
+            index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
+            index = PickleLoader( index_filename ).load()
+            doc_selection = DocSelector( corpus, index ).select( query_terms )
+            # print( 'Selected docs:', len( doc_selection ), doc_selection )
 
-        if len( doc_selection ) == 0:
-            results.append( [] )
-            continue
+            #-------------------------------------------------------------
+            # CHECK HOW MANY SELECTED DOCS MATCH TO QUERY RESULTS
+            #-------------------------------------------------------------
+            y = set( QueriesResults().toDict()[ q[ 'id' ] ] )
+            y_hat = set( [ corpus[int(i)]['id'] for i in doc_selection ] )
+            tp = len( y & y_hat )  # intersection of correct and retrieved
+            fp = len( y_hat - y )  # retrieved but not correct
+            fn = len( y - y_hat )  # correct but not retrieved
+            print( f'selected:{len(y_hat)}, tp:{tp}, fp:{fp}, fn:{fn}')
+            # print( 'y:', y )
+            # print( 'y_hat:', y_hat )
+            # exit()
+            #-------------------------------------------------------------
 
-        # get sentences' embeddings
-        # -------------------------
-        filtered_repr = []
-        filtered_tags = []
-        for i in doc_selection:
-            doc_sentences = [ s for s, t in zip( sentences, tags ) if t.split('.')[0] == str( i ) ]
-            print( f'Doc:{i}, Sentences:{len(doc_sentences)}' )
-            for j, sentence in enumerate( doc_sentences ):
-                filtered_repr.append( model.encode( [ sentence ] )[0] )
-                filtered_tags.append( f'{i}.{j}' )
-        filtered_repr = np.array( filtered_repr )
+            if len( doc_selection ) == 0:
+                # results.append( [] )
+                return []
 
-        # compute similarities
-        # --------------------
-        similarities = compute_similarities0( np.array( query_repr ), filtered_repr )
+            # get sentences' embeddings
+            # -------------------------
+            filtered_repr = []
+            filtered_tags = []
+            for idoc in doc_selection:
+                doc_sentences = [ isent for isent, tag in zip( range( len( sentences ) ), tags ) if tag.split('.')[0] == str( idoc ) ]
+                # print( f'Doc:{idoc}, Sentences:{len(doc_sentences)}' )
+                for j, isent in enumerate( doc_sentences ):
+                    filtered_repr.append( embeddings[ isent ] )
+                    filtered_tags.append( f'{idoc}.{j}' )
+            filtered_repr = np.array( filtered_repr )
 
-        # aggregate similarities (per document)
-        # -------------------------------------
-        similarities = compute_similarities0( np.array( query_repr ), filtered_repr )
-        doc_result = {}
-        for tag, similarity in zip( filtered_tags, similarities ):
-            i = int( tag.split('.')[0] )
-            if not i in doc_result:
-                doc_result[ i ] = similarity
-            elif doc_result[ i ] < similarity:
-                doc_result[ i ] = similarity
+            # compute similarities
+            # --------------------
+            similarities = compute_similarities0( np.array( query_repr ), filtered_repr )
 
-        # put together documents and similarities
-        # ---------------------------------------
-        result = []
-        for i, similarity in doc_result.items():
-            result.append( ( corpus[ i ], round( float( similarity ), 4 ) ) ) # type: ignore
+            # aggregate similarities (per document)
+            # -------------------------------------
+            similarities = compute_similarities0( np.array( query_repr ), filtered_repr )
+            doc_result = {}
+            for tag, similarity in zip( filtered_tags, similarities ):
+                i = int( tag.split('.')[0] )
+                if not i in doc_result:
+                    doc_result[ i ] = similarity
+                elif doc_result[ i ] < similarity:
+                    doc_result[ i ] = similarity
 
-        # greater similarities at the top
-        result.sort( key=lambda x: x[1], reverse=True )
+            # put together documents and similarities
+            # ---------------------------------------
+            result = []
+            for i, similarity in doc_result.items():
+                result.append( ( corpus[ i ], round( float( similarity ), 4 ) ) )
 
-        result = [ ( r[0]['id'], r[1] ) for r in result ]
-        result = result[:10]
-        # print( result )
+            # greater similarities at the top
+            result.sort( key=lambda x: x[1], reverse=True )
 
-        result = [ r[0] for r in result ]
+            result = [ ( r[0]['id'], r[1] ) for r in result ]
+            result = result[:10]
+            # print( result )
+
+            result = [ r[0] for r in result ]
+            return result
+        
+        print( 'QUERY:', q ) 
+        result = ask()
+        # if result is None:
+        #     continue
         results.append( result )
 
     # compute and show metrics
@@ -215,18 +235,6 @@ def ask_queries():
     resultMetrics.compute( queries, results )
     resultMetrics.show()
 
-# print( 'Carrying out the comparisons...' )
-# embeddings = model.encode( [
-#     'How is the weather today?',
-#     'What is the current weather like today?',
-#     'Do you prefer SQL or NoSQL databases?',
-#     'There are many options to store your data, like datasets, databases, common files etc.',
-#     'The weather is a bit cloudy today.',
-#     'Nevertheless the weather, we do not work today!'
-# ] )
-
-# for i in range( 1, len( embeddings ) ):
-#     print( i, cos_sim(embeddings[0], embeddings[i]) )
 
 if __name__ == "__main__":
 

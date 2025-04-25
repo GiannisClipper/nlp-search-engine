@@ -148,6 +148,7 @@ class ResultMetrics:
         self._precision = []
         self._recall = []
         self._f1 = []
+        self._remarks = []
 
         for q, r in zip( queries, results ):
             tp, fp, fn, precision, recall, f1 = self._computeOne( q, r )
@@ -158,14 +159,15 @@ class ResultMetrics:
             self._precision.append( precision )
             self._recall.append( recall )
             self._f1.append( f1 )
+            self._remarks.append( q[ 'query' ] )
 
     def show( self ):
 
         print( '    ID        TP       FP       FN      PREC    RECALL     F1   ' )
         print( '---------- -------- -------- -------- -------- -------- --------' )
 
-        for id, tp, fp, fn, precision, recall, f1 in zip( self._ids, self._tp, self._fp, self._fn, self._precision, self._recall, self._f1 ):
-            print( f"{id:<10} {tp:8d} {fp:8d} {fn:8d} {precision:8.4f} {recall:8.4f} {f1:8.4f}" )
+        for id, tp, fp, fn, precision, recall, f1, remarks in zip( self._ids, self._tp, self._fp, self._fn, self._precision, self._recall, self._f1, self._remarks ):
+            print( f"{id:<10} {tp:8d} {fp:8d} {fn:8d} {precision:8.4f} {recall:8.4f} {f1:8.4f} {remarks}" )
 
         if len( self._ids ) > 1:
             print( '---------- -------- -------- -------- -------- -------- --------' )
