@@ -1,8 +1,9 @@
 import sys
 from abc import ABC, abstractmethod
 from statistics import mean
-
 import os
+
+from nltk.tokenize import sent_tokenize
 
 from . import settings as medicalSettings
 
@@ -42,6 +43,16 @@ class Dataset:
 
     def toListTitlesAbstracts( self ) -> list[str]:
         return [ r[ 'title' ] + '-' + r[ 'abstract' ] for r in self._records ]
+    
+    def toSentences( self ) -> tuple[list[str],list[str]]:
+        sentences = []
+        tags = []
+        for i, doc in enumerate( self.toListTitlesAbstracts() ):
+            some_sentences = sent_tokenize( doc )
+            for j, sentence in enumerate( some_sentences ):
+                sentences.append( sentence )
+                tags.append( f'{i}.{j}' )
+        return sentences, tags
 
 
 class Queries:

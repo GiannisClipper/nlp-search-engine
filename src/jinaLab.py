@@ -7,7 +7,6 @@ from sentence_transformers import SentenceTransformer
 from sentence_transformers.util import cos_sim
 
 import nltk
-
 nltk.download( 'punkt_tab' ) # required by word_tokenize()
 from nltk.tokenize import word_tokenize, sent_tokenize
 
@@ -57,7 +56,7 @@ def make_vectorizers():
 
         vectorizer_descr = 'jina-embeddings-sentences'
         for i in range( 0, len( sentences ), 1000 ):
-            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}-{i}-{i+1000-1}.pkl"
+            vectorizer_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}-{i}-{i+1000-1}.pkl"
             if os.path.exists( vectorizer_filename ):
                 print( f'{vectorizer_filename} already exists.' )
                 continue
@@ -94,17 +93,17 @@ def merge_vectorizers():
     print( 'Reading vectorizers...' )
     vectorizer_descr = 'jina-embeddings-sentences'
     vectorizers = []
-    for i in range( 0, 2000, 1000 ):
-        filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}-{i}-{i+1000-1}.pkl"
+    for i in range( 0, counter, 1000 ):
+        filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}-{i}-{i+1000-1}.pkl"
         vectorizers.append( PickleLoader( filename ).load() )
 
     print( 'Saving...' )
-    filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
+    filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
     PickleSaver( filename ).save( np.concatenate( vectorizers ) )
 
 def read_merged():
     vectorizer_descr = 'jina-embeddings-sentences'
-    filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
+    filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
     embeddings = PickleLoader( filename ).load()
     print( type(embeddings) )
     print( embeddings.shape )
@@ -117,21 +116,12 @@ def ask_queries():
 
     model = load_pretrained_model()
 
-    # make sentences
+    # init sentences
     # --------------
-    corpus = Dataset().toListTitlesAbstracts()
-    sentences = []
-    tags = []
-    for i, doc in enumerate( corpus ):
-        some_sentences = sent_tokenize( doc )
-        for j, sentence in enumerate( some_sentences ):
-            sentences.append( sentence )
-            tags.append( f'{i}.{j}' )
-
+    sentences, tags = Dataset().toSentences()
     sentences = LemmPreprocessor().transform( sentences )
     # REMARK: Same results either using origin dentences or preprocessed
     # it was checked against the 1st and 3rd queries.    
-
 
     queries = Queries().toList()[2:3]
     results= []
