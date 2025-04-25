@@ -1,5 +1,4 @@
 import sys
-from abc import ABC, abstractmethod
 from statistics import mean
 import os
 
@@ -54,6 +53,26 @@ class Dataset:
                 tags.append( f'{i}.{j}' )
         return sentences, tags
 
+    def analyze( self ):
+
+        records = self.toList()
+
+        sentences, tags = self.toSentences()
+        lengths = {}
+        for t in tags:
+            idoc = t.split('.')[0]
+            if not idoc in lengths:
+                lengths[ idoc ] = 0
+            lengths[ idoc ] += 1
+        lengths = [ v for k, v in lengths.items() ]
+        min_sentence_length = min( lengths )
+        mean_sentence_length = sum( lengths ) / len( lengths )
+        max_sentence_length = max( lengths )
+
+        # print results
+        print( "Total records:", len( records ) )
+        print( "Total sentences:", len( sentences ) )
+        print( "Min-Mean-Max sentence length:", min_sentence_length, mean_sentence_length, max_sentence_length )
 
 class Queries:
 
@@ -185,8 +204,7 @@ if __name__ == "__main__":
 
         case 'dataset':
             ds = Dataset()
-            docs = ds.toList()
-            print( len( docs ), docs[:3] )
+            ds.analyze()
 
         case 'queries':
             qr = Queries()

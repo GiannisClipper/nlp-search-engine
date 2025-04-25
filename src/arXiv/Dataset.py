@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
-
 import os
 import json
+
+from nltk.tokenize import sent_tokenize
 
 from . import settings as arxivSettings
 from .Categories import Categories
@@ -30,6 +30,16 @@ class Dataset:
     def toListTitlesSummaries( self ) -> list[str]:
         return [ r[ 'title' ] + '-' + r[ 'summary' ] for r in self._records ]
 
+    def toSentences( self ) -> tuple[list[str],list[str]]:
+        sentences = []
+        tags = []
+        for i, doc in enumerate( self.toListTitlesSummaries() ):
+            some_sentences = sent_tokenize( doc )
+            for j, sentence in enumerate( some_sentences ):
+                sentences.append( sentence )
+                tags.append( f'{i}.{j}' )
+        return sentences, tags
+
     def analyze( self ):
 
         # to count the records per category
@@ -50,11 +60,27 @@ class Dataset:
             elif l <= 512: summary_lengths[ 'le512' ] += 1
             else: summary_lengths[ 'gt512' ] += 1
 
+        # analyze the sentences
+        sentences, tags = self.toSentences()
+        lengths = {}
+        for t in tags:
+            idoc = t.split('.')[0]
+            if not idoc in lengths:
+                lengths[ idoc ] = 0
+            lengths[ idoc ] += 1
+        lengths = [ v for k, v in lengths.items() ]
+        min_sentence_length = min( lengths )
+        mean_sentence_length = sum( lengths ) / len( lengths )
+        max_sentence_length = max( lengths )
+
         # print results
         print( "Total records:", len( records ) )
         print( "Records per category:", catg_ids )
         print( "Total (per category):", sum( catg_ids.values() ) )
         print( "Summary lengths:", summary_lengths )
+
+        print( "Total sentences:", len( sentences ) )
+        print( "Min-Mean-Max sentence length:", min_sentence_length, mean_sentence_length, max_sentence_length )
 
         # to check records encountered in many categories
         # for key, record in records():
