@@ -1,3 +1,4 @@
+import sys
 import os
 import json
 
@@ -40,6 +41,16 @@ class Dataset:
                 tags.append( f'{i}.{j}' )
         return sentences, tags
 
+    def toAuthors( self ) -> tuple[list[str],list[str]]:
+        authors = []
+        tags = []
+        for i, doc in enumerate( self.toList() ):
+            some_authors = doc[ 'authors' ]
+            for j, author in enumerate( some_authors ):
+                authors.append( author )
+                tags.append( f'{i}.{j}' )
+        return authors, tags
+
     def analyze( self ):
 
         # to count the records per category
@@ -73,14 +84,21 @@ class Dataset:
         mean_sentence_length = sum( lengths ) / len( lengths )
         max_sentence_length = max( lengths )
 
+        # analyze the authors
+        authors, tags = self.toAuthors()
+        unique_authors = set( authors )
+
         # print results
-        print( "Total records:", len( records ) )
+        print( "\nTotal records:", len( records ) )
         print( "Records per category:", catg_ids )
-        print( "Total (per category):", sum( catg_ids.values() ) )
+        print( "Total per category (possible records in more than 1 category):", sum( catg_ids.values() ) )
         print( "Summary lengths:", summary_lengths )
 
-        print( "Total sentences:", len( sentences ) )
+        print( "\nTotal sentences:", len( sentences ) )
         print( "Min-Mean-Max sentence length:", min_sentence_length, mean_sentence_length, max_sentence_length )
+
+        print( "\nTotal authors:", len( authors ) )
+        print( "Unique authors:", len( unique_authors ) )
 
         # to check records encountered in many categories
         # for key, record in records():
@@ -91,7 +109,30 @@ class Dataset:
         # print( records[ 12181 ] )
 
 
+# RUN: python -m arXit.Dataset -m [option]
 if __name__ == "__main__":
-    ds = Dataset()
-    ds.analyze()
+
+    option = None
+    if len( sys.argv ) > 1:
+        option = sys.argv[ 1 ]
+
+    if option == 'get':
+        if len( sys.argv ) > 2:
+            idoc = int( sys.argv[ 2 ] )
+        else:
+            option = None
+
+    match option:
+
+        case 'ds':
+            ds = Dataset()
+            ds.analyze()
+
+        case 'get':
+            ds = Dataset()
+            records = ds.toList()
+            print( records[ idoc ] )
+
+        case _:
+            raise Exception( 'No valid option(s).' )
 
