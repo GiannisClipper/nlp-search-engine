@@ -1,11 +1,12 @@
 import sys
 from .arXiv.Dataset import Dataset
 
-class PublishedFilter:
+class DateFilter:
 
-    def __init__( self, records:list[dict] ):
+    def __init__( self, dates:list[str], tags:list[str] ):
 
-        self.records = records
+        self.dates = dates
+        self.tags = tags
 
     def __call__( self, text:str="" ) -> list[str]:
 
@@ -13,23 +14,22 @@ class PublishedFilter:
         from_date, to_date = text.split( ',' )
 
         results = []
-        for i, doc in enumerate( self.records ):
-            date = doc[ 'published' ]
+        for date, tag in zip( self.dates, self.tags ):
             if ( from_date == '' or from_date <= date ) and ( to_date == '' or to_date >= date ):
-                results.append( str( i ) )
+                results.append( tag )
 
         return results
 
 
-# RUN: python -m src.PublishedFilter [from_date,to_date]
+# RUN: python -m src.DateFilter [from_date,to_date]
 if __name__ == "__main__":
 
     option = None
     if len( sys.argv ) > 1:
         text = sys.argv[ 1 ]
         ds = Dataset()
-        records = ds.toList()
-        filter = PublishedFilter( records )
+        dates, tags = ds.toPublished()
+        filter = DateFilter( dates, tags )
         print( filter( text ) )
 
     else:
