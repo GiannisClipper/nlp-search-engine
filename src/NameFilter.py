@@ -5,8 +5,8 @@ class NameFilter:
 
     def __init__( self, names:list[str], tags:list[str] ):
 
-        self.names = [ self.__preprocess( a ) for a in names ]
-        self.tags = tags
+        self._names = [ self.__preprocess( a ) for a in names ]
+        self._tags = tags
 
     def __preprocess( self, name:str ) -> str:
         no_dots = ' '.join( name.split( '.' ) )
@@ -32,7 +32,7 @@ class NameFilter:
 
         results = []
         for subname in subnames:
-            results.append( [ tag for name, tag in zip( self.names, self.tags ) if ' '+subname+' ' in name ] )
+            results.append( [ tag for name, tag in zip( self._names, self._tags ) if ' '+subname+' ' in name ] )
 
         final = []
         for result in results:
@@ -47,6 +47,10 @@ class NameFilter:
             final = final if len( final ) > 0 else result
 
         return final
+
+    @property
+    def tags( self ):
+        return self._tags
 
 
 # RUN: python -m src.NameFilter [text]

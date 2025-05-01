@@ -1,12 +1,12 @@
 import sys
 from .arXiv.Dataset import Dataset
 
-class DateFilter:
+class PeriodFilter:
 
     def __init__( self, dates:list[str], tags:list[str] ):
 
-        self.dates = dates
-        self.tags = tags
+        self._dates = dates
+        self._tags = tags
 
     def __call__( self, text:str="" ) -> list[str]:
 
@@ -14,14 +14,18 @@ class DateFilter:
         from_date, to_date = text.split( ',' )
 
         results = []
-        for date, tag in zip( self.dates, self.tags ):
+        for date, tag in zip( self._dates, self._tags ):
             if ( from_date == '' or from_date <= date ) and ( to_date == '' or to_date >= date ):
                 results.append( tag )
 
         return results
+    
+    @property
+    def tags( self ):
+        return self._tags
 
 
-# RUN: python -m src.DateFilter [from_date,to_date]
+# RUN: python -m src.PeriodFilter [from_date,to_date]
 if __name__ == "__main__":
 
     option = None
@@ -29,7 +33,7 @@ if __name__ == "__main__":
         text = sys.argv[ 1 ]
         ds = Dataset()
         dates, tags = ds.toPublished()
-        filter = DateFilter( dates, tags )
+        filter = PeriodFilter( dates, tags )
         print( filter( text ) )
 
     else:
