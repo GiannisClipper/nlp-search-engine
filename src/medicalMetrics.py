@@ -1,6 +1,6 @@
 from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 from .DocFinder import DocFinder
-from .TextFilter import TextFilter
+from .TermsFilter import TermsFilter
 
 from .helpers.Pickle import PickleLoader
 
@@ -21,7 +21,7 @@ docFinder = DocFinder(
     vectorizerLoader=PickleLoader( vectorizer_filename ),
     corpusReprLoader=PickleLoader( corpus_repr_filename ),
     corpus=corpus,
-    textFilter=TextFilter( corpus, index )
+    termsFilter=TermsFilter( corpus, index )
 )
 
 q = Queries().toDict()

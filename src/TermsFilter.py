@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import math
 
-class AbstractTextFilter( ABC ):
+class AbstractTermsFilter( ABC ):
 
     def __init__( 
         self, 
@@ -12,16 +12,16 @@ class AbstractTextFilter( ABC ):
         self._index = index
 
     @abstractmethod
-    def select( self, terms:list[str]|tuple[str,...] ) -> list[str]:
+    def filter( self, terms:list[str]|tuple[str,...] ) -> list[str]:
         pass
 
     def __str__( self ):
         return self.__class__
 
 
-class HalfTermsTextFilter( AbstractTextFilter ):
+class HalfTermsTermsFilter( AbstractTermsFilter ):
 
-    def select( self, terms:list[str]|tuple[str,...] )->list[str]:
+    def filter( self, terms:list[str]|tuple[str,...] )->list[str]:
 
         doc_stats = {}
         for term in terms:
@@ -41,9 +41,9 @@ class HalfTermsTextFilter( AbstractTextFilter ):
         return result
 
 
-class TermsWeightTextFilter( AbstractTextFilter ):
+class TermsWeightTermsFilter( AbstractTermsFilter ):
 
-    def select( self, terms:list[str]|tuple[str,...] ) -> list[str]:
+    def filter( self, terms:list[str]|tuple[str,...] ) -> list[str]:
 
         term_weights = {}
         doc_stats = {}
@@ -69,12 +69,12 @@ class TermsWeightTextFilter( AbstractTextFilter ):
         return result
 
 
-class TextFilter( AbstractTextFilter ):
+class TermsFilter( AbstractTermsFilter ):
 
-    def select( self, terms:list[str]|tuple[str,...] ) -> list[str]:
+    def filter( self, terms:list[str]|tuple[str,...] ) -> list[str]:
 
-        result1 = HalfTermsTextFilter( self._corpus, self._index ).select( terms )
-        result2 = TermsWeightTextFilter( self._corpus, self._index ).select( terms )
+        result1 = HalfTermsTermsFilter( self._corpus, self._index ).filter( terms )
+        result2 = TermsWeightTermsFilter( self._corpus, self._index ).filter( terms )
         # print( 'result1:', result1, 'result2:', result2 )
         return list( set( result1 + result2 ) )
 
