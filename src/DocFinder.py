@@ -1,3 +1,7 @@
+##################################################################################
+# DEPRICATED: it's functionality is splitted into QueryAnalyzer and DocEstimator #
+##################################################################################
+
 import sys
 from abc import ABC, abstractmethod
 
@@ -119,7 +123,7 @@ def find_and_show(
             print( cleaned_results[ i ] )
 
 
-# RUN: python -m src.DocumentFinder [option]
+# RUN: python -m src.DocFinder [option]
 if __name__ == "__main__": 
 
     from .arXiv.Dataset import Dataset
