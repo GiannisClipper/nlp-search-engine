@@ -10,7 +10,7 @@ from .settings import pretrained_models
 from .medical.Dataset import Dataset, Queries, ResultMetrics
 from .medical.settings import pickle_paths
 from .Preprocessor import LemmPreprocessor, NaivePreprocessor
-from .DocSelector import DocSelector
+from .TextFilter import TextFilter
 
 from .helpers.Pickle import PickleLoader
 from .helpers.computators import compute_similarities0
@@ -104,7 +104,7 @@ for q in queries:
     index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
     index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
     index = PickleLoader( index_filename ).load()
-    doc_selection = DocSelector( corpus, index ).select( query_terms )
+    doc_selection = TextFilter( corpus, index ).select( query_terms )
     # doc_selection = [ i for i, _ in enumerate( corpus ) ]
     if len( doc_selection ) == 0:
         results.append( [] )

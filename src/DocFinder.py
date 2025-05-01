@@ -8,7 +8,7 @@ from nltk.tokenize import word_tokenize
 import numpy as np
 
 from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
-from .DocSelector import AbstractDocSelector, DocSelector
+from .TextFilter import AbstractTextFilter, TextFilter
 from .helpers.decorators import with_time_counter
 from .helpers.computators import compute_similarities0, compute_similarities1
 from .helpers.Pickle import PickleLoader
@@ -22,13 +22,13 @@ class AbstractDocFinder( ABC ):
         vectorizerLoader:PickleLoader,
         corpusReprLoader:PickleLoader,
         corpus:list[dict],
-        docSelector:AbstractDocSelector
+        textFilter:AbstractTextFilter
     ):
         self._preprocessor = preprocessor
         self._vectorizer = vectorizerLoader.load()
         self._corpus_repr = corpusReprLoader.load()
         self._corpus = corpus
-        self._docSelector = docSelector
+        self._textFilter = textFilter
 
     @abstractmethod
     def find( self, query:str ):
@@ -55,7 +55,7 @@ class DocFinder( AbstractDocFinder ):
         def compute_similarities( message=None, *args, **kwargs ):
 
             # select through index some documents to compare
-            doc_selection = self._docSelector.select( query_terms )
+            doc_selection = self._textFilter.select( query_terms )
             if len( doc_selection ) == 0:
                 return []
 
@@ -85,7 +85,7 @@ def find_and_show(
     index_descr:str,
     PreprocessorClass, 
     corpus:list[dict], 
-    DocSelectorClass,
+    TextFilterClass,
 ):
     vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
     corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
@@ -97,7 +97,7 @@ def find_and_show(
         vectorizerLoader=PickleLoader( vectorizer_filename ),
         corpusReprLoader=PickleLoader( corpus_repr_filename ),
         corpus=corpus,
-        docSelector=DocSelectorClass( corpus, index )
+        textFilter=TextFilterClass( corpus, index )
     )
 
     results = docFinder.find( query )
@@ -146,7 +146,7 @@ if __name__ == "__main__":
                 index_descr = 'title-summary_lower-punct-specials-stops-stemm_single',
                 PreprocessorClass=StemmPreprocessor,
                 corpus=Dataset().toList(),
-                DocSelectorClass=DocSelector
+                TextFilterClass=TextFilter
             )
 
         case 'arxiv-lemm-single-tfidf':
@@ -158,7 +158,7 @@ if __name__ == "__main__":
                 index_descr = 'title-summary_lower-punct-specials-stops-lemm_single',
                 PreprocessorClass=LemmPreprocessor,
                 corpus=Dataset().toList(),
-                DocSelectorClass=DocSelector
+                TextFilterClass=TextFilter
             )
 
         case 'medical-lemm-single-tfidf':
@@ -170,7 +170,7 @@ if __name__ == "__main__":
                 index_descr = 'title-summary_lower-punct-specials-stops-lemm_single',
                 PreprocessorClass=LemmPreprocessor,
                 corpus=Dataset().toList(),
-                DocSelectorClass=DocSelector
+                TextFilterClass=TextFilter
             )
 
         case _:

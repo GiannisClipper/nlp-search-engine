@@ -51,6 +51,14 @@ class Dataset:
                 tags.append( f'{i}.{j}' )
         return authors, tags
 
+    def toPublished( self ) -> tuple[list[str],list[str]]:
+        dates = []
+        tags = []
+        for i, doc in enumerate( self.toList() ):
+            dates.append( doc[ 'published' ] )
+            tags.append( f'{i}' )
+        return dates, tags
+
     def analyze( self ):
 
         # to count the records per category

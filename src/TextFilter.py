@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import math
 
-class AbstractDocSelector( ABC ):
+class AbstractTextFilter( ABC ):
 
     def __init__( 
         self, 
@@ -19,7 +19,7 @@ class AbstractDocSelector( ABC ):
         return self.__class__
 
 
-class HalfTermsDocSelector( AbstractDocSelector ):
+class HalfTermsTextFilter( AbstractTextFilter ):
 
     def select( self, terms:list[str]|tuple[str,...] )->list[str]:
 
@@ -41,7 +41,7 @@ class HalfTermsDocSelector( AbstractDocSelector ):
         return result
 
 
-class TermsWeightDocSelector( AbstractDocSelector ):
+class TermsWeightTextFilter( AbstractTextFilter ):
 
     def select( self, terms:list[str]|tuple[str,...] ) -> list[str]:
 
@@ -69,12 +69,12 @@ class TermsWeightDocSelector( AbstractDocSelector ):
         return result
 
 
-class DocSelector( AbstractDocSelector ):
+class TextFilter( AbstractTextFilter ):
 
     def select( self, terms:list[str]|tuple[str,...] ) -> list[str]:
 
-        result1 = HalfTermsDocSelector( self._corpus, self._index ).select( terms )
-        result2 = TermsWeightDocSelector( self._corpus, self._index ).select( terms )
+        result1 = HalfTermsTextFilter( self._corpus, self._index ).select( terms )
+        result2 = TermsWeightTextFilter( self._corpus, self._index ).select( terms )
         # print( 'result1:', result1, 'result2:', result2 )
         return list( set( result1 + result2 ) )
 
