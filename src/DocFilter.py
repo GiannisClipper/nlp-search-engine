@@ -3,7 +3,7 @@ import sys
 from .TermsFilter import TermsFilter
 from .NameFilter import NameFilter
 from .PeriodFilter import PeriodFilter
-
+from .DocViewer import DocViewer
 from .helpers.Pickle import PickleLoader
 
 class DocFilter:
@@ -80,7 +80,7 @@ if __name__ == "__main__":
 
     params = dict()
     for i in range( 1, len( sys.argv ) ):
-        key, value = sys.argv[ i ].split( ':' )
+        key, value = sys.argv[ i ].split( '=' )
         params[ key ] = value
 
     ds = Dataset()
@@ -98,12 +98,31 @@ if __name__ == "__main__":
     termsFilter = TermsFilter( corpus=corpus, index=index )
 
     docFilter = DocFilter( termsFilter=termsFilter, nameFilter=nameFilter, periodFilter=periodFilter )
+    docViewer = DocViewer( corpus=corpus )
 
-    result = docFilter.filter( terms=[ 'gradient', 'descent' ] )
-    print( len( result ), result[:10] )
+    param = [ 'probability', 'geometric', 'poisson', 'distribution' ]
+    if 'terms' in params:
+        param = params[ 'terms' ].split(',')
+    result = docFilter.filter( terms=param )
+    print( '-------------------------------------------------------------' )
+    print( param, len( result ), result[:5] )
+    for res in result[:5]:
+        docViewer.view( int( res ) )
 
-    result = docFilter.filter( names=[ 'taylor' ] )
-    print( len( result ), result[:10] )
+    param = [ 'taylor', 'peters' ]
+    if 'names' in params:
+        param = params[ 'names' ].split(',')
+    result = docFilter.filter( names=param )
+    print( '-------------------------------------------------------------' )
+    print( param, len( result ), result[:5] )
+    for res in result[:5]:
+        docViewer.view( int( res ) )
 
-    result = docFilter.filter( period='2025-01-07,2025-01-08' )
-    print( len( result ), result[:10] )
+    param = '2025-01-07,2025-01-08'
+    if 'period' in params:
+        param = params[ 'period' ]
+    result = docFilter.filter( period=param )
+    print( '-------------------------------------------------------------' )
+    print( param, len( result ), result[:5] )
+    for res in result[:5]:
+        docViewer.view( int( res ) )
