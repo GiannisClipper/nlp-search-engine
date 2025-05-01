@@ -19,9 +19,9 @@ class AbstractTermsFilter( ABC ):
         return self.__class__
 
 
-class HalfTermsTermsFilter( AbstractTermsFilter ):
+class OccuredTermsFilter( AbstractTermsFilter ):
 
-    def filter( self, terms:list[str]|tuple[str,...] )->list[str]:
+    def filter( self, terms:list[str]|tuple[str,...], threshold:float=0.5 )-> list[str]:
 
         doc_stats = {}
         for term in terms:
@@ -36,14 +36,15 @@ class HalfTermsTermsFilter( AbstractTermsFilter ):
                     doc_stats[ key ] += 1
 
         # select docs with including the half terms at least
-        result = [ ( key, stat ) for key, stat in doc_stats.items() if stat >= len( terms ) // 2 ]
+        minTerms = len( terms ) * threshold if threshold > 0.0 else 1
+        result = [ ( key, stat ) for key, stat in doc_stats.items() if stat >= minTerms ]
         result = [ k for k, _ in result ]
         return result
 
 
-class TermsWeightTermsFilter( AbstractTermsFilter ):
+class WeightedTermsFilter( AbstractTermsFilter ):
 
-    def filter( self, terms:list[str]|tuple[str,...] ) -> list[str]:
+    def filter( self, terms:list[str]|tuple[str,...], limit:int=100 ) -> list[str]:
 
         term_weights = {}
         doc_stats = {}
@@ -64,17 +65,17 @@ class TermsWeightTermsFilter( AbstractTermsFilter ):
         # sort the documents' weights and get the top to check similarities
         result = [ ( key, weight ) for key, weight in doc_stats.items() ]
         result.sort( key=lambda x: x[1], reverse=True )
-        result = result[:100] if len( result ) > 100 else result
+        result = result[:limit] if limit > 0 and len( result ) > limit else result
         result = [ k for k, _ in result ]
         return result
 
 
 class TermsFilter( AbstractTermsFilter ):
 
-    def filter( self, terms:list[str]|tuple[str,...] ) -> list[str]:
+    def filter( self, terms:list[str]|tuple[str,...], threshold:float=0.5, limit:int=100 ) -> list[str]:
 
-        result1 = HalfTermsTermsFilter( self._corpus, self._index ).filter( terms )
-        result2 = TermsWeightTermsFilter( self._corpus, self._index ).filter( terms )
+        result1 = OccuredTermsFilter( self._corpus, self._index ).filter( terms, threshold=threshold )
+        result2 = WeightedTermsFilter( self._corpus, self._index ).filter( terms, limit=limit )
         # print( 'result1:', result1, 'result2:', result2 )
         return list( set( result1 + result2 ) )
 
