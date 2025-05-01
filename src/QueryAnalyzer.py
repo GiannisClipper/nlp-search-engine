@@ -16,11 +16,43 @@ class QueryAnalyzer:
         self._preprocessor = preprocessor
         self._vectorizer = vectorizer
 
-    def analyze( self, query:str ) -> tuple[tuple,spmatrix]:
+    def analyze( self, query:str ) -> tuple[list[str],spmatrix]:
         query_preprocessed = self._preprocessor.transform( [ query ] )
-        query_terms = tuple( word_tokenize( query_preprocessed[ 0 ] ) )
+        query_terms = list( word_tokenize( query_preprocessed[ 0 ] ) )
         query_repr = self._vectorizer.transform( query_preprocessed )
         return query_terms, query_repr
+
+
+def queryAnalyzerFactory( option:str ):
+
+    match option:
+
+        case 'arxiv-stemm-single-count':
+            from .arXiv.settings import pickle_paths
+            preprocessor = StemmPreprocessor()
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
+            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
+            vectorizer = PickleLoader( vectorizer_filename ).load()
+            return QueryAnalyzer( preprocessor, vectorizer )
+
+        case 'arxiv-lemm-single-tfidf':
+            from .arXiv.settings import pickle_paths
+            preprocessor = LemmPreprocessor()
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
+            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
+            vectorizer = PickleLoader( vectorizer_filename ).load()
+            return QueryAnalyzer( preprocessor, vectorizer )
+
+        case 'medical-lemm-single-tfidf':
+            from .medical.settings import pickle_paths
+            preprocessor = LemmPreprocessor()
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
+            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
+            vectorizer = PickleLoader( vectorizer_filename ).load()
+            return QueryAnalyzer( preprocessor, vectorizer )
+
+        case _:
+            raise Exception( 'queryAnalyzerFactory(): No valid option.' )
 
 
 # RUN: python -m src.QueryFinder [option]
@@ -38,30 +70,15 @@ if __name__ == "__main__":
     match option:
 
         case 'arxiv-stemm-single-count':
-            from .arXiv.settings import pickle_paths
-            preprocessor = StemmPreprocessor()
-            vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
-            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
-            vectorizer = PickleLoader( vectorizer_filename ).load()
-            analyzer = QueryAnalyzer( preprocessor, vectorizer )
+            analyzer = queryAnalyzerFactory( option )
             print( analyzer.analyze( query ) )
 
         case 'arxiv-lemm-single-tfidf':
-            from .arXiv.settings import pickle_paths
-            preprocessor = LemmPreprocessor()
-            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
-            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
-            vectorizer = PickleLoader( vectorizer_filename ).load()
-            analyzer = QueryAnalyzer( preprocessor, vectorizer )
+            analyzer = queryAnalyzerFactory( option )
             print( analyzer.analyze( query ) )
 
         case 'medical-lemm-single-tfidf':
-            from .medical.settings import pickle_paths
-            preprocessor = LemmPreprocessor()
-            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
-            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
-            vectorizer = PickleLoader( vectorizer_filename ).load()
-            analyzer = QueryAnalyzer( preprocessor, vectorizer )
+            analyzer = queryAnalyzerFactory( option )
             print( analyzer.analyze( query ) )
 
         case _:

@@ -91,11 +91,45 @@ class DocFilter:
         return []
 
 
+def docFilterFactory( option:str ):
+
+    match option:
+
+        case 'arxiv-lemm-single-tfidf':
+            from .arXiv.Dataset import Dataset
+            from .arXiv.settings import pickle_paths
+            ds = Dataset()
+
+            dates, tags = ds.toPublished()
+            periodFilter = PeriodFilter( dates=dates, tags=tags )
+
+            names, tags = ds.toAuthors()
+            nameFilter = NameFilter( names=names, tags=tags )
+
+            corpus = ds.toList()
+            index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
+            index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
+            index = PickleLoader( index_filename ).load()
+            termsFilter = TermsFilter( corpus=corpus, index=index )
+
+            return DocFilter( termsFilter=termsFilter, nameFilter=nameFilter, periodFilter=periodFilter )
+
+        case _:
+            raise Exception( 'docFilterFactory(): No valid option.' )
+
+
+
 # RUN: python -m src.DocFilter [option]
 if __name__ == "__main__": 
 
+    # initialize involved instances
+
+    docFilter = docFilterFactory( 'arxiv-lemm-single-tfidf' )
+
     from .arXiv.Dataset import Dataset
-    from .arXiv.settings import pickle_paths
+    ds = Dataset()
+    corpus = ds.toList()
+    docViewer = DocViewer( corpus=corpus )
 
     # set testing parameters
 
@@ -108,28 +142,10 @@ if __name__ == "__main__":
         key, value = sys.argv[ i ].split( '=' )
         params[ key ] = value
 
-    if len( sys.argv ) == 0:
+    if len( sys.argv ) == 1:
         params[ 'terms' ] = 'probability,geometric,poisson,distribution'
         params[ 'names' ] = 'jonathan'
         params[ 'period' ] = '2024-01-01,2024-12-31'
-
-    # initialize involved instances
-
-    ds = Dataset()
-
-    dates, tags = ds.toPublished()
-    periodFilter = PeriodFilter( dates=dates, tags=tags )
-
-    names, tags = ds.toAuthors()
-    nameFilter = NameFilter( names=names, tags=tags )
-
-    corpus = ds.toList()
-    index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
-    index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-    index = PickleLoader( index_filename ).load()
-    termsFilter = TermsFilter( corpus=corpus, index=index )
-    docFilter = DocFilter( termsFilter=termsFilter, nameFilter=nameFilter, periodFilter=periodFilter )
-    docViewer = DocViewer( corpus=corpus )
 
     # perform filterings
 
