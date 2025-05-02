@@ -13,4 +13,5 @@ pickle_paths = {
     'vectorizers': f'{file_path}/pickles/vectorizers',
     'corpus_repr': f'{file_path}/pickles/corpus_repr',
     'indexes': f'{file_path}/pickles/indexes',
+    'temp': f'{file_path}/pickles/temp'
 }
