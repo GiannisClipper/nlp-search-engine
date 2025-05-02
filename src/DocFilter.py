@@ -95,7 +95,7 @@ def docFilterFactory( option:str ):
 
     match option:
 
-        case 'arxiv-lemm-single-tfidf':
+        case 'arxiv-lemm-single':
             from .arXiv.Dataset import Dataset
             from .arXiv.settings import pickle_paths
             ds = Dataset()
@@ -124,7 +124,7 @@ if __name__ == "__main__":
 
     # initialize involved instances
 
-    docFilter = docFilterFactory( 'arxiv-lemm-single-tfidf' )
+    docFilter = docFilterFactory( 'arxiv-lemm-single' )
 
     from .arXiv.Dataset import Dataset
     ds = Dataset()

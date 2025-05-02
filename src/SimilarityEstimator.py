@@ -115,7 +115,7 @@ def similarityEstimatorFactory( option:str ):
             return DocSimilarityEstimator( corpus_repr )
 
         case _:
-            raise Exception( 'docEstimatorFactory(): No valid option.' )
+            raise Exception( 'similarityEstimatorFactory(): No valid option.' )
 
 
 # RUN: python -m src.DocEstimator [option]

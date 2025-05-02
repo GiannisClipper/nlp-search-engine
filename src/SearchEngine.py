@@ -1,29 +1,14 @@
-from abc import ABC, abstractmethod
-
-from .QueryAnalyzer import QueryAnalyzer, queryAnalyzerFactory
+import sys
+from .QueryAnalyzer import AbstractQueryAnalyzer, queryAnalyzerFactory
 from .DocFilter import DocFilter, docFilterFactory
-from .DocEstimator import DocEstimator, docEstimatorFactory
+from .SimilarityEstimator import AbstractSimilarityEstimator, similarityEstimatorFactory
 
-class SearchEngine( ABC ):
+class SearchEngine:
 
-    def __init__( self, queryAnalyzer:QueryAnalyzer, docFilter:DocFilter, docEstimator:DocEstimator ):
+    def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, docFilter:DocFilter, similarityEstimator:AbstractSimilarityEstimator ):
         self._queryAnalyzer = queryAnalyzer
         self._docFilter = docFilter
-        self._docEstimator = docEstimator
-
-    @abstractmethod
-    def search( self, query:str, names:list[str]|None=None, period:str|None=None ) -> list[tuple[str,float]]:
-        pass
-
-
-class ArxivTfidfSearchEngine( SearchEngine ):
-
-    def __init__( self ):
-        option = 'arxiv-lemm-single-tfidf'
-        queryAnalyzer = queryAnalyzerFactory( option )
-        docFilter = docFilterFactory( option )
-        docEstimator = docEstimatorFactory( option )
-        super().__init__( queryAnalyzer, docFilter, docEstimator )
+        self._similarityEstimator = similarityEstimator
 
     def search( self, query:str, names:list[str]|None=None, period:str|None=None ) -> list[tuple[str,float]]:
 
@@ -37,22 +22,64 @@ class ArxivTfidfSearchEngine( SearchEngine ):
         if len( filtered_docs ) == 0:
             return []
         
-        # Estimate similarities between query and document vectors
+        # Estimate similarities between query and document/sentence vectors
         print( 'Estimate similarities...' )
-        return self._docEstimator.estimate( query_repr, filtered_docs )
+        return self._similarityEstimator.estimate( query_repr, filtered_docs )
+
+
+def searchEngineFactory( option:str ):
+
+    match option:
+
+        case 'arxiv-lemm-single-tfidf':
+            queryAnalyzer = queryAnalyzerFactory( option )
+            docFilter = docFilterFactory( 'arxiv-lemm-single' )
+            similarityEstimator = similarityEstimatorFactory( option )
+            return SearchEngine( queryAnalyzer, docFilter, similarityEstimator )
+
+        case 'arxiv-lemm-single-jina':
+            queryAnalyzer = queryAnalyzerFactory( 'lemm-single-jina' )
+            docFilter = docFilterFactory( 'arxiv-lemm-single' )
+            similarityEstimator = similarityEstimatorFactory( 'arxiv-jina' )
+            return SearchEngine( queryAnalyzer, docFilter, similarityEstimator )
+
+        case _:
+            raise Exception( 'searchEngineFactory(): No valid option.' )
 
 
 # RUN: python -m src.SearchEngine
 if __name__ == "__main__": 
 
-    engine = ArxivTfidfSearchEngine()
+    option = None
+    if len( sys.argv ) >= 2:
+        option = sys.argv[ 1 ]
+
     query = "Is there any available literature about databases (both SQL and NoSQL), especially somehow relevant to semantics?"
-    # query = "Can you fetch some good texts about networks and communications?"
-    results = engine.search( query )
+    if len( sys.argv ) >= 3:
+        query = sys.argv[ 2 ]
 
-    from .arXiv.Dataset import Dataset
-    corpus = Dataset().toList()
+    match option:
+        case 'arxiv-lemm-single-tfidf':
+            engine = searchEngineFactory( option )
+            results = engine.search( query )
 
-    for res in results:
-        doc = corpus[ int(res[0]) ]
-        print( f"{doc['id']} {doc['catg_ids']} {res[1]}" )
+            from .arXiv.Dataset import Dataset
+            corpus = Dataset().toList()
+            for res in results[:10]:
+                doc = corpus[ int(res[0]) ]
+                print( f"{doc['id']} {doc['catg_ids']} {res[1]}" )
+
+        case 'arxiv-lemm-single-jina':
+            engine = searchEngineFactory( option )
+            results = engine.search( query )
+
+            from .arXiv.Dataset import Dataset
+            corpus = Dataset().toList()
+            for res in results[:10]:
+                doc = corpus[ int(res[0]) ]
+                print( f"{doc['id']} {doc['catg_ids']} {res[1]}" )
+
+        case _:
+            raise Exception( 'No valid option.' )
+
+

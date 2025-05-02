@@ -4,7 +4,7 @@ import time
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
+from .Preprocessor import LemmPreprocessor
 from .helpers.Pickle import PickleSaver, PickleLoader
 
 class EmbeddingsMaker:
