@@ -17,7 +17,7 @@ class DocViewer:
 # RUN: python -m src.DocViewer
 if __name__ == "__main__": 
 
-    from .arXiv.Dataset import Dataset
+    from ..datasets.arXiv.Dataset import Dataset
 
     ds = Dataset()
     viewer = DocViewer( corpus=ds.toList() )
