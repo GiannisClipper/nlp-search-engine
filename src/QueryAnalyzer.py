@@ -12,12 +12,12 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sentence_transformers import SentenceTransformer
 from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 from .helpers.Pickle import PickleLoader
-
+from .helpers.typing import QueryAnalyzedType
 
 class AbstractQueryAnalyzer( ABC ):
 
     @abstractmethod
-    def analyze( self, query:str ) -> tuple[list[str],spmatrix]:
+    def analyze( self, query:str ) -> QueryAnalyzedType:
         pass
 
 
@@ -28,11 +28,11 @@ class QueryAnalyzerWithVectorizer( AbstractQueryAnalyzer):
         self._preprocessor = preprocessor
         self._vectorizer = vectorizer
 
-    def analyze( self, query:str ) -> tuple[list[str],spmatrix]:
+    def analyze( self, query:str ) -> QueryAnalyzedType:
         query_preprocessed = self._preprocessor.transform( [ query ] )
         query_terms = list( word_tokenize( query_preprocessed[ 0 ] ) )
         query_repr = self._vectorizer.transform( query_preprocessed )
-        return query_terms, query_repr
+        return { 'terms': query_terms, 'repr': query_repr }
 
 
 class QueryAnalyzerWithPretrained( AbstractQueryAnalyzer):
@@ -42,14 +42,14 @@ class QueryAnalyzerWithPretrained( AbstractQueryAnalyzer):
         self._preprocessor = preprocessor
         self._model = model
 
-    def analyze( self, query:str ) -> tuple[list[str],spmatrix]:
+    def analyze( self, query:str ) -> QueryAnalyzedType:
         query_preprocessed = self._preprocessor.transform( [ query ] )
         query_terms = list( word_tokenize( query_preprocessed[ 0 ] ) )
         query_repr = self._model.encode( query_preprocessed )
-        return query_terms, csr_matrix( query_repr ) # convert to spmatrix
+        return { 'terms': query_terms, 'repr': csr_matrix( query_repr ) } # convert to spmatrix
 
 
-def queryAnalyzerFactory( option:str ):
+def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
 
     match option:
 

@@ -1,29 +1,37 @@
 from abc import ABC, abstractmethod
 import math
 
+from sklearn.cluster import KMeans 
+from scipy.sparse import spmatrix, csr_matrix
+from .helpers.typing import QueryAnalyzedType
+
 class AbstractTermsFilter( ABC ):
 
-    def __init__( 
-        self, 
-        corpus:list[dict],
-        index:dict,
-    ):
-        self._corpus = corpus
-        self._index = index
-
     @abstractmethod
-    def filter( self, terms:list[str]|tuple[str,...] ) -> list[str]:
+    def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
         pass
 
     def __str__( self ):
         return self.__class__
 
 
-class OccuredTermsFilter( AbstractTermsFilter ):
+class AbstractIndexedTermsFilter( AbstractTermsFilter ):
 
-    def filter( self, terms:list[str]|tuple[str,...], threshold:float=0.5 )-> list[str]:
+    def __init__( self, index:dict ):
+        super().__init__()
+        self._index = index
 
+
+class OccuredTermsFilter( AbstractIndexedTermsFilter ):
+
+    def __init__( self, index:dict, threshold:float=0.5 ):
+        super().__init__( index )
+        self._threshold = threshold
+
+    def filter( self, query_analyzed:QueryAnalyzedType, threshold:float=0.5 ) -> list[str]:
+        
         doc_stats = {}
+        terms = query_analyzed[ 'terms' ]
         for term in terms:
 
             # if term is included in index
@@ -42,12 +50,18 @@ class OccuredTermsFilter( AbstractTermsFilter ):
         return result
 
 
-class WeightedTermsFilter( AbstractTermsFilter ):
+class WeightedTermsFilter( AbstractIndexedTermsFilter ):
 
-    def filter( self, terms:list[str]|tuple[str,...], limit:int=100 ) -> list[str]:
+    def __init__( self, index:dict, corpus:list[dict], limit:int=200 ):
+        super().__init__( index )
+        self._corpus = corpus
+        self._limit = limit
+
+    def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
 
         term_weights = {}
         doc_stats = {}
+        terms = query_analyzed[ 'terms' ]
         for term in terms:
 
             # if term is included in index
@@ -65,17 +79,35 @@ class WeightedTermsFilter( AbstractTermsFilter ):
         # sort the documents' weights and get the top to check similarities
         result = [ ( key, weight ) for key, weight in doc_stats.items() ]
         result.sort( key=lambda x: x[1], reverse=True )
-        result = result[:limit] if limit > 0 and len( result ) > limit else result
+        result = result[:self._limit] if self._limit > 0 and len( result ) > self._limit else result
         result = [ k for k, _ in result ]
         return result
 
 
-class TermsFilter( AbstractTermsFilter ):
+class IndexedTermsFilter( AbstractIndexedTermsFilter ):
 
-    def filter( self, terms:list[str]|tuple[str,...], threshold:float=0.5, limit:int=100 ) -> list[str]:
+    def __init__( self, index:dict, corpus:list[dict], threshold:float=0.5, limit:int=200 ):
+        super().__init__( index )
+        self._corpus = corpus
+        self._threshold = threshold
+        self._limit = limit
 
-        result1 = OccuredTermsFilter( self._corpus, self._index ).filter( terms, threshold=threshold )
-        result2 = WeightedTermsFilter( self._corpus, self._index ).filter( terms, limit=limit )
-        # print( 'result1:', result1, 'result2:', result2 )
+
+    def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
+
+        result1 = OccuredTermsFilter( self._index, self._threshold ).filter( query_analyzed )
+        result2 = WeightedTermsFilter( self._index, self._corpus, self._limit ).filter( query_analyzed )
         return list( set( result1 + result2 ) )
 
+
+class ClusteredTermsFilter( AbstractTermsFilter ):
+
+    def __init__( self, model:KMeans ):
+        super().__init__()
+        self._model = model
+
+    def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
+        repr = query_analyzed[ 'repr' ]
+        label = self._model.predict( repr )[ 0 ]
+        result = [ str(i) for i, l in enumerate( self._model.labels_ ) if l == label ]
+        return result

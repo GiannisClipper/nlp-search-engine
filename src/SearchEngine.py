@@ -1,7 +1,11 @@
 import sys
+from typing import cast
+from scipy.sparse import spmatrix
+
 from .QueryAnalyzer import AbstractQueryAnalyzer, queryAnalyzerFactory
 from .DocFilter import DocFilter, docFilterFactory
 from .SimilarityEstimator import AbstractSimilarityEstimator, similarityEstimatorFactory
+from .helpers.typing import QueryAnalyzedType
 
 class SearchEngine:
 
@@ -14,16 +18,17 @@ class SearchEngine:
 
         # Analyze query into terms and vectors
         print( 'Analyze query...' )
-        query_terms, query_repr = self._queryAnalyzer.analyze( query )
+        query_analyzed:QueryAnalyzedType = self._queryAnalyzer.analyze( query )
 
         # Filter documents based on terms, names, period
         print( 'Filter docs...' )
-        filtered_docs = self._docFilter.filter( query_terms, names, period )
+        filtered_docs = self._docFilter.filter( query_analyzed, names, period )
         if len( filtered_docs ) == 0:
             return []
         
         # Estimate similarities between query and document/sentence vectors
         print( 'Estimate similarities...' )
+        query_repr = cast( spmatrix, query_analyzed[ 'repr' ] )
         return self._similarityEstimator.estimate( query_repr, filtered_docs )
 
 
