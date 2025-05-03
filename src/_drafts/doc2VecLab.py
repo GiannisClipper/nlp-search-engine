@@ -6,14 +6,14 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 
 import numpy as np
 
-from .settings import pretrained_models
-from .datasets.medical.Dataset import Dataset, Queries, ResultMetrics
-from .datasets.medical.settings import pickle_paths
-from .Preprocessor import LemmPreprocessor, NaivePreprocessor
-from .TermsFilter import TermsFilter
+from ..settings import pretrained_models
+from ..datasets.medical.Dataset import Dataset, Queries, ResultMetrics
+from ..datasets.medical.settings import pickle_paths
+from ..Preprocessor import LemmPreprocessor, NaivePreprocessor
+from ..TermsFilter import TermsFilter
 
-from .helpers.Pickle import PickleLoader
-from .helpers.computators import compute_similarities0
+from ..helpers.Pickle import PickleLoader
+from ..helpers.computators import compute_similarities0
 
 corpus = Dataset().toListTitlesAbstracts()
 # all_sentences = []

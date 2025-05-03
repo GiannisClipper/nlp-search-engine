@@ -7,14 +7,14 @@ import nltk
 nltk.download( 'punkt_tab' ) # required by word_tokenize()
 from nltk.tokenize import word_tokenize, sent_tokenize
 
-from .settings import pretrained_models
-from .helpers.decorators import with_time_counter
+from ..settings import pretrained_models
+from ..helpers.decorators import with_time_counter
 
-from .datasets.medical.Dataset import Dataset, Queries, ResultMetrics
-from .datasets.medical.settings import pickle_paths
-from .Preprocessor import NaivePreprocessor
-from .helpers.Pickle import PickleSaver, PickleLoader
-from .helpers.computators import compute_similarities0
+from ..datasets.medical.Dataset import Dataset, Queries, ResultMetrics
+from ..datasets.medical.settings import pickle_paths
+from ..Preprocessor import NaivePreprocessor
+from ..helpers.Pickle import PickleSaver, PickleLoader
+from ..helpers.computators import compute_similarities0
 
 
 def load_pretrained_model():

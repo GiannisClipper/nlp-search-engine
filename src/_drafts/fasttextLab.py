@@ -3,7 +3,7 @@
 # # Load pretrained FastText model (e.g., from the official FastText website)
 
 
-from .settings import pretrained_models
+from ..settings import pretrained_models
 
 # from gensim.models import FastText
 # fasttext_model = FastText.load_fasttext_format( models[ 'fasttext' ] ) # FastText model for English
