@@ -25,7 +25,7 @@ class AbstractClustersMaker( ABC ):
 class KMeansClustersMaker( AbstractClustersMaker ):
 
     def __init__( self, data:np.ndarray, filename:str ):
-        K = data.shape[ 0 ] // 300
+        K = data.shape[ 0 ] // 400
         model = KMeans( n_clusters=K, random_state=32 )
         super().__init__( model, data, filename )
 

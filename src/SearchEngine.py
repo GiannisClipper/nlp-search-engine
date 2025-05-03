@@ -48,6 +48,12 @@ def searchEngineFactory( option:str ):
             similarityEstimator = similarityEstimatorFactory( 'arxiv-jina' )
             return SearchEngine( queryAnalyzer, docFilter, similarityEstimator )
 
+        case 'arxiv-sentences-jina-kmeans':
+            queryAnalyzer = queryAnalyzerFactory( 'lemm-single-jina' )
+            docFilter = docFilterFactory( 'arxiv-sentences-jina-kmeans' )
+            similarityEstimator = similarityEstimatorFactory( 'arxiv-jina' )
+            return SearchEngine( queryAnalyzer, docFilter, similarityEstimator )
+
         case _:
             raise Exception( 'searchEngineFactory(): No valid option.' )
 
@@ -59,7 +65,8 @@ if __name__ == "__main__":
     if len( sys.argv ) >= 2:
         option = sys.argv[ 1 ]
 
-    query = "Is there any available literature about databases (both SQL and NoSQL), especially somehow relevant to semantics?"
+    query = "Are there any available papers about database management systems (both SQL and NoSQL), especially somehow relevant to semantics?"
+    query = "Are there any available papers about database management systems (both SQL and NoSQL)?"
     if len( sys.argv ) >= 3:
         query = sys.argv[ 2 ]
 
@@ -83,6 +90,17 @@ if __name__ == "__main__":
             for res in results[:10]:
                 doc = corpus[ int(res[0]) ]
                 print( f"{doc['id']} {doc['catg_ids']} {res[1]}" )
+
+        case 'arxiv-sentences-jina-kmeans':
+            engine = searchEngineFactory( option )
+            results = engine.search( query )
+
+            from .arXiv.Dataset import Dataset
+            corpus = Dataset().toList()
+            for res in results[:10]:
+                doc = corpus[ int(res[0]) ]
+                print( f"{doc['id']} {doc['catg_ids']} {res[1]}" )
+
 
         case _:
             raise Exception( 'No valid option.' )

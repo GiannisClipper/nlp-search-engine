@@ -116,7 +116,7 @@ def docFilterFactory( option:str ):
 
             return DocFilter( termsFilter=termsFilter, nameFilter=nameFilter, periodFilter=periodFilter )
 
-        case 'arxiv-lemm-single-jina':
+        case 'arxiv-sentences-jina-kmeans':
             from .arXiv.Dataset import Dataset
             from .arXiv.settings import pickle_paths
             ds = Dataset()
