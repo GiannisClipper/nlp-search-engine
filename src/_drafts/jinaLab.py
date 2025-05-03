@@ -35,7 +35,7 @@ def load_sentence_embeddings():
 
     @with_time_counter
     def load( message=None, *args, **kwargs ):
-        vectorizer_descr = 'jina-embeddings-sentences'
+        vectorizer_descr = 'sentences-jina'
         filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
         embeddings = PickleLoader( filename ).load()
         return embeddings
@@ -65,7 +65,7 @@ def make_vectorizers():
         sentences = LemmPreprocessor().transform( sentences )
         print( 'Total sentences:', len( sentences ) )
 
-        vectorizer_descr = 'jina-embeddings-sentences'
+        vectorizer_descr = 'sentences-jina'
         for i in range( 0, len( sentences ), 1000 ):
             vectorizer_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}-{i}-{i+1000-1}.pkl"
             if os.path.exists( vectorizer_filename ):
@@ -102,7 +102,7 @@ def merge_vectorizers():
         counter += len( some_sentences )
 
     print( 'Reading vectorizers...' )
-    vectorizer_descr = 'jina-embeddings-sentences'
+    vectorizer_descr = 'sentences-jina'
     vectorizers = []
     for i in range( 0, counter, 1000 ):
         filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}-{i}-{i+1000-1}.pkl"
@@ -113,7 +113,7 @@ def merge_vectorizers():
     PickleSaver( filename ).save( np.concatenate( vectorizers ) )
 
 def read_merged():
-    vectorizer_descr = 'jina-embeddings-sentences'
+    vectorizer_descr = 'sentences-jina'
     filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
     embeddings = PickleLoader( filename ).load()
     print( type(embeddings) )

@@ -10,7 +10,14 @@ if len( sys.argv ) >= 2:
 engine = None
 
 match option:
+
     case 'medical-lemm-single-tfidf':
+        engine = searchEngineFactory( option )
+
+    case 'medical-lemm-single-jina':
+        engine = searchEngineFactory( option )
+
+    case 'medical-sentences-jina-kmeans':
         engine = searchEngineFactory( option )
 
     case _:

@@ -25,7 +25,7 @@ class AbstractClustersMaker( ABC ):
 class KMeansClustersMaker( AbstractClustersMaker ):
 
     def __init__( self, data:np.ndarray, filename:str ):
-        K = data.shape[ 0 ] // 400
+        K = data.shape[ 0 ] // 100
         model = KMeans( n_clusters=K, random_state=32 )
         super().__init__( model, data, filename )
 
@@ -45,7 +45,7 @@ def clustersMakerFactory( option:str ):
 
         case 'arxiv-sentences-jina-kmeans':
             from ..datasets.arXiv.settings import pickle_paths
-            representations_descr = 'jina-embeddings-sentences'
+            representations_descr = 'sentences-jina'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()
             clustering_descr = 'sentences-jina-kmeans'
@@ -54,7 +54,7 @@ def clustersMakerFactory( option:str ):
 
         case 'medical-sentences-jina-kmeans':
             from ..datasets.medical.settings import pickle_paths
-            representations_descr = 'jina-embeddings-sentences'
+            representations_descr = 'sentences-jina'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()
             clustering_descr = 'sentences-jina-kmeans'

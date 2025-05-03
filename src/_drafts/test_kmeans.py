@@ -1,10 +1,9 @@
 # to run: $ python3 -m src.tests.test_kmeans
 
-from ..datasets.arXiv.Dataset import Dataset
 from ..datasets.arXiv.settings import pickle_paths
 from ..helpers.Pickle import PickleLoader
 
-representations_descr = 'jina-embeddings-sentences'
+representations_descr = 'sentences-jina'
 representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
 embeddings = PickleLoader( representations_filename ).load()
 

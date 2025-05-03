@@ -10,7 +10,7 @@ import numpy as np
 from scipy.sparse import spmatrix, csr_matrix
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sentence_transformers import SentenceTransformer
-from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
+from .Preprocessor import Preprocessor, NaivePreprocessor, LemmPreprocessor, StemmPreprocessor
 from .helpers.Pickle import PickleLoader
 from .helpers.typing import QueryAnalyzedType
 
@@ -77,8 +77,15 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             vectorizer = PickleLoader( vectorizer_filename ).load()
             return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )
 
-        case 'lemm-single-jina':
+        case 'medical-lemm-single-jina':
+            from .datasets.medical.settings import pickle_paths
             preprocessor = LemmPreprocessor()
+            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
+            model.max_seq_length = 1024 # control your input sequence length up to 8192
+            return QueryAnalyzerWithPretrained( preprocessor, model )
+
+        case 'naive-jina':
+            preprocessor = NaivePreprocessor()
             model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             return QueryAnalyzerWithPretrained( preprocessor, model )

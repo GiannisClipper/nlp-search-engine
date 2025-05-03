@@ -81,7 +81,7 @@ class NaivePreprocessor( Preprocessor ):
 
     def __init__( self ):
         super().__init__( [
-            LowerConverter(), 
+            LowerConverter(),
             PunctRemover(), 
             SpecialsRemover(),
             StopwordsRemover(), 
@@ -96,8 +96,7 @@ class StemmPreprocessor( Preprocessor ):
             PunctRemover(), 
             SpecialsRemover(),
             StopwordsRemover(), 
-            Stemmer(),
-            # Lemmatizer()
+            Stemmer()
         ] )
 
 
@@ -109,6 +108,5 @@ class LemmPreprocessor( Preprocessor ):
             PunctRemover(), 
             SpecialsRemover(),
             StopwordsRemover(), 
-            # Stemmer(),
             Lemmatizer()
         ] )

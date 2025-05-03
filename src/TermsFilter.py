@@ -38,15 +38,15 @@ class OccuredTermsFilter( AbstractIndexedTermsFilter ):
             if term in self._index:
 
                 # iterate all docs the term is ocuured within
-                for key in self._index[ term ].keys():
-                    if key not in doc_stats:
-                        doc_stats[ key ] = 0
-                    doc_stats[ key ] += 1
+                for idoc in self._index[ term ].keys():
+                    if idoc not in doc_stats:
+                        doc_stats[ idoc ] = 0
+                    doc_stats[ idoc ] += 1
 
         # select docs with including the half terms at least
         minTerms = len( terms ) * threshold if threshold > 0.0 else 1
-        result = [ ( key, stat ) for key, stat in doc_stats.items() if stat >= minTerms ]
-        result = [ k for k, _ in result ]
+        result = [ ( idoc, stat ) for idoc, stat in doc_stats.items() if stat >= minTerms ]
+        result = [ i for i, _ in result ]
         return result
 
 
@@ -71,16 +71,16 @@ class WeightedTermsFilter( AbstractIndexedTermsFilter ):
                 term_weights[ term ] = math.log10( len( self._corpus ) / ( 1 + len( self._index[ term ].keys() ) ) )
 
                 # iterate all docs the term is ocurred within
-                for key in self._index[ term ].keys():
-                    if key not in doc_stats:
-                        doc_stats[ key ] = 0
-                    doc_stats[ key ] += term_weights[ term ]
+                for idoc in self._index[ term ].keys():
+                    if idoc not in doc_stats:
+                        doc_stats[ idoc ] = 0
+                    doc_stats[ idoc ] += term_weights[ term ]
 
         # sort the documents' weights and get the top to check similarities
-        result = [ ( key, weight ) for key, weight in doc_stats.items() ]
+        result = [ ( idoc, weight ) for idoc, weight in doc_stats.items() ]
         result.sort( key=lambda x: x[1], reverse=True )
         result = result[:self._limit] if self._limit > 0 and len( result ) > self._limit else result
-        result = [ k for k, _ in result ]
+        result = [ i for i, _ in result ]
         return result
 
 
@@ -109,5 +109,24 @@ class ClusteredTermsFilter( AbstractTermsFilter ):
     def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
         repr = query_analyzed[ 'repr' ]
         label = self._model.predict( repr )[ 0 ]
-        result = [ str(i) for i, l in enumerate( self._model.labels_ ) if l == label ]
+        result = [ str(isent) for isent, l in enumerate( self._model.labels_ ) if l == label ]
         return result
+
+
+import bm25s
+from .Preprocessor import NaivePreprocessor
+class B25TermsFilter( AbstractTermsFilter ):
+
+    def __init__( self, corpus:list[str] ):
+        super().__init__()
+        self._model = bm25s.BM25() # class BM25: https://github.com/xhluca/bm25s/blob/main/bm25s/__init__.py
+        preprocessor = NaivePreprocessor()
+        corpus = preprocessor.transform( corpus )
+        self._model.index( bm25s.tokenize( corpus ) )
+
+    def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
+        query = ' '.join( query_analyzed[ 'terms' ] )
+        isents, scores = self._model.retrieve( bm25s.tokenize( query ), k=100 )
+        isents = [ str(isent) for isent in isents ]
+        return isents
+
