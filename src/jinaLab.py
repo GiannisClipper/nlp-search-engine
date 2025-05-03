@@ -13,8 +13,8 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 from .settings import pretrained_models
 from .helpers.decorators import with_time_counter
 
-from .medical.Dataset import Dataset, Queries, QueriesResults, ResultMetrics
-from .medical.settings import pickle_paths
+from .datasets.medical.Dataset import Dataset, Queries, QueriesResults, ResultMetrics
+from .datasets.medical.settings import pickle_paths
 from .Preprocessor import NaivePreprocessor, LemmPreprocessor
 from .helpers.Pickle import PickleSaver, PickleLoader
 from .TermsFilter import TermsFilter

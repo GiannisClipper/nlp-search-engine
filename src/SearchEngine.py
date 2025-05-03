@@ -75,7 +75,7 @@ if __name__ == "__main__":
             engine = searchEngineFactory( option )
             results = engine.search( query )
 
-            from .arXiv.Dataset import Dataset
+            from .datasets.arXiv.Dataset import Dataset
             corpus = Dataset().toList()
             for res in results[:10]:
                 doc = corpus[ int(res[0]) ]
@@ -85,7 +85,7 @@ if __name__ == "__main__":
             engine = searchEngineFactory( option )
             results = engine.search( query )
 
-            from .arXiv.Dataset import Dataset
+            from .datasets.arXiv.Dataset import Dataset
             corpus = Dataset().toList()
             for res in results[:10]:
                 doc = corpus[ int(res[0]) ]
@@ -95,7 +95,7 @@ if __name__ == "__main__":
             engine = searchEngineFactory( option )
             results = engine.search( query )
 
-            from .arXiv.Dataset import Dataset
+            from .datasets.arXiv.Dataset import Dataset
             corpus = Dataset().toList()
             for res in results[:10]:
                 doc = corpus[ int(res[0]) ]

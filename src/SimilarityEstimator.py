@@ -85,22 +85,22 @@ def similarityEstimatorFactory( option:str ):
     match option:
 
         case 'arxiv-stemm-single-count':
-            from .arXiv.settings import pickle_paths
+            from .datasets.arXiv.settings import pickle_paths
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
             corpus_repr = PickleLoader( corpus_repr_filename ).load()
             return DocSimilarityEstimator( corpus_repr )
 
         case 'arxiv-lemm-single-tfidf':
-            from .arXiv.settings import pickle_paths
+            from .datasets.arXiv.settings import pickle_paths
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
             corpus_repr = PickleLoader( corpus_repr_filename ).load()
             return DocSimilarityEstimator( corpus_repr )
 
         case 'arxiv-jina':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from .datasets.arXiv.Dataset import Dataset
+            from .datasets.arXiv.settings import pickle_paths
             representations_descr = 'jina-embeddings-sentences'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()
@@ -108,7 +108,7 @@ def similarityEstimatorFactory( option:str ):
             return SentSimilarityEstimator( representations, tags )
 
         case 'medical-lemm-single-tfidf':
-            from .medical.settings import pickle_paths
+            from .datasets.medical.settings import pickle_paths
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
             corpus_repr = PickleLoader( corpus_repr_filename ).load()

@@ -75,8 +75,8 @@ def embeddingsMakerFactory( option:str ):
     match option:
 
         case 'arxiv-sentences-jina':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from ..datasets.arXiv.Dataset import Dataset
+            from ..datasets.arXiv.settings import pickle_paths
             model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             sentences, tags = Dataset().toSentences()
@@ -85,8 +85,8 @@ def embeddingsMakerFactory( option:str ):
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
 
         case 'medical-sentences-jina':
-            from .medical.Dataset import Dataset
-            from .medical.settings import pickle_paths
+            from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
             model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             sentences, tags = Dataset().toSentences()

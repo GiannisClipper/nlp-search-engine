@@ -1,7 +1,7 @@
 # to run: $ python3 -m src.tests.test_kmeans
 
-from ..arXiv.Dataset import Dataset
-from ..arXiv.settings import pickle_paths
+from ..datasets.arXiv.Dataset import Dataset
+from ..datasets.arXiv.settings import pickle_paths
 from ..helpers.Pickle import PickleLoader
 
 representations_descr = 'jina-embeddings-sentences'

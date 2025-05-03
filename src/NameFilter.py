@@ -1,5 +1,5 @@
 import sys
-from .arXiv.Dataset import Dataset
+from .datasets.arXiv.Dataset import Dataset
 
 class NameFilter:
 

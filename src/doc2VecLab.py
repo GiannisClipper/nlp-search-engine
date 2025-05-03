@@ -7,8 +7,8 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 import numpy as np
 
 from .settings import pretrained_models
-from .medical.Dataset import Dataset, Queries, ResultMetrics
-from .medical.settings import pickle_paths
+from .datasets.medical.Dataset import Dataset, Queries, ResultMetrics
+from .datasets.medical.settings import pickle_paths
 from .Preprocessor import LemmPreprocessor, NaivePreprocessor
 from .TermsFilter import TermsFilter
 

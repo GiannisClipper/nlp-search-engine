@@ -1,12 +1,13 @@
 import sys
+
 from typing import cast
+from .helpers.typing import QueryAnalyzedType
 
 from .TermsFilter import AbstractTermsFilter, IndexedTermsFilter, ClusteredTermsFilter
 from .NameFilter import NameFilter
 from .PeriodFilter import PeriodFilter
-from .DocViewer import DocViewer
 from .helpers.Pickle import PickleLoader
-from .helpers.typing import QueryAnalyzedType
+from .helpers.DocViewer import DocViewer
 
 class DocFilter:
 
@@ -98,8 +99,8 @@ def docFilterFactory( option:str ):
     match option:
 
         case 'arxiv-lemm-single':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from .datasets.arXiv.Dataset import Dataset
+            from .datasets.arXiv.settings import pickle_paths
             ds = Dataset()
 
             dates, tags = ds.toPublished()
@@ -117,8 +118,8 @@ def docFilterFactory( option:str ):
             return DocFilter( termsFilter=termsFilter, nameFilter=nameFilter, periodFilter=periodFilter )
 
         case 'arxiv-sentences-jina-kmeans':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from .datasets.arXiv.Dataset import Dataset
+            from .datasets.arXiv.settings import pickle_paths
             ds = Dataset()
 
             dates, tags = ds.toPublished()
@@ -146,7 +147,7 @@ if __name__ == "__main__":
 
     docFilter = docFilterFactory( 'arxiv-lemm-single' )
 
-    from .arXiv.Dataset import Dataset
+    from .datasets.arXiv.Dataset import Dataset
     ds = Dataset()
     corpus = ds.toList()
     docViewer = DocViewer( corpus=corpus )

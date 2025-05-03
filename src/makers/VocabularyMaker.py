@@ -64,8 +64,8 @@ if __name__ == "__main__":
     match option:
 
         case 'arxiv-stemm-single':
-            from ..arXiv.Dataset import Dataset
-            from ..arXiv.settings import pickle_paths
+            from ..datasets.arXiv.Dataset import Dataset
+            from ..datasets.arXiv.settings import pickle_paths
             make_and_save( 
                 pickle_paths,
                 vocabulary_decsr='title-summary_lower-punct-specials-stops-stemm_single',
@@ -75,8 +75,8 @@ if __name__ == "__main__":
             )
 
         case 'arxiv-lemm-single':
-            from ..arXiv.Dataset import Dataset
-            from ..arXiv.settings import pickle_paths
+            from ..datasets.arXiv.Dataset import Dataset
+            from ..datasets.arXiv.settings import pickle_paths
             make_and_save( 
                 pickle_paths,
                 vocabulary_decsr='title-summary_lower-punct-specials-stops-lemm_single',
@@ -86,8 +86,8 @@ if __name__ == "__main__":
             )
                 
         case 'medical-lemm-single':
-            from ..medical.Dataset import Dataset
-            from ..medical.settings import pickle_paths
+            from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
             make_and_save( 
                 pickle_paths,
                 vocabulary_decsr='title-summary_lower-punct-specials-stops-lemm_single',

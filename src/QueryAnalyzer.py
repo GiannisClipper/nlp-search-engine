@@ -54,7 +54,7 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
     match option:
 
         case 'arxiv-stemm-single-count':
-            from .arXiv.settings import pickle_paths
+            from .datasets.arXiv.settings import pickle_paths
             preprocessor = StemmPreprocessor()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
@@ -62,7 +62,7 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )
 
         case 'arxiv-lemm-single-tfidf':
-            from .arXiv.settings import pickle_paths
+            from .datasets.arXiv.settings import pickle_paths
             preprocessor = LemmPreprocessor()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
@@ -70,7 +70,7 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )
 
         case 'medical-lemm-single-tfidf':
-            from .medical.settings import pickle_paths
+            from .datasets.medical.settings import pickle_paths
             preprocessor = LemmPreprocessor()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"

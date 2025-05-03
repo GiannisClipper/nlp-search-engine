@@ -3,7 +3,7 @@
 # # Load pretrained FastText model (e.g., from the official FastText website)
 
 
-from .settings import models
+from .settings import pretrained_models
 
 # from gensim.models import FastText
 # fasttext_model = FastText.load_fasttext_format( models[ 'fasttext' ] ) # FastText model for English
@@ -11,7 +11,7 @@ from .settings import models
 # (use load_facebook_vectors (to use pretrained embeddings) 
 # or load_facebook_model (to continue training with the loaded full model, more RAM) instead)
 from gensim.models.fasttext import load_facebook_vectors
-fasttext_model = load_facebook_vectors( models[ 'fasttext' ] )
+fasttext_model = load_facebook_vectors( pretrained_models[ 'fasttext' ] )
 
 # # Example: Get the vector for 'cat'
 # vector_fasttext = fasttext_model['cat']

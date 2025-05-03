@@ -4,8 +4,8 @@ from .TermsFilter import TermsFilter
 
 from .helpers.Pickle import PickleLoader
 
-from .medical.Dataset import Dataset, Queries, ResultMetrics
-from .medical.settings import pickle_paths
+from .datasets.medical.Dataset import Dataset, Queries, ResultMetrics
+from .datasets.medical.settings import pickle_paths
 
 vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
 index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'

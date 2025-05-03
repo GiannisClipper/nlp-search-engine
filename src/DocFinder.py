@@ -126,8 +126,8 @@ def find_and_show(
 # RUN: python -m src.DocFinder [option]
 if __name__ == "__main__": 
 
-    from .arXiv.Dataset import Dataset
-    from .arXiv.settings import pickle_paths
+    from .datasets.arXiv.Dataset import Dataset
+    from .datasets.arXiv.settings import pickle_paths
 
     option = None
     if len( sys.argv ) >= 2:
@@ -142,8 +142,8 @@ if __name__ == "__main__":
     match option:
 
         case 'arxiv-stemm-single-count':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from .datasets.arXiv.Dataset import Dataset
+            from .datasets.arXiv.settings import pickle_paths
             find_and_show(
                 pickle_paths,
                 vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count',
@@ -154,8 +154,8 @@ if __name__ == "__main__":
             )
 
         case 'arxiv-lemm-single-tfidf':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from .datasets.arXiv.Dataset import Dataset
+            from .datasets.arXiv.settings import pickle_paths
             find_and_show(
                 pickle_paths,
                 vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf',
@@ -166,8 +166,8 @@ if __name__ == "__main__":
             )
 
         case 'medical-lemm-single-tfidf':
-            from .medical.Dataset import Dataset
-            from .medical.settings import pickle_paths
+            from .datasets.medical.Dataset import Dataset
+            from .datasets.medical.settings import pickle_paths
             find_and_show(
                 pickle_paths,
                 vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf',
