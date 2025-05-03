@@ -1,15 +1,46 @@
 import sys
+from abc import ABC, abstractmethod
 from typing import cast
 from scipy.sparse import spmatrix
 
 from .QueryAnalyzer import AbstractQueryAnalyzer, queryAnalyzerFactory
-from .DocFilter import DocFilter, docFilterFactory
+from .DocFilter import AbstractDocFilter, docFilterFactory
 from .SimilarityEstimator import AbstractSimilarityEstimator, similarityEstimatorFactory
 from .helpers.typing import QueryAnalyzedType
 
-class SearchEngine:
+class AbstractSearchEngine( ABC ):
 
-    def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, docFilter:DocFilter, similarityEstimator:AbstractSimilarityEstimator ):
+    @abstractmethod
+    def search( self, query:str ):
+        pass
+
+class TermsSearchEngine( AbstractSearchEngine ):
+
+    def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, docFilter:AbstractDocFilter, similarityEstimator:AbstractSimilarityEstimator ):
+        self._queryAnalyzer = queryAnalyzer
+        self._docFilter = docFilter
+        self._similarityEstimator = similarityEstimator
+
+    def search( self, query:str ) -> list[tuple[str,float]]:
+
+        # Analyze query into terms and vectors
+        print( 'Analyze query...' )
+        query_analyzed:QueryAnalyzedType = self._queryAnalyzer.analyze( query )
+
+        # Filter documents based on terms, names, period
+        print( 'Filter docs...' )
+        filtered_docs = self._docFilter.filter( query_analyzed )
+        if len( filtered_docs ) == 0:
+            return []
+        
+        # Estimate similarities between query and document/sentence vectors
+        print( 'Estimate similarities...' )
+        query_repr = cast( spmatrix, query_analyzed[ 'repr' ] )
+        return self._similarityEstimator.estimate( query_repr, filtered_docs )
+
+class TermsNamesPeriodSearchEngine( AbstractSearchEngine ):
+
+    def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, docFilter:AbstractDocFilter, similarityEstimator:AbstractSimilarityEstimator ):
         self._queryAnalyzer = queryAnalyzer
         self._docFilter = docFilter
         self._similarityEstimator = similarityEstimator
@@ -40,19 +71,25 @@ def searchEngineFactory( option:str ):
             queryAnalyzer = queryAnalyzerFactory( option )
             docFilter = docFilterFactory( 'arxiv-lemm-single' )
             similarityEstimator = similarityEstimatorFactory( option )
-            return SearchEngine( queryAnalyzer, docFilter, similarityEstimator )
+            return TermsNamesPeriodSearchEngine( queryAnalyzer, docFilter, similarityEstimator )
+
+        case 'medical-lemm-single-tfidf':
+            queryAnalyzer = queryAnalyzerFactory( option )
+            docFilter = docFilterFactory( 'medical-lemm-single' )
+            similarityEstimator = similarityEstimatorFactory( option )
+            return TermsSearchEngine( queryAnalyzer, docFilter, similarityEstimator )
 
         case 'arxiv-lemm-single-jina':
             queryAnalyzer = queryAnalyzerFactory( 'lemm-single-jina' )
             docFilter = docFilterFactory( 'arxiv-lemm-single' )
             similarityEstimator = similarityEstimatorFactory( 'arxiv-jina' )
-            return SearchEngine( queryAnalyzer, docFilter, similarityEstimator )
+            return TermsNamesPeriodSearchEngine( queryAnalyzer, docFilter, similarityEstimator )
 
         case 'arxiv-sentences-jina-kmeans':
             queryAnalyzer = queryAnalyzerFactory( 'lemm-single-jina' )
             docFilter = docFilterFactory( 'arxiv-sentences-jina-kmeans' )
             similarityEstimator = similarityEstimatorFactory( 'arxiv-jina' )
-            return SearchEngine( queryAnalyzer, docFilter, similarityEstimator )
+            return TermsNamesPeriodSearchEngine( queryAnalyzer, docFilter, similarityEstimator )
 
         case _:
             raise Exception( 'searchEngineFactory(): No valid option.' )

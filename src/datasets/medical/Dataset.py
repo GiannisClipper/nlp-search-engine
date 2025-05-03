@@ -143,10 +143,13 @@ class ResultMetrics:
         self._recall:list[float] = []
         self._f1:list[float] = []
 
+        self._docs = Dataset().toList()
+
     def _computeOne( self, query:dict, result:list[str] ):
 
         y = set( QueriesResults().toDict()[ query[ 'id' ] ] )
-        y_hat = set( result )
+        ids = [ self._docs[ int(idoc) ][ 'id' ] for idoc in result ]
+        y_hat = set( ids )
 
         tp = len( y & y_hat )  # intersection of correct and retrieved
         fp = len( y_hat - y )  # retrieved but not correct
