@@ -1,10 +1,10 @@
 import sys
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
-from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
+from ..Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 
-from .helpers.decorators import with_time_counter
-from .helpers.Pickle import PickleLoader, PickleSaver
+from ..helpers.decorators import with_time_counter
+from ..helpers.Pickle import PickleLoader, PickleSaver
 
 class VectorizerMaker:
 
@@ -74,8 +74,8 @@ if __name__ == "__main__":
     match option:
 
         case 'arxiv-stemm-single-count':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from ..arXiv.Dataset import Dataset
+            from ..arXiv.settings import pickle_paths
             make_and_save( 
                 pickle_paths, 
                 vocabulary_descr='title-summary_lower-punct-specials-stops-stemm_single', 
@@ -86,8 +86,8 @@ if __name__ == "__main__":
             )
 
         case 'arxiv-stemm-single-tfidf':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from ..arXiv.Dataset import Dataset
+            from ..arXiv.settings import pickle_paths
             make_and_save( 
                 pickle_paths, 
                 vocabulary_descr='title-summary_lower-punct-specials-stops-stemm_single', 
@@ -98,8 +98,8 @@ if __name__ == "__main__":
             )
 
         case 'arxiv-lemm-single-count':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from ..arXiv.Dataset import Dataset
+            from ..arXiv.settings import pickle_paths
             make_and_save( 
                 pickle_paths, 
                 vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_single', 
@@ -110,8 +110,8 @@ if __name__ == "__main__":
             )
 
         case 'arxiv-lemm-single-tfidf':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from ..arXiv.Dataset import Dataset
+            from ..arXiv.settings import pickle_paths
             make_and_save( 
                 pickle_paths, 
                 vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_single', 
@@ -122,8 +122,8 @@ if __name__ == "__main__":
             )
 
         case 'medical-lemm-single-tfidf':
-            from .medical.Dataset import Dataset
-            from .medical.settings import pickle_paths
+            from ..medical.Dataset import Dataset
+            from ..medical.settings import pickle_paths
             make_and_save( 
                 pickle_paths,
                 vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_single', 

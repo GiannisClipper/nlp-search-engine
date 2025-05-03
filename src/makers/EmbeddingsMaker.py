@@ -4,8 +4,7 @@ import time
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from .Preprocessor import LemmPreprocessor
-from .helpers.Pickle import PickleSaver, PickleLoader
+from ..helpers.Pickle import PickleSaver, PickleLoader
 
 class EmbeddingsMaker:
 
@@ -17,8 +16,8 @@ class EmbeddingsMaker:
 
     def make( self ):
 
-        # Encode and save embeddings in blocks of 1000 sentences
-        # ------------------------------------------------------
+        # Encode embeddings in blocks of 1000 sentences
+        # ---------------------------------------------
 
         print( 'Total sentences:', len( self._sentences ) )
         print( 'Create and save sentence embeddings...' )
@@ -40,11 +39,14 @@ class EmbeddingsMaker:
             # Save embeddings' block
             PickleSaver( embeddings_filename_block ).save( sentences_repr )
 
-            # Delay to handle machine's temperature
-            if i + 1000 < len( self._sentences ): time.sleep( 60 )
+            # Delay to handle machine temperature
+            if i + 1000 < len( self._sentences ): 
+                secs = 60
+                print( f'Waiting for {secs} secs to control machine temperature...' )
+                time.sleep( secs )
 
-        # Collect and merge the embeddings' blocks
-        # ----------------------------------------
+        # Retrieve and merge the embeddings' blocks
+        # -----------------------------------------
 
         # Check if merged file already exists
         if os.path.exists( self._embeddings_filename_merged ):
@@ -68,6 +70,8 @@ class EmbeddingsMaker:
 
 def embeddingsMakerFactory( option:str ):
 
+    embeddings_descr = 'sentences-jina'
+
     match option:
 
         case 'arxiv-sentences-jina':
@@ -76,7 +80,6 @@ def embeddingsMakerFactory( option:str ):
             model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             sentences, tags = Dataset().toSentences()
-            sentences = LemmPreprocessor().transform( sentences )
             embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
@@ -87,7 +90,6 @@ def embeddingsMakerFactory( option:str ):
             model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             sentences, tags = Dataset().toSentences()
-            sentences = LemmPreprocessor().transform( sentences )
             embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
@@ -98,8 +100,6 @@ def embeddingsMakerFactory( option:str ):
 
 # RUN: python -m src.EmbeddingsMaker [option]
 if __name__ == "__main__": 
-
-    embeddings_descr = 'jina-embeddings-sentences'
 
     option = None
     if len( sys.argv ) >= 2:

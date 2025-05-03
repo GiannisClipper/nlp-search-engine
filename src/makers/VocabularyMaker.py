@@ -1,10 +1,10 @@
 import sys
 
-from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
+from ..Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 from .TokenMaker import TokenMaker, SingleTokenMaker
 
-from .helpers.decorators import with_time_counter
-from .helpers.Pickle import PickleSaver
+from ..helpers.decorators import with_time_counter
+from ..helpers.Pickle import PickleSaver
 
 class VocabularyMaker:
 
@@ -64,8 +64,8 @@ if __name__ == "__main__":
     match option:
 
         case 'arxiv-stemm-single':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from ..arXiv.Dataset import Dataset
+            from ..arXiv.settings import pickle_paths
             make_and_save( 
                 pickle_paths,
                 vocabulary_decsr='title-summary_lower-punct-specials-stops-stemm_single',
@@ -75,8 +75,8 @@ if __name__ == "__main__":
             )
 
         case 'arxiv-lemm-single':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from ..arXiv.Dataset import Dataset
+            from ..arXiv.settings import pickle_paths
             make_and_save( 
                 pickle_paths,
                 vocabulary_decsr='title-summary_lower-punct-specials-stops-lemm_single',
@@ -86,8 +86,8 @@ if __name__ == "__main__":
             )
                 
         case 'medical-lemm-single':
-            from .medical.Dataset import Dataset
-            from .medical.settings import pickle_paths
+            from ..medical.Dataset import Dataset
+            from ..medical.settings import pickle_paths
             make_and_save( 
                 pickle_paths,
                 vocabulary_decsr='title-summary_lower-punct-specials-stops-lemm_single',

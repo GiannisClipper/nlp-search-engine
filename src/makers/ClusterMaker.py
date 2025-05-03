@@ -2,7 +2,7 @@ import sys
 from abc import ABC, abstractmethod
 from sklearn.cluster import KMeans
 import numpy as np
-from .helpers.Pickle import PickleSaver, PickleLoader
+from ..helpers.Pickle import PickleSaver, PickleLoader
 
 class AbstractClustersMaker( ABC ):
 
@@ -44,7 +44,7 @@ def clustersMakerFactory( option:str ):
     match option:
 
         case 'arxiv-sentences-jina-kmeans':
-            from .arXiv.settings import pickle_paths
+            from ..arXiv.settings import pickle_paths
             representations_descr = 'jina-embeddings-sentences'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()
@@ -53,7 +53,7 @@ def clustersMakerFactory( option:str ):
             return KMeansClustersMaker( representations, clustering_filename )
 
         case 'medical-sentences-jina-kmeans':
-            from .medical.settings import pickle_paths
+            from ..medical.settings import pickle_paths
             representations_descr = 'jina-embeddings-sentences'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()

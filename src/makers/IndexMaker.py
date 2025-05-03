@@ -7,10 +7,10 @@ from nltk.tokenize import word_tokenize
 
 import pytrie
 
-from .Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
+from ..Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 
-from .helpers.decorators import with_time_counter
-from .helpers.Pickle import PickleLoader, PickleSaver
+from ..helpers.decorators import with_time_counter
+from ..helpers.Pickle import PickleLoader, PickleSaver
 
 
 class AbstractIndexMaker( ABC ):
@@ -104,8 +104,8 @@ if __name__ == "__main__":
     match option:
 
         case 'arxiv-stemm-single':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from ..arXiv.Dataset import Dataset
+            from ..arXiv.settings import pickle_paths
             make_and_save(
                 pickle_paths,
                 vocabulary_descr='title-summary_lower-punct-specials-stops-stemm_single',
@@ -114,8 +114,8 @@ if __name__ == "__main__":
             )
 
         case 'arxiv-lemm-single':
-            from .arXiv.Dataset import Dataset
-            from .arXiv.settings import pickle_paths
+            from ..arXiv.Dataset import Dataset
+            from ..arXiv.settings import pickle_paths
             make_and_save(
                 pickle_paths,
                 vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_single',
@@ -124,8 +124,8 @@ if __name__ == "__main__":
             )
 
         case 'medical-lemm-single':
-            from .medical.Dataset import Dataset
-            from .medical.settings import pickle_paths
+            from ..medical.Dataset import Dataset
+            from ..medical.settings import pickle_paths
             make_and_save(
                 pickle_paths,
                 vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_single',
