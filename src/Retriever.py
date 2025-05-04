@@ -9,65 +9,119 @@ from .PeriodFilter import PeriodFilter
 from .helpers.Pickle import PickleLoader
 from .helpers.DocViewer import DocViewer
 
+# FROM ChatGPT: Example, Multiple Inheritance with Parameters
+# Each class picks its own arguments and passes the rest up the chain.
+# **kwargs carries the remaining parameters.
+# All classes must use super() and accept **kwargs
+
+# class A:
+#     def __init__(self, a_param, **kwargs):
+#         print(f"A's constructor: a_param = {a_param}")
+#         super().__init__(**kwargs)
+
+# class B(A):
+#     def __init__(self, b_param, **kwargs):
+#         print(f"B's constructor: b_param = {b_param}")
+#         super().__init__(**kwargs)
+
+# class C(A):
+#     def __init__(self, c_param, **kwargs):
+#         print(f"C's constructor: c_param = {c_param}")
+#         super().__init__(**kwargs)
+
+# class D(B, C):
+#     def __init__(self, a_param, b_param, c_param):
+#         print("D's constructor")
+#         super().__init__(a_param=a_param, b_param=b_param, c_param=c_param)
+
+
 class AbstractRetriever( ABC ):
 
     @abstractmethod
-    def filter( self, query_analyzed:QueryAnalyzedType|None=None, names:list[str]|None=None, period:str|None=None ) -> list[str]:
+    def retrieve( self, **kwargs ) -> list[str]:
         pass
+
+
+class PeriodRetriever( AbstractRetriever ):
+
+    def __init__( self, periodFilter:PeriodFilter, **kwargs ):
+        self.periodFilter = periodFilter
+        super().__init__( **kwargs )
+
+    def retrieve( self, period:str|None=None ) -> list[str]:
+
+        # Initialize result including all data
+        result = self.periodFilter.tags # e.g. tags -> '234', '235', ...
+
+        if period:
+            result = self.periodFilter( period )
+        return result
+
+
+class NamesRetriever( AbstractRetriever ):
+
+    def __init__( self, namesFilter:NamesFilter, **kwargs ):
+        self.namesFilter = namesFilter
+        super().__init__( **kwargs )
+
+    def retrieve( self, names:list[str]|None=None ) -> list[str]:
+
+        # Initialize result including all data
+        result = list( set( [ t.split('.')[0] for t in self.namesFilter.tags ] ) ) # e.g. tags -> '234.0', '234.1', '235.0', ...
+
+        if names:
+            result = list( self.namesFilter( names ) )
+        return result
+
 
 class TermsRetriever( AbstractRetriever ):
 
-    def __init__( self, termsFilter:AbstractTermsFilter ):
+    def __init__( self, termsFilter:AbstractTermsFilter, **kwargs ):
         self.termsFilter = termsFilter
+        super().__init__( **kwargs )
 
-    def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
+    def retrieve( self, query_analyzed:QueryAnalyzedType|None=None ) -> list[str]:
 
-        filtered_docs = self.termsFilter.filter( query_analyzed )
-        filtered_docs = [ str(i) for i in filtered_docs ]
-        return filtered_docs
+        # Initialize result with no data
+        result = []
 
-class TermsNamesPeriodRetriever( AbstractRetriever ):
+        if query_analyzed:
+            result = self.termsFilter.filter( query_analyzed )
+            result = [ str(i) for i in result ]
+        return result
 
-    def __init__( self, termsFilter:AbstractTermsFilter, namesFilter:NamesFilter, periodFilter:PeriodFilter ):
-        self.termsFilter = termsFilter
-        self.namesFilter = namesFilter
-        self.periodFilter = periodFilter
 
-    def filter( self, query_analyzed:QueryAnalyzedType|None=None, names:list[str]|None=None, period:str|None=None ) -> list[str]:
+class PeriodNamesTermsRetriever( PeriodRetriever, NamesRetriever, TermsRetriever ):
+
+    def __init__( self, periodFilter:PeriodFilter, namesFilter:NamesFilter, termsFilter:AbstractTermsFilter ):
+        super().__init__( periodFilter=periodFilter, namesFilter=namesFilter, termsFilter=termsFilter )
+
+    def retrieve( self, query_analyzed:QueryAnalyzedType|None=None, names:list[str]|None=None, period:str|None=None ) -> list[str]:
 
         # Filter by period
-        period_filtered_docs = self.periodFilter.tags # e.g. tags -> '234', '235', ...
-        if period:
-            period_filtered_docs = self.periodFilter( period )
-         
-        if len( period_filtered_docs ) == 0: # No doc match the date filter
-            return period_filtered_docs
+        period_result = PeriodRetriever.retrieve( self, period )
+        if len( period_result ) == 0:
+            return period_result
 
-        # Filter by names
-        names_filtered_docs = list( set( [ t.split('.')[0] for t in self.namesFilter.tags ] ) ) # e.g. tags -> '234.0', '234.1', '235.0', ...
-        if names:
-            names_filtered_docs = list( self.namesFilter( names ) )
- 
-        if len( names_filtered_docs ) == 0: # No doc match the names filter
-            return names_filtered_docs
+        # Filter by name
+        names_result = NamesRetriever.retrieve( self, names )
+        if len( names_result ) == 0:
+            return names_result
         
-        # Intersect period, names filters
-        period_names_filtered_docs = list( set( period_filtered_docs ) & set( names_filtered_docs ) )
- 
-        if len( period_names_filtered_docs ) == 0: # No doc match both period, names filters
-            return period_names_filtered_docs
+        # Intersect period, names filter results
+        period_names_result = list( set( period_result ) & set( names_result ) )
+        if len( period_names_result ) == 0:
+            return period_names_result
 
         # Filter by terms
-        if not query_analyzed:
-            return period_names_filtered_docs
-
-        terms_filtered_docs = self.termsFilter.filter( query_analyzed )
-        terms_filtered_docs = [ str(t) for t in terms_filtered_docs ]
+        terms_result = TermsRetriever.retrieve( self, query_analyzed )
+        if not terms_result:
+            return period_names_result
 
         # Intersect period, names, terms filters
-        filtered_docs = list( set( period_names_filtered_docs ) & set( terms_filtered_docs ) )
+        result = list( set( period_names_result ) & set( terms_result ) )
 
-        return filtered_docs
+        return result
 
 
 def retrieverFactory( option:str ) -> AbstractRetriever:
@@ -91,7 +145,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             corpus = ds.toList()
             termsFilter = IndexedTermsFilter( index=index, corpus=corpus )
 
-            return TermsNamesPeriodRetriever( termsFilter=termsFilter, namesFilter=namesFilter, periodFilter=periodFilter )
+            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilter=termsFilter )
 
         case 'medical-lemm-single':
             from .datasets.medical.Dataset import Dataset
@@ -122,7 +176,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             clustering_model = PickleLoader( clusters_filename ).load()
             termsFilter = ClusteredTermsFilter( model=clustering_model )
 
-            return TermsNamesPeriodRetriever( termsFilter=termsFilter, namesFilter=namesFilter, periodFilter=periodFilter )
+            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilter=termsFilter )
 
         case 'medical-sentences-jina-kmeans':
             from .datasets.medical.Dataset import Dataset
@@ -146,13 +200,12 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             raise Exception( 'retrieverFactory(): No valid option.' )
 
 
-
 # RUN: python -m src.Retriever
 if __name__ == "__main__": 
 
     # initialize involved instances
 
-    docFilter = retrieverFactory( 'arxiv-lemm-single' )
+    retriever = retrieverFactory( 'arxiv-lemm-single' )
 
     from .datasets.arXiv.Dataset import Dataset
     ds = Dataset()
@@ -181,7 +234,7 @@ if __name__ == "__main__":
     if params[ 'terms' ]:
         terms = params[ 'terms' ].split(',')
         query_analyzed = cast( QueryAnalyzedType, { 'terms': terms } )
-        result = docFilter.filter( query_analyzed=query_analyzed )
+        result = retriever.retrieve( query_analyzed=query_analyzed )
         print( '-------------------------------------------------------------' )
         print( terms, len( result ), result[:5] )
         for res in result[:5]:
@@ -190,7 +243,7 @@ if __name__ == "__main__":
     names = None
     if params[ 'names' ]:
         names = params[ 'names' ].split(',')
-        result = docFilter.filter( names=names )
+        result = retriever.retrieve( names=names )
         print( '-------------------------------------------------------------' )
         print( names, len( result ), result[:5] )
         for res in result[:5]:
@@ -199,14 +252,14 @@ if __name__ == "__main__":
     period = None
     if params[ 'period' ]:
         period = params[ 'period' ]
-        result = docFilter.filter( period=period )
+        result = retriever.retrieve( period=period )
         print( '-------------------------------------------------------------' )
         print( period, len( result ), result[:5] )
         for res in result[:5]:
             docViewer.view( int( res ) )
 
     query_analyzed = cast( QueryAnalyzedType, { 'terms': terms } )
-    result = docFilter.filter( query_analyzed=query_analyzed, names=names, period=period )
+    result = retriever.retrieve( query_analyzed=query_analyzed, names=names, period=period )
     print( '-------------------------------------------------------------' )
     print( terms, names, period, len( result ), result[:5] )
     for res in result[:5]:
