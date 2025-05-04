@@ -125,8 +125,10 @@ class B25TermsFilter( AbstractTermsFilter ):
         self._model.index( bm25s.tokenize( corpus ) )
 
     def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
-        query = ' '.join( query_analyzed[ 'terms' ] )
-        isents, scores = self._model.retrieve( bm25s.tokenize( query ), k=100 )
-        isents = [ str(isent) for isent in isents ]
+        # query = ' '.join( query_analyzed[ 'terms' ] )
+        # isents, scores = self._model.retrieve( bm25s.tokenize( query ), k=100 )
+        isents, scores = self._model.retrieve( [ query_analyzed[ 'terms' ] ], k=100 )
+        isents = [ str(isent) for isent in isents[0] ]
+        # print( 'isents', isents )
         return isents
 

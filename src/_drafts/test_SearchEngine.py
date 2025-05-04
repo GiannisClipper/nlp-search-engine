@@ -7,22 +7,10 @@ option = None
 if len( sys.argv ) >= 2:
     option = sys.argv[ 1 ]
 
-engine = None
+if not option:
+    raise Exception( 'No option passed.' )
 
-match option:
-
-    case 'medical-lemm-single-tfidf':
-        engine = searchEngineFactory( option )
-
-    case 'medical-lemm-single-jina':
-        engine = searchEngineFactory( option )
-
-    case 'medical-sentences-jina-kmeans':
-        engine = searchEngineFactory( option )
-
-    case _:
-        raise Exception( 'No valid option.' )
-    
+engine = searchEngineFactory( option )    
 queries = Queries().toList()[:30]
 results = []
 start_time = time.time()

@@ -178,11 +178,20 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
 
             return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilter=termsFilter )
 
-        case 'medical-sentences-jina-kmeans':
-            from .datasets.medical.Dataset import Dataset
-            from .datasets.medical.settings import pickle_paths
+        case 'arxiv-sentences-b25':
+            from .datasets.arXiv.Dataset import Dataset
+            from .datasets.arXiv.settings import pickle_paths
             ds = Dataset()
+            dates, tags = ds.toPublished()
+            periodFilter = PeriodFilter( dates=dates, tags=tags )
+            names, tags = ds.toAuthors()
+            namesFilter = NamesFilter( names=names, tags=tags )
+            sentences, tags = ds.toSentences()
+            termsFilter = B25TermsFilter( corpus=sentences )
+            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilter=termsFilter )
 
+        case 'medical-sentences-jina-kmeans':
+            from .datasets.medical.settings import pickle_paths
             clusters_descr = 'sentences-jina-kmeans'
             clusters_filename = f"{pickle_paths[ 'clusters' ]}/{clusters_descr}.pkl"
             clustering_model = PickleLoader( clusters_filename ).load()
@@ -203,7 +212,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
 # RUN: python -m src.Retriever
 if __name__ == "__main__": 
 
-    # initialize involved instances
+    # Initialize involved instances
 
     retriever = retrieverFactory( 'arxiv-lemm-single' )
 
@@ -212,7 +221,7 @@ if __name__ == "__main__":
     corpus = ds.toList()
     docViewer = DocViewer( corpus=corpus )
 
-    # set testing parameters
+    # Set testing parameters
 
     params:dict[str,str|None] = {
         'terms': None,
@@ -228,7 +237,7 @@ if __name__ == "__main__":
         params[ 'names' ] = 'michael jordan'
         params[ 'period' ] = '2012-01-01,2012-12-31'
 
-    # perform filterings
+    # Perform filterings
 
     terms = None
     if params[ 'terms' ]:
