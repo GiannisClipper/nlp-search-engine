@@ -16,18 +16,18 @@ class NameFilter:
 
     def __call__( self, name:str ) -> list[str]:
 
-        # apply the same transformation as data representation 
+        # Apply the same transformation as data representation 
         name = self.__preprocess( name )
         subnames = [ n.strip() for n in name.split( ' ' ) ]
 
-        # get all subnames longer than 1 char in reverse order (surname first) 
+        # Get all subnames longer than 1 char in reverse order (surname first) 
         subnames1 = [ n for n in subnames if len( n ) > 1 ]
         subnames1.reverse()
 
-        # get all subnames with 1 char only 
+        # Get all subnames with 1 char only 
         subnames2 = [ n for n in subnames if len( n ) == 1 ]
 
-        # merge the separated subnames 
+        # Merge the separated subnames 
         subnames = subnames1 + subnames2
 
         results = []
@@ -38,12 +38,12 @@ class NameFilter:
         for result in results:
             commons = list( set( final ) & set( result ) )
 
-            # if common results
+            # If common results
             if len( commons ) > 0:
                 final = commons
                 continue
 
-            # if no common results
+            # If no common results
             final = final if len( final ) > 0 else result
 
         return final
@@ -53,19 +53,40 @@ class NameFilter:
         return self._tags
 
 
+class NamesFilter( NameFilter ):
+
+    def __call__( self, names:list[str] ) -> list[str]:
+
+        # Get results for each single name
+        single_results = []
+        for name in names: 
+            single_results.append( super().__call__( name ) )
+
+        # Leave doc index only, remove name position
+        for i, res in enumerate( single_results ):
+            single_results[ i ] = set( [ r.split('.')[0] for r in res ] )
+
+        # Get the instersection from single name results
+        results = single_results[ 0 ]
+        for i in range( 1, len( single_results ) ):
+            results = results & single_results[ i ]
+
+        return list( results )
+
+
 # RUN: python -m src.NameFilter [text]
 if __name__ == "__main__":
 
-    option = None
+    names = "taylor,mendez".split(',')
     if len( sys.argv ) > 1:
-        text = sys.argv[ 1 ]
-        ds = Dataset()
-        authors, tags = ds.toAuthors()
-        filter = NameFilter( authors, tags )
-        print( filter( text ) )
-        # print( [ a for a in authors if 'taylor' in a.lower() ] )
+        names = sys.argv[ 1 ].split(',')
 
-    else:
-        raise Exception( 'No text passed to filter.' )
+    authors, tags = Dataset().toAuthors()
+    # print( [ a for a in authors if 'taylor' in a.lower() ] )
 
+    filter = NameFilter( authors, tags )
+    for name in names:
+        print( f"{name}:{filter(name)}" )
 
+    filter = NamesFilter( authors, tags )
+    print( f"{','.join(names)}:{filter(names)}" ) # type: ignore

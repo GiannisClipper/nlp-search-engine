@@ -4,7 +4,7 @@ from typing import cast
 from .helpers.typing import QueryAnalyzedType
 
 from .TermsFilter import AbstractTermsFilter, IndexedTermsFilter, ClusteredTermsFilter, B25TermsFilter
-from .NameFilter import NameFilter
+from .NameFilter import NamesFilter
 from .PeriodFilter import PeriodFilter
 from .helpers.Pickle import PickleLoader
 from .helpers.DocViewer import DocViewer
@@ -28,7 +28,7 @@ class TermsRetriever( AbstractRetriever ):
 
 class TermsNamesPeriodRetriever( AbstractRetriever ):
 
-    def __init__( self, termsFilter:AbstractTermsFilter, namesFilter:NameFilter, periodFilter:PeriodFilter ):
+    def __init__( self, termsFilter:AbstractTermsFilter, namesFilter:NamesFilter, periodFilter:PeriodFilter ):
         self.termsFilter = termsFilter
         self.namesFilter = namesFilter
         self.periodFilter = periodFilter
@@ -36,51 +36,28 @@ class TermsNamesPeriodRetriever( AbstractRetriever ):
     def filter( self, query_analyzed:QueryAnalyzedType|None=None, names:list[str]|None=None, period:str|None=None ) -> list[str]:
 
         # Filter by period
-        # ----------------
-
         period_filtered_docs = self.periodFilter.tags # e.g. tags -> '234', '235', ...
         if period:
             period_filtered_docs = self.periodFilter( period )
-
-        # No doc match the date filter 
-        if len( period_filtered_docs ) == 0:
+         
+        if len( period_filtered_docs ) == 0: # No doc match the date filter
             return period_filtered_docs
 
         # Filter by names
-        # ---------------
-
         names_filtered_docs = list( set( [ t.split('.')[0] for t in self.namesFilter.tags ] ) ) # e.g. tags -> '234.0', '234.1', '235.0', ...
         if names:
-            single_results = []
-            for name in names: 
-                single_results.append( self.namesFilter( name ) )
-
-            # Leave doc index only, remove name position
-            for i, res in enumerate( single_results ):
-                single_results[ i ] = set( [ r.split('.')[0] for r in res ] )
-
-            # Get the instersection from single name results
-            names_filtered_docs = single_results[ 0 ]
-            for i in range( 1, len( single_results ) ):
-                names_filtered_docs = names_filtered_docs & single_results[ i ]
-            names_filtered_docs = list( names_filtered_docs )
-
-        # No doc match the names filter 
-        if len( names_filtered_docs ) == 0:
+            names_filtered_docs = list( self.namesFilter( names ) )
+ 
+        if len( names_filtered_docs ) == 0: # No doc match the names filter
             return names_filtered_docs
         
         # Intersect period, names filters
-        # -------------------------------
-
         period_names_filtered_docs = list( set( period_filtered_docs ) & set( names_filtered_docs ) )
-
-        # No doc match both period, names filters 
-        if len( period_names_filtered_docs ) == 0:
+ 
+        if len( period_names_filtered_docs ) == 0: # No doc match both period, names filters
             return period_names_filtered_docs
 
         # Filter by terms
-        # ---------------
-
         if not query_analyzed:
             return period_names_filtered_docs
 
@@ -88,8 +65,6 @@ class TermsNamesPeriodRetriever( AbstractRetriever ):
         terms_filtered_docs = [ str(t) for t in terms_filtered_docs ]
 
         # Intersect period, names, terms filters
-        # --------------------------------------
-
         filtered_docs = list( set( period_names_filtered_docs ) & set( terms_filtered_docs ) )
 
         return filtered_docs
@@ -108,7 +83,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             periodFilter = PeriodFilter( dates=dates, tags=tags )
 
             names, tags = ds.toAuthors()
-            namesFilter = NameFilter( names=names, tags=tags )
+            namesFilter = NamesFilter( names=names, tags=tags )
 
             index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
             index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
@@ -140,7 +115,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             periodFilter = PeriodFilter( dates=dates, tags=tags )
 
             names, tags = ds.toAuthors()
-            namesFilter = NameFilter( names=names, tags=tags )
+            namesFilter = NamesFilter( names=names, tags=tags )
 
             clusters_descr = 'sentences-jina-kmeans'
             clusters_filename = f"{pickle_paths[ 'clusters' ]}/{clusters_descr}.pkl"

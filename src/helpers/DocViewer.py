@@ -1,3 +1,5 @@
+import sys
+
 class DocViewer:
 
     def __init__( self, corpus:list[dict] ):
@@ -17,9 +19,12 @@ class DocViewer:
 # RUN: python -m src.DocViewer
 if __name__ == "__main__": 
 
-    from ..datasets.arXiv.Dataset import Dataset
+    docids = [ '1001', '1002' ]
+    if len( sys.argv ) > 1:
+        docids = sys.argv[ 1 ].split(',')
 
-    ds = Dataset()
-    viewer = DocViewer( corpus=ds.toList() )
-    for i in range( 1001, 1003 ):
-        viewer.view( i )
+    from ..datasets.arXiv.Dataset import Dataset
+    viewer = DocViewer( corpus=Dataset().toList() )
+    for docid in docids:
+        print()
+        viewer.view( int(docid) )
