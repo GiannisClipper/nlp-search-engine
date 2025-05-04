@@ -91,22 +91,46 @@ def searchEngineFactory( option:str ):
             ranker = rankerFactory( 'arxiv-jina' )
             return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
 
-        case 'arxiv-sentences-jina-b25':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
-            retriever = retrieverFactory( 'arxiv-sentences-b25' )
-            ranker = rankerFactory( 'arxiv-jina' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
-
         case 'medical-sentences-jina-kmeans':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
             retriever = retrieverFactory( 'medical-sentences-jina-kmeans' )
             ranker = rankerFactory( 'medical-jina' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
+        case 'arxiv-sentences-jina-b25':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+            retriever = retrieverFactory( 'arxiv-sentences-b25' )
+            ranker = rankerFactory( 'arxiv-jina' )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
+
         case 'medical-sentences-jina-b25':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
             retriever = retrieverFactory( 'medical-sentences-b25' )
             ranker = rankerFactory( 'medical-jina' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'arxiv-sentences-jina-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+            retriever = retrieverFactory( 'arxiv-sentences-jina-faiss' )
+            ranker = rankerFactory( 'arxiv-jina' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'medical-sentences-jina-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+            retriever = retrieverFactory( 'medical-sentences-jina-faiss' )
+            ranker = rankerFactory( 'medical-jina' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'arxiv-sentences-bert-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-bert' )
+            retriever = retrieverFactory( 'arxiv-sentences-bert-faiss' )
+            ranker = rankerFactory( 'arxiv-bert' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'medical-sentences-bert-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-bert' )
+            retriever = retrieverFactory( 'medical-sentences-bert-faiss' )
+            ranker = rankerFactory( 'medical-bert' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case _:
@@ -121,7 +145,6 @@ if __name__ == "__main__":
         option = sys.argv[ 1 ]
 
     query = "Are there any available papers about database management systems (both SQL and NoSQL), especially somehow relevant to semantics?"
-    query = "Are there any available papers about database management systems (both SQL and NoSQL)?"
     if len( sys.argv ) >= 3:
         query = sys.argv[ 2 ]
 
@@ -130,14 +153,16 @@ if __name__ == "__main__":
         case 'arxiv-lemm-single-tfidf' |\
              'arxiv-lemm-single-jina' |\
              'arxiv-sentences-jina-kmeans' |\
-             'arxiv-sentences-jina-b25':
+             'arxiv-sentences-jina-b25' |\
+             'arxiv-sentences-jina-faiss' |\
+             'arxiv-sentences-bert-faiss':
 
             engine = searchEngineFactory( option )
             results = engine.search( query )
 
             from .datasets.arXiv.Dataset import Dataset
             corpus = Dataset().toList()
-            for res in results[:10]:
+            for res in results:
                 doc = corpus[ int(res[0]) ]
                 print( f"{doc['id']} {doc['catg_ids']} {res[1]}" )
 

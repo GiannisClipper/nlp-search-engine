@@ -15,7 +15,7 @@ class AbstractRanker( ABC ):
         return self._representations
 
     @abstractmethod
-    def rank( self, query_repr:spmatrix, filtered_docs:list[str] ) -> list[tuple[str,float]]:
+    def rank( self, query_repr:spmatrix, filtered:list[str] ) -> list[tuple[str,float]]:
         pass
 
 class DocRanker( AbstractRanker ):
@@ -23,17 +23,17 @@ class DocRanker( AbstractRanker ):
     def __init__( self, representations:spmatrix ):
         super().__init__( representations )
 
-    def rank( self, query_repr:spmatrix, filtered_docs:list[str] ) -> list[tuple[str,float]]:
+    def rank( self, query_repr:spmatrix, filtered_idoc:list[str] ) -> list[tuple[str,float]]:
 
         # Get the corresponding corpus representations
-        filtered_repr = np.array( [ self._representations[ int( idoc ) ] for idoc in filtered_docs ] ) # type: ignore
-        filtered_repr.reshape( len( filtered_docs ), -1 )
+        filtered_repr = np.array( [ self._representations[ int( idoc ) ] for idoc in filtered_idoc ] ) # type: ignore
+        filtered_repr.reshape( len( filtered_idoc ), -1 )
 
         # Compute the similarities
         similarities = compute_similarities0( query_repr, filtered_repr )
 
         # Put together idocs and similarities
-        results = [ ( idoc, round( sim, 4 ) ) for idoc, sim in zip( filtered_docs, similarities ) ]
+        results = [ ( idoc, round( sim, 4 ) ) for idoc, sim in zip( filtered_idoc, similarities ) ]
 
         # Put greater similarities at the top
         results.sort( key=lambda x: x[1], reverse=True )
@@ -47,16 +47,14 @@ class SentRanker( AbstractRanker ):
         super().__init__( representations )
         self._tags = tags
 
-    def rank( self, query_repr:spmatrix, filtered_docs:list[str] ) -> list[tuple[str,float]]:
+    def rank( self, query_repr:spmatrix, filtered_isent:list[str] ) -> list[tuple[str,float]]:
 
         # Get the corresponding sentence representations
         filtered_repr = []
         filtered_tags = []
-        for idoc in filtered_docs:
-            doc_sentences = [ isent for isent, tag in zip( range( len( self._tags ) ), self._tags ) if tag.split('.')[0] == str( idoc ) ]
-            for j, isent in enumerate( doc_sentences ):
-                filtered_repr.append( self._representations[ isent ] ) # type: ignore
-                filtered_tags.append( f'{idoc}.{j}' )
+        for isent in filtered_isent:
+            filtered_repr.append( self._representations[ int(isent) ] ) # type: ignore
+            filtered_tags.append( self._tags[ int(isent) ] ) # type: ignore
         filtered_repr = np.array( filtered_repr )
 
         # Compute the similarities
@@ -114,10 +112,28 @@ def rankerFactory( option:str ):
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
+        case 'arxiv-bert':
+            from .datasets.arXiv.Dataset import Dataset
+            from .datasets.arXiv.settings import pickle_paths
+            representations_descr = 'sentences-bert'
+            representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
+            representations = PickleLoader( representations_filename ).load()
+            sentences, tags = Dataset().toSentences()
+            return SentRanker( representations, tags )
+
         case 'medical-jina':
             from .datasets.medical.Dataset import Dataset
             from .datasets.medical.settings import pickle_paths
             representations_descr = 'sentences-jina'
+            representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
+            representations = PickleLoader( representations_filename ).load()
+            sentences, tags = Dataset().toSentences()
+            return SentRanker( representations, tags )
+
+        case 'medical-bert':
+            from .datasets.medical.Dataset import Dataset
+            from .datasets.medical.settings import pickle_paths
+            representations_descr = 'sentences-bert'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()

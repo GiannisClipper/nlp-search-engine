@@ -32,7 +32,7 @@ class QueryAnalyzerWithVectorizer( AbstractQueryAnalyzer):
         query_preprocessed = self._preprocessor.transform( [ query ] )
         query_terms = list( word_tokenize( query_preprocessed[ 0 ] ) )
         query_repr = self._vectorizer.transform( query_preprocessed )
-        return { 'terms': query_terms, 'repr': query_repr }
+        return { 'query': query, 'terms': query_terms, 'repr': query_repr }
 
 
 class QueryAnalyzerWithPretrained( AbstractQueryAnalyzer):
@@ -45,8 +45,9 @@ class QueryAnalyzerWithPretrained( AbstractQueryAnalyzer):
     def analyze( self, query:str ) -> QueryAnalyzedType:
         query_preprocessed = self._preprocessor.transform( [ query ] )
         query_terms = list( word_tokenize( query_preprocessed[ 0 ] ) )
-        query_repr = self._model.encode( query_preprocessed )
-        return { 'terms': query_terms, 'repr': csr_matrix( query_repr ) } # convert to spmatrix
+        # query_repr = self._model.encode( query_preprocessed )
+        query_repr = self._model.encode( query )
+        return { 'query': query, 'terms': query_terms, 'repr': csr_matrix( query_repr ) } # convert to spmatrix
 
 
 def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
@@ -88,6 +89,11 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             preprocessor = NaivePreprocessor()
             model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
             model.max_seq_length = 1024 # control your input sequence length up to 8192
+            return QueryAnalyzerWithPretrained( preprocessor, model )
+
+        case 'naive-bert':
+            preprocessor = NaivePreprocessor()
+            model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True, local_files_only=True )
             return QueryAnalyzerWithPretrained( preprocessor, model )
 
         case _:

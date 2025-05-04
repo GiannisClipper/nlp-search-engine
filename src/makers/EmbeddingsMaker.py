@@ -41,7 +41,7 @@ class EmbeddingsMaker:
 
             # Delay to handle machine temperature
             if i + 1000 < len( self._sentences ): 
-                secs = 60
+                secs = 10
                 print( f'Waiting for {secs} secs to control machine temperature...' )
                 time.sleep( secs )
 
@@ -70,8 +70,6 @@ class EmbeddingsMaker:
 
 def embeddingsMakerFactory( option:str ):
 
-    embeddings_descr = 'sentences-jina'
-
     match option:
 
         case 'arxiv-sentences-jina':
@@ -80,6 +78,17 @@ def embeddingsMakerFactory( option:str ):
             model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             sentences, tags = Dataset().toSentences()
+            embeddings_descr = 'sentences-jina'
+            embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
+            embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
+            return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
+
+        case 'arxiv-sentences-bert':
+            from ..datasets.arXiv.Dataset import Dataset
+            from ..datasets.arXiv.settings import pickle_paths
+            model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True, local_files_only=True )
+            sentences, tags = Dataset().toSentences()
+            embeddings_descr = 'sentences-bert'
             embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
@@ -90,6 +99,17 @@ def embeddingsMakerFactory( option:str ):
             model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             sentences, tags = Dataset().toSentences()
+            embeddings_descr = 'sentences-jina'
+            embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
+            embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
+            return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
+
+        case 'medical-sentences-bert':
+            from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
+            model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True, local_files_only=True )
+            sentences, tags = Dataset().toSentences()
+            embeddings_descr = 'sentences-bert'
             embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
@@ -107,11 +127,10 @@ if __name__ == "__main__":
 
     match option:
 
-        case 'arxiv-sentences-jina':
-            maker = embeddingsMakerFactory( option )
-            maker.make()
-
-        case 'medical-sentences-jina':
+        case 'arxiv-sentences-jina' |\
+             'arxiv-sentences-bert' |\
+             'medical-sentences-jina' |\
+             'medical-sentences-bert':
             maker = embeddingsMakerFactory( option )
             maker.make()
 

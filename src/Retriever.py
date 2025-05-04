@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import cast
 from .helpers.typing import QueryAnalyzedType
 
-from .TermsFilter import AbstractTermsFilter, IndexedTermsFilter, ClusteredTermsFilter, B25TermsFilter
+from .TermsFilter import AbstractTermsFilter, IndexedTermsFilter, ClusteredTermsFilter, B25TermsFilter, FaissTermsFilter
 from .NameFilter import NamesFilter
 from .PeriodFilter import PeriodFilter
 from .helpers.Pickle import PickleLoader
@@ -190,6 +190,34 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             termsFilter = B25TermsFilter( corpus=sentences )
             return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilter=termsFilter )
 
+        case 'arxiv-sentences-jina-faiss':
+            from .datasets.arXiv.Dataset import Dataset
+            from .datasets.arXiv.settings import pickle_paths
+            ds = Dataset()
+            dates, tags = ds.toPublished()
+            periodFilter = PeriodFilter( dates=dates, tags=tags )
+            names, tags = ds.toAuthors()
+            namesFilter = NamesFilter( names=names, tags=tags )
+            descr = 'sentences-jina'
+            filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
+            embeddings = PickleLoader( filename ).load()
+            termsFilter = FaissTermsFilter( corpus_embeddings=embeddings )
+            return TermsRetriever( termsFilter=termsFilter )
+
+        case 'arxiv-sentences-bert-faiss':
+            from .datasets.arXiv.Dataset import Dataset
+            from .datasets.arXiv.settings import pickle_paths
+            ds = Dataset()
+            dates, tags = ds.toPublished()
+            periodFilter = PeriodFilter( dates=dates, tags=tags )
+            names, tags = ds.toAuthors()
+            namesFilter = NamesFilter( names=names, tags=tags )
+            descr = 'sentences-bert'
+            filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
+            embeddings = PickleLoader( filename ).load()
+            termsFilter = FaissTermsFilter( corpus_embeddings=embeddings )
+            return TermsRetriever( termsFilter=termsFilter )
+
         case 'medical-sentences-jina-kmeans':
             from .datasets.medical.settings import pickle_paths
             clusters_descr = 'sentences-jina-kmeans'
@@ -203,6 +231,24 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             from .datasets.medical.Dataset import Dataset
             sentences, tags = Dataset().toSentences()
             termsFilter = B25TermsFilter( corpus=sentences )
+            return TermsRetriever( termsFilter=termsFilter )
+
+        case 'medical-sentences-jina-faiss':
+            from .datasets.medical.settings import pickle_paths
+            descr = 'sentences-jina'
+            filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
+            embeddings = PickleLoader( filename ).load()
+
+            termsFilter = FaissTermsFilter( corpus_embeddings=embeddings )
+            return TermsRetriever( termsFilter=termsFilter )
+
+        case 'medical-sentences-bert-faiss':
+            from .datasets.medical.settings import pickle_paths
+            descr = 'sentences-bert'
+            filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
+            embeddings = PickleLoader( filename ).load()
+
+            termsFilter = FaissTermsFilter( corpus_embeddings=embeddings )
             return TermsRetriever( termsFilter=termsFilter )
 
         case _:
