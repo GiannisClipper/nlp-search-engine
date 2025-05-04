@@ -5,7 +5,7 @@ from scipy.sparse import spmatrix
 from .helpers.Pickle import PickleLoader
 from .helpers.computators import compute_similarities0
 
-class AbstractSimilarityEstimator( ABC ):
+class AbstractRanker( ABC ):
 
     def __init__( self, representations:spmatrix ):
         self._representations = representations
@@ -15,15 +15,15 @@ class AbstractSimilarityEstimator( ABC ):
         return self._representations
 
     @abstractmethod
-    def estimate( self, query_repr:spmatrix, filtered_docs:list[str] ) -> list[tuple[str,float]]:
+    def rank( self, query_repr:spmatrix, filtered_docs:list[str] ) -> list[tuple[str,float]]:
         pass
 
-class DocSimilarityEstimator( AbstractSimilarityEstimator ):
+class DocRanker( AbstractRanker ):
 
     def __init__( self, representations:spmatrix ):
         super().__init__( representations )
 
-    def estimate( self, query_repr:spmatrix, filtered_docs:list[str] ) -> list[tuple[str,float]]:
+    def rank( self, query_repr:spmatrix, filtered_docs:list[str] ) -> list[tuple[str,float]]:
 
         # Get the corresponding corpus representations
         filtered_repr = np.array( [ self._representations[ int( idoc ) ] for idoc in filtered_docs ] ) # type: ignore
@@ -41,13 +41,13 @@ class DocSimilarityEstimator( AbstractSimilarityEstimator ):
         return results
 
 
-class SentSimilarityEstimator( AbstractSimilarityEstimator ):
+class SentRanker( AbstractRanker ):
 
     def __init__( self, representations:spmatrix, tags:list[str] ):
         super().__init__( representations )
         self._tags = tags
 
-    def estimate( self, query_repr:spmatrix, filtered_docs:list[str] ) -> list[tuple[str,float]]:
+    def rank( self, query_repr:spmatrix, filtered_docs:list[str] ) -> list[tuple[str,float]]:
 
         # Get the corresponding sentence representations
         filtered_repr = []
@@ -80,7 +80,7 @@ class SentSimilarityEstimator( AbstractSimilarityEstimator ):
         return results
 
 
-def similarityEstimatorFactory( option:str ):
+def rankerFactory( option:str ):
 
     match option:
 
@@ -89,21 +89,21 @@ def similarityEstimatorFactory( option:str ):
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
             corpus_repr = PickleLoader( corpus_repr_filename ).load()
-            return DocSimilarityEstimator( corpus_repr )
+            return DocRanker( corpus_repr )
 
         case 'arxiv-lemm-single-tfidf':
             from .datasets.arXiv.settings import pickle_paths
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
             corpus_repr = PickleLoader( corpus_repr_filename ).load()
-            return DocSimilarityEstimator( corpus_repr )
+            return DocRanker( corpus_repr )
 
         case 'medical-lemm-single-tfidf':
             from .datasets.medical.settings import pickle_paths
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
             corpus_repr = PickleLoader( corpus_repr_filename ).load()
-            return DocSimilarityEstimator( corpus_repr )
+            return DocRanker( corpus_repr )
 
         case 'arxiv-jina':
             from .datasets.arXiv.Dataset import Dataset
@@ -112,7 +112,7 @@ def similarityEstimatorFactory( option:str ):
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
-            return SentSimilarityEstimator( representations, tags )
+            return SentRanker( representations, tags )
 
         case 'medical-jina':
             from .datasets.medical.Dataset import Dataset
@@ -121,10 +121,10 @@ def similarityEstimatorFactory( option:str ):
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
-            return SentSimilarityEstimator( representations, tags )
+            return SentRanker( representations, tags )
 
         case _:
-            raise Exception( 'similarityEstimatorFactory(): No valid option.' )
+            raise Exception( 'rankerFactory(): No valid option.' )
 
 
 # RUN: python -m src.DocEstimator [option]
@@ -137,24 +137,24 @@ if __name__ == "__main__":
     match option:
 
         case 'arxiv-stemm-single-count':
-            estimator = similarityEstimatorFactory( option )
-            query_repr = estimator.representations[ 3 ] # type: ignore
-            print( estimator.estimate( query_repr, [ '0', '1', '2', '3', '4' ] ) )
+            ranker = rankerFactory( option )
+            query_repr = ranker.representations[ 3 ] # type: ignore
+            print( ranker.rank( query_repr, [ '0', '1', '2', '3', '4' ] ) )
 
         case 'arxiv-lemm-single-tfidf':
-            estimator = similarityEstimatorFactory( option )
-            query_repr = estimator.representations[ 3 ] # type: ignore
-            print( estimator.estimate( query_repr, [ '0', '1', '2', '3', '4' ] ) )
+            ranker = rankerFactory( option )
+            query_repr = ranker.representations[ 3 ] # type: ignore
+            print( ranker.rank( query_repr, [ '0', '1', '2', '3', '4' ] ) )
 
         case 'arxiv-jina':
-            estimator = similarityEstimatorFactory( option )
-            query_repr = estimator.representations[ 0 ] # type: ignore
-            print( estimator.estimate( query_repr, [ '0', '1', '2', '3', '4' ] ) )
+            ranker = rankerFactory( option )
+            query_repr = ranker.representations[ 0 ] # type: ignore
+            print( ranker.rank( query_repr, [ '0', '1', '2', '3', '4' ] ) )
 
         case 'medical-lemm-single-tfidf':
-            estimator = similarityEstimatorFactory( option )
-            query_repr = estimator.representations[ 3 ] # type: ignore
-            print( estimator.estimate( query_repr, [ '0', '1', '2', '3', '4' ] ) )
+            ranker = rankerFactory( option )
+            query_repr = ranker.representations[ 3 ] # type: ignore
+            print( ranker.rank( query_repr, [ '0', '1', '2', '3', '4' ] ) )
 
         case _:
             raise Exception( 'No valid option.' )

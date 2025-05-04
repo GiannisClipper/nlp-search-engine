@@ -5,7 +5,7 @@ from scipy.sparse import spmatrix
 
 from .QueryAnalyzer import AbstractQueryAnalyzer, queryAnalyzerFactory
 from .Retriever import AbstractRetriever, retrieverFactory
-from .SimilarityEstimator import AbstractSimilarityEstimator, similarityEstimatorFactory
+from .Ranker import AbstractRanker, rankerFactory
 from .helpers.typing import QueryAnalyzedType
 
 class AbstractSearchEngine( ABC ):
@@ -16,10 +16,10 @@ class AbstractSearchEngine( ABC ):
 
 class TermsSearchEngine( AbstractSearchEngine ):
 
-    def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, retriever:AbstractRetriever, similarityEstimator:AbstractSimilarityEstimator ):
+    def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, retriever:AbstractRetriever, ranker:AbstractRanker ):
         self._queryAnalyzer = queryAnalyzer
         self._retriever = retriever
-        self._similarityEstimator = similarityEstimator
+        self._ranker = ranker
 
     def search( self, query:str ) -> list[tuple[str,float]]:
 
@@ -27,23 +27,23 @@ class TermsSearchEngine( AbstractSearchEngine ):
         print( 'Analyze query...' )
         query_analyzed:QueryAnalyzedType = self._queryAnalyzer.analyze( query )
 
-        # Filter documents based on terms, names, period
-        print( 'Filter docs...' )
-        filtered_docs_or_sentences = self._retriever.retrieve( query_analyzed=query_analyzed )
-        if len( filtered_docs_or_sentences ) == 0:
+        # Retrieve documents or sentences based on terms
+        print( 'Retrieve docs/sentences...' )
+        retrieved = self._retriever.retrieve( query_analyzed=query_analyzed )
+        if len( retrieved ) == 0:
             return []
         
-        # Estimate similarities between query and document/sentence vectors
-        print( f'Estimate similarities ({len(filtered_docs_or_sentences)})...' )
+        # Rank based on similarity between query and document/sentence vectors
+        print( f'Rank documents ({len(retrieved)})...' )
         query_repr = cast( spmatrix, query_analyzed[ 'repr' ] )
-        return self._similarityEstimator.estimate( query_repr, filtered_docs_or_sentences )
+        return self._ranker.rank( query_repr, retrieved )
 
-class TermsNamesPeriodSearchEngine( AbstractSearchEngine ):
+class PeriodNamesTermsSearchEngine( AbstractSearchEngine ):
 
-    def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, retriever:AbstractRetriever, similarityEstimator:AbstractSimilarityEstimator ):
+    def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, retriever:AbstractRetriever, ranker:AbstractRanker ):
         self._queryAnalyzer = queryAnalyzer
         self._retriever = retriever
-        self._similarityEstimator = similarityEstimator
+        self._ranker = ranker
 
     def search( self, query:str, names:list[str]|None=None, period:str|None=None ) -> list[tuple[str,float]]:
 
@@ -51,16 +51,16 @@ class TermsNamesPeriodSearchEngine( AbstractSearchEngine ):
         print( 'Analyze query...' )
         query_analyzed:QueryAnalyzedType = self._queryAnalyzer.analyze( query )
 
-        # Filter documents based on terms, names, period
-        print( 'Filter docs...' )
-        filtered_docs = self._retriever.retrieve( period=period, names=names, query_analyzed=query_analyzed )
-        if len( filtered_docs ) == 0:
+        # Retrieve documents or sentences based on period, names, terms
+        print( 'Retrieve docs/sentences...' )
+        retrieved = self._retriever.retrieve( period=period, names=names, query_analyzed=query_analyzed )
+        if len( retrieved ) == 0:
             return []
         
-        # Estimate similarities between query and document/sentence vectors
-        print( 'Estimate similarities...' )
+        # Rank based on similarity between query and document/sentence vectors
+        print( 'Rank documents...' )
         query_repr = cast( spmatrix, query_analyzed[ 'repr' ] )
-        return self._similarityEstimator.estimate( query_repr, filtered_docs )
+        return self._ranker.rank( query_repr, retrieved )
 
 
 def searchEngineFactory( option:str ):
@@ -70,33 +70,33 @@ def searchEngineFactory( option:str ):
         case 'arxiv-lemm-single-tfidf':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'arxiv-lemm-single' )
-            similarityEstimator = similarityEstimatorFactory( option )
-            return TermsNamesPeriodSearchEngine( queryAnalyzer, retriever, similarityEstimator )
+            ranker = rankerFactory( option )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case 'medical-lemm-single-tfidf':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'medical-lemm-single' )
-            similarityEstimator = similarityEstimatorFactory( option )
-            return TermsSearchEngine( queryAnalyzer, retriever, similarityEstimator )
+            ranker = rankerFactory( option )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case 'medical-lemm-single-jina':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'medical-lemm-single' )
-            similarityEstimator = similarityEstimatorFactory( 'medical-jina' )
-            return TermsSearchEngine( queryAnalyzer, retriever, similarityEstimator )
+            ranker = rankerFactory( 'medical-jina' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case 'arxiv-sentences-jina-kmeans':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
             retriever = retrieverFactory( 'arxiv-sentences-jina-kmeans' )
-            similarityEstimator = similarityEstimatorFactory( 'arxiv-jina' )
-            return TermsNamesPeriodSearchEngine( queryAnalyzer, retriever, similarityEstimator )
+            ranker = rankerFactory( 'arxiv-jina' )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case 'medical-sentences-jina-kmeans':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
             retriever = retrieverFactory( 'medical-sentences-jina-kmeans' )
             # retriever = retrieverFactory( 'medical-sentences-b25' )
-            similarityEstimator = similarityEstimatorFactory( 'medical-jina' )
-            return TermsSearchEngine( queryAnalyzer, retriever, similarityEstimator )
+            ranker = rankerFactory( 'medical-jina' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case _:
             raise Exception( 'searchEngineFactory(): No valid option.' )
