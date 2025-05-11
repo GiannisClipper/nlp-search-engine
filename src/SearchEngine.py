@@ -10,57 +10,79 @@ from .helpers.typing import QueryAnalyzedType
 
 class AbstractSearchEngine( ABC ):
 
+    def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, retriever:AbstractRetriever, ranker:AbstractRanker ):
+        self._queryAnalyzer = queryAnalyzer
+        self._query_analyzed:QueryAnalyzedType
+
+        self._retriever = retriever
+        self._retrieved:list[str]
+
+        self._ranker = ranker
+        self._ranked = list[tuple[str,float]]
+
     @abstractmethod
-    def search( self, query:str ):
+    def _analyze( self, query:str ) -> None:
+        pass
+
+    @abstractmethod
+    def _retrieve( self ) -> None:
+        pass
+
+    @abstractmethod
+    def _rank( self ) -> None:
+        pass
+
+    @abstractmethod
+    def search( self, query:str ) -> list[tuple[str,float]]:
         pass
 
 class TermsSearchEngine( AbstractSearchEngine ):
 
-    def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, retriever:AbstractRetriever, ranker:AbstractRanker ):
-        self._queryAnalyzer = queryAnalyzer
-        self._retriever = retriever
-        self._ranker = ranker
-
-    def search( self, query:str ) -> list[tuple[str,float]]:
+    def _analyze( self, query:str ) -> None:
 
         # Analyze query into terms and vectors
         print( 'Analyze query...' )
-        query_analyzed:QueryAnalyzedType = self._queryAnalyzer.analyze( query )
+        self._query_analyzed:QueryAnalyzedType = self._queryAnalyzer.analyze( query )
+
+    def _retrieve( self ) -> None:
 
         # Retrieve documents or sentences based on terms
         print( 'Retrieve docs/sentences...' )
-        retrieved = self._retriever.retrieve( query_analyzed=query_analyzed )
-        if len( retrieved ) == 0:
-            return []
+        self._retrieved = self._retriever.retrieve( query_analyzed=self._query_analyzed )
+
+    def _rank( self ) -> None:
         
         # Rank based on similarity between query and document/sentence vectors
-        print( f'Rank documents ({len(retrieved)})...' )
-        query_repr = cast( spmatrix, query_analyzed[ 'repr' ] )
-        return self._ranker.rank( query_repr, retrieved )
+        print( f'Rank documents ({len(self._retrieved)})...' )
+        query_repr = cast( spmatrix, self._query_analyzed[ 'repr' ] )
+        self._ranked = self._ranker.rank( query_repr, self._retrieved )
 
-class PeriodNamesTermsSearchEngine( AbstractSearchEngine ):
+    def search( self, query:str ) -> list[tuple[str,float]]:
 
-    def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, retriever:AbstractRetriever, ranker:AbstractRanker ):
-        self._queryAnalyzer = queryAnalyzer
-        self._retriever = retriever
-        self._ranker = ranker
+        self._analyze( query )
+        self._retrieve()
+        if len( self._retrieved ) == 0:
+            return []
+        self._rank()
+        return self._ranked
 
-    def search( self, query:str, names:list[str]|None=None, period:str|None=None ) -> list[tuple[str,float]]:
 
-        # Analyze query into terms and vectors
-        print( 'Analyze query...' )
-        query_analyzed:QueryAnalyzedType = self._queryAnalyzer.analyze( query )
+class PeriodNamesTermsSearchEngine( TermsSearchEngine ):
 
-        # Retrieve documents or sentences based on period, names, terms
+    def _retrieve( self, names:list[str]|None=None, period:str|None=None ) -> None:
+
+        # Retrieve documents or sentences based on terms
         print( 'Retrieve docs/sentences...' )
-        retrieved = self._retriever.retrieve( period=period, names=names, query_analyzed=query_analyzed )
-        if len( retrieved ) == 0:
+        self._retrieved = self._retriever.retrieve( period=period, names=names, query_analyzed=self._query_analyzed )
+
+    def _search( self, query:str, names:list[str]|None=None, period:str|None=None ) -> list[tuple[str,float]]:
+
+        self._analyze( query )
+        self._retrieve( period=period, names=names )
+        if len( self._retrieved ) == 0:
             return []
-        
-        # Rank based on similarity between query and document/sentence vectors
-        print( 'Rank documents...' )
-        query_repr = cast( spmatrix, query_analyzed[ 'repr' ] )
-        return self._ranker.rank( query_repr, retrieved )
+        self._rank()
+        return self._ranked
 
 
 def searchEngineFactory( option:str ):
