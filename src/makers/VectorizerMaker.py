@@ -64,7 +64,7 @@ def make_and_save(
     PickleSaver( corpus_repr_filename ).save( corpus_repr )
 
 
-# RUN: python -m src.VectorizerMaker [option]
+# RUN: python -m src.makers.VectorizerMaker [option]
 if __name__ == "__main__": 
 
     option = None
@@ -121,6 +121,18 @@ if __name__ == "__main__":
                 VectorizerClass=TfidfVectorizer
             )
 
+        case 'arxiv-lemm-2gram-tfidf':
+            from ..datasets.arXiv.Dataset import Dataset
+            from ..datasets.arXiv.settings import pickle_paths
+            make_and_save( 
+                pickle_paths, 
+                vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_2gram', 
+                vectorizer_descr='title-summary_lower-punct-specials-stops-lemm_2gram_tfidf', 
+                corpus=Dataset().toListTitlesSummaries(), 
+                PreprocessorClass=LemmPreprocessor,
+                VectorizerClass=TfidfVectorizer
+            )
+
         case 'medical-lemm-single-tfidf':
             from ..datasets.medical.Dataset import Dataset
             from ..datasets.medical.settings import pickle_paths
@@ -128,6 +140,18 @@ if __name__ == "__main__":
                 pickle_paths,
                 vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_single', 
                 vectorizer_descr='title-summary_lower-punct-specials-stops-lemm_single_tfidf', 
+                corpus=Dataset().toListTitlesAbstracts(), 
+                PreprocessorClass=LemmPreprocessor,
+                VectorizerClass=TfidfVectorizer
+            )
+
+        case 'medical-lemm-2gram-tfidf':
+            from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
+            make_and_save( 
+                pickle_paths,
+                vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_2gram', 
+                vectorizer_descr='title-summary_lower-punct-specials-stops-lemm_2gram_tfidf', 
                 corpus=Dataset().toListTitlesAbstracts(), 
                 PreprocessorClass=LemmPreprocessor,
                 VectorizerClass=TfidfVectorizer

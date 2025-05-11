@@ -9,6 +9,9 @@ from nltk import ngrams
 # abstract class 
 class TokenMaker( ABC ):
 
+    def __init__( self, limit:int=0 ):
+        self._limit = limit
+
     @abstractmethod
     def make( self, text:str ) -> tuple[str,...]:
         self._tokens = tuple( word_tokenize( text ) )
@@ -30,7 +33,7 @@ class SingleTokenMaker( TokenMaker ):
             singles[ token ] = singles.get( token, 0 ) + 1
         singles = list( singles.items() )
         singles.sort( key=lambda x: x[1], reverse=True )
-        self._tokens = tuple( x[0] for x in singles )
+        self._tokens = tuple( x[0] for x in singles )[:self._limit if self._limit > 0 else None]
         return self._tokens
 
 
@@ -44,6 +47,6 @@ class TwogramTokenMaker( TokenMaker ):
             twograms[ token ] = twograms.get( token, 0 ) + 1
         twograms = list( twograms.items() )
         twograms.sort( key=lambda x: x[1], reverse=True )
-        self._tokens =  tuple( x[0] for x in twograms )
+        self._tokens =  tuple( x[0] for x in twograms )[:self._limit if self._limit > 0 else None]
         return self._tokens
 

@@ -94,7 +94,7 @@ def make_and_save(
     PickleSaver( index_filename ).save( index )
 
 
-# RUN: python -m arXiv.IndexMaker [option]
+# RUN: python -m src.makers.IndexMaker [option]
 if __name__ == "__main__": 
 
     option = None
@@ -123,12 +123,32 @@ if __name__ == "__main__":
                 PreprocessorClass=LemmPreprocessor
             )
 
+        case 'arxiv-lemm-2gram':
+            from ..datasets.arXiv.Dataset import Dataset
+            from ..datasets.arXiv.settings import pickle_paths
+            make_and_save(
+                pickle_paths,
+                vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_2gram',
+                corpus=Dataset().toListTitlesSummaries(),
+                PreprocessorClass=LemmPreprocessor
+            )
+
         case 'medical-lemm-single':
             from ..datasets.medical.Dataset import Dataset
             from ..datasets.medical.settings import pickle_paths
             make_and_save(
                 pickle_paths,
                 vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_single',
+                corpus=Dataset().toListTitlesAbstracts(),
+                PreprocessorClass=LemmPreprocessor
+            )
+
+        case 'medical-lemm-2gram':
+            from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
+            make_and_save(
+                pickle_paths,
+                vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_2gram',
                 corpus=Dataset().toListTitlesAbstracts(),
                 PreprocessorClass=LemmPreprocessor
             )

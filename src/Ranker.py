@@ -96,9 +96,23 @@ def rankerFactory( option:str ):
             corpus_repr = PickleLoader( corpus_repr_filename ).load()
             return DocRanker( corpus_repr )
 
+        case 'arxiv-lemm-2gram-tfidf':
+            from .datasets.arXiv.settings import pickle_paths
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram_tfidf'
+            corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
+            corpus_repr = PickleLoader( corpus_repr_filename ).load()
+            return DocRanker( corpus_repr )
+
         case 'medical-lemm-single-tfidf':
             from .datasets.medical.settings import pickle_paths
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
+            corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
+            corpus_repr = PickleLoader( corpus_repr_filename ).load()
+            return DocRanker( corpus_repr )
+
+        case 'medical-lemm-2gram-tfidf':
+            from .datasets.medical.settings import pickle_paths
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram_tfidf'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
             corpus_repr = PickleLoader( corpus_repr_filename ).load()
             return DocRanker( corpus_repr )

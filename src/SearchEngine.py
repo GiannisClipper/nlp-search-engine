@@ -95,9 +95,21 @@ def searchEngineFactory( option:str ):
             ranker = rankerFactory( option )
             return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
 
+        case 'arxiv-lemm-2gram-tfidf':
+            queryAnalyzer = queryAnalyzerFactory( option )
+            retriever = retrieverFactory( 'arxiv-lemm-2gram' )
+            ranker = rankerFactory( option )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
+
         case 'medical-lemm-single-tfidf':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'medical-lemm-single' )
+            ranker = rankerFactory( option )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'medical-lemm-2gram-tfidf':
+            queryAnalyzer = queryAnalyzerFactory( option )
+            retriever = retrieverFactory( 'medical-lemm-2gram' )
             ranker = rankerFactory( option )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
@@ -173,6 +185,7 @@ if __name__ == "__main__":
     match option:
 
         case 'arxiv-lemm-single-tfidf' |\
+             'arxiv-lemm-2gram-tfidf' |\
              'arxiv-lemm-single-jina' |\
              'arxiv-sentences-jina-kmeans' |\
              'arxiv-sentences-jina-b25' |\

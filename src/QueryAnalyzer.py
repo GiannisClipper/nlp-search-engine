@@ -70,10 +70,26 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             vectorizer = PickleLoader( vectorizer_filename ).load()
             return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )
 
+        case 'arxiv-lemm-2gram-tfidf':
+            from .datasets.arXiv.settings import pickle_paths
+            preprocessor = LemmPreprocessor()
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram_tfidf'
+            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
+            vectorizer = PickleLoader( vectorizer_filename ).load()
+            return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )
+
         case 'medical-lemm-single-tfidf':
             from .datasets.medical.settings import pickle_paths
             preprocessor = LemmPreprocessor()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
+            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
+            vectorizer = PickleLoader( vectorizer_filename ).load()
+            return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )
+
+        case 'medical-lemm-2gram-tfidf':
+            from .datasets.medical.settings import pickle_paths
+            preprocessor = LemmPreprocessor()
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram_tfidf'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
             vectorizer = PickleLoader( vectorizer_filename ).load()
             return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )

@@ -34,12 +34,22 @@ class OccuredTermsFilter( AbstractIndexedTermsFilter ):
 
     def filter( self, query_analyzed:QueryAnalyzedType, threshold:float=0.5 ) -> list[str]:
         
-        doc_stats = {}
         terms = query_analyzed[ 'terms' ]
+
+        # take 2grams into account
+        twograms = []
+        for i in range( len( terms ) -1 ):
+            twograms.append( terms[ i ] + ' ' + terms[ i + 1 ] )
+        terms += twograms
+
+        # keep only terms existing in index
+        terms = [ t for t in terms if t in self._index ] 
+
+        doc_stats = {}
         for term in terms:
 
             # if term is included in index
-            if term in self._index:
+            # if term in self._index:
 
                 # iterate all docs the term is ocuured within
                 for idoc in self._index[ term ].keys():
@@ -63,13 +73,23 @@ class WeightedTermsFilter( AbstractIndexedTermsFilter ):
 
     def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
 
+        terms = query_analyzed[ 'terms' ]
+
+        # take 2grams into account
+        twograms = []
+        for i in range( len( terms ) -1 ):
+            twograms.append( terms[ i ] + ' ' + terms[ i + 1 ] )
+        terms += twograms
+
+        # keep only terms existing in index
+        terms = [ t for t in terms if t in self._index ] 
+
         term_weights = {}
         doc_stats = {}
-        terms = query_analyzed[ 'terms' ]
         for term in terms:
 
             # if term is included in index
-            if term in self._index:
+            # if term in self._index:
 
                 # compute a term weight like idf (+1 to avoid zero division)
                 term_weights[ term ] = math.log10( len( self._corpus ) / ( 1 + len( self._index[ term ].keys() ) ) )
