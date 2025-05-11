@@ -88,22 +88,6 @@ class WeightedTermsFilter( AbstractIndexedTermsFilter ):
         return result
 
 
-class IndexedTermsFilter( AbstractIndexedTermsFilter ):
-
-    def __init__( self, index:dict, corpus:list[dict], threshold:float=0.5, limit:int=200 ):
-        super().__init__( index )
-        self._corpus = corpus
-        self._threshold = threshold
-        self._limit = limit
-
-
-    def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
-
-        result1 = OccuredTermsFilter( self._index, self._threshold ).filter( query_analyzed )
-        result2 = WeightedTermsFilter( self._index, self._corpus, self._limit ).filter( query_analyzed )
-        return list( set( result1 + result2 ) )
-
-
 class ClusteredTermsFilter( AbstractTermsFilter ):
 
     def __init__( self, model:KMeans ):
