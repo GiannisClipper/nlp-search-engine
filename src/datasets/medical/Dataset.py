@@ -222,8 +222,9 @@ if __name__ == "__main__":
         case 'results-dict':
             qr = QueriesResults()
             results = qr.toDict()
-            query_id = qr.toList()[ 0 ][ 'query_id' ]
-            print( results[ query_id ] )
+            print( 'query_id: PLAIN-1, doc_ids:', results[ 'PLAIN-1' ] )
+            # query_id = qr.toList()[ 0 ][ 'query_id' ]
+            # print( results[ query_id ] )
 
         case _:
             raise Exception( 'No valid option.' )
