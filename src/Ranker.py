@@ -103,24 +103,10 @@ def rankerFactory( option:str ):
             corpus_repr = PickleLoader( corpus_repr_filename ).load()
             return DocRanker( corpus_repr )
 
-        case 'medical-lemm-single-tfidf':
-            from .datasets.medical.settings import pickle_paths
-            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
-            corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
-            corpus_repr = PickleLoader( corpus_repr_filename ).load()
-            return DocRanker( corpus_repr )
-
-        case 'medical-lemm-2gram-tfidf':
-            from .datasets.medical.settings import pickle_paths
-            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram_tfidf'
-            corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
-            corpus_repr = PickleLoader( corpus_repr_filename ).load()
-            return DocRanker( corpus_repr )
-
-        case 'arxiv-jina':
+        case 'arxiv-glove':
             from .datasets.arXiv.Dataset import Dataset
             from .datasets.arXiv.settings import pickle_paths
-            representations_descr = 'sentences-jina'
+            representations_descr = 'sentences-glove'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
@@ -135,10 +121,33 @@ def rankerFactory( option:str ):
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
-        case 'medical-jina':
+        case 'arxiv-jina':
+            from .datasets.arXiv.Dataset import Dataset
+            from .datasets.arXiv.settings import pickle_paths
+            representations_descr = 'sentences-jina'
+            representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
+            representations = PickleLoader( representations_filename ).load()
+            sentences, tags = Dataset().toSentences()
+            return SentRanker( representations, tags )
+
+        case 'medical-lemm-single-tfidf':
+            from .datasets.medical.settings import pickle_paths
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
+            corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
+            corpus_repr = PickleLoader( corpus_repr_filename ).load()
+            return DocRanker( corpus_repr )
+
+        case 'medical-lemm-2gram-tfidf':
+            from .datasets.medical.settings import pickle_paths
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram_tfidf'
+            corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
+            corpus_repr = PickleLoader( corpus_repr_filename ).load()
+            return DocRanker( corpus_repr )
+
+        case 'medical-glove':
             from .datasets.medical.Dataset import Dataset
             from .datasets.medical.settings import pickle_paths
-            representations_descr = 'sentences-jina'
+            representations_descr = 'sentences-glove'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
@@ -148,6 +157,15 @@ def rankerFactory( option:str ):
             from .datasets.medical.Dataset import Dataset
             from .datasets.medical.settings import pickle_paths
             representations_descr = 'sentences-bert'
+            representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
+            representations = PickleLoader( representations_filename ).load()
+            sentences, tags = Dataset().toSentences()
+            return SentRanker( representations, tags )
+
+        case 'medical-jina':
+            from .datasets.medical.Dataset import Dataset
+            from .datasets.medical.settings import pickle_paths
+            representations_descr = 'sentences-jina'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()

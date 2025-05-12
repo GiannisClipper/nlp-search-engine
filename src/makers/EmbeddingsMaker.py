@@ -5,10 +5,11 @@ import time
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from ..helpers.Pickle import PickleSaver, PickleLoader
+from ..models.GloveModel import GloveModel, gloveModelFactory
 
 class EmbeddingsMaker:
 
-    def __init__( self, model:SentenceTransformer, sentences:list[str], embeddings_filename_base:str, embeddings_filename_merged:str ):
+    def __init__( self, model:SentenceTransformer|GloveModel, sentences:list[str], embeddings_filename_base:str, embeddings_filename_merged:str ):
         self._model = model
         self._sentences = sentences
         self._embeddings_filename_base = embeddings_filename_base
@@ -41,7 +42,7 @@ class EmbeddingsMaker:
 
             # Delay to handle machine temperature
             if i + 1000 < len( self._sentences ): 
-                secs = 10
+                secs = 1
                 print( f'Waiting for {secs} secs to control machine temperature...' )
                 time.sleep( secs )
 
@@ -72,13 +73,12 @@ def embeddingsMakerFactory( option:str ):
 
     match option:
 
-        case 'arxiv-sentences-jina':
+        case 'arxiv-sentences-glove':
             from ..datasets.arXiv.Dataset import Dataset
             from ..datasets.arXiv.settings import pickle_paths
-            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
-            model.max_seq_length = 1024 # control your input sequence length up to 8192
+            model = gloveModelFactory( 'arxiv' )
             sentences, tags = Dataset().toSentences()
-            embeddings_descr = 'sentences-jina'
+            embeddings_descr = 'sentences-glove'
             embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
@@ -93,13 +93,23 @@ def embeddingsMakerFactory( option:str ):
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
 
-        case 'medical-sentences-jina':
-            from ..datasets.medical.Dataset import Dataset
-            from ..datasets.medical.settings import pickle_paths
+        case 'arxiv-sentences-jina':
+            from ..datasets.arXiv.Dataset import Dataset
+            from ..datasets.arXiv.settings import pickle_paths
             model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             sentences, tags = Dataset().toSentences()
             embeddings_descr = 'sentences-jina'
+            embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
+            embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
+            return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
+
+        case 'medical-sentences-glove':
+            from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
+            model = gloveModelFactory( 'medical' )
+            sentences, tags = Dataset().toSentences()
+            embeddings_descr = 'sentences-glove'
             embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
@@ -110,6 +120,17 @@ def embeddingsMakerFactory( option:str ):
             model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True, local_files_only=True )
             sentences, tags = Dataset().toSentences()
             embeddings_descr = 'sentences-bert'
+            embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
+            embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
+            return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
+
+        case 'medical-sentences-jina':
+            from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
+            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
+            model.max_seq_length = 1024 # control your input sequence length up to 8192
+            sentences, tags = Dataset().toSentences()
+            embeddings_descr = 'sentences-jina'
             embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
@@ -129,8 +150,10 @@ if __name__ == "__main__":
 
         case 'arxiv-sentences-jina' |\
              'arxiv-sentences-bert' |\
+             'arxiv-sentences-glove' |\
              'medical-sentences-jina' |\
-             'medical-sentences-bert':
+             'medical-sentences-bert' |\
+             'medical-sentences-glove':
             maker = embeddingsMakerFactory( option )
             maker.make()
 

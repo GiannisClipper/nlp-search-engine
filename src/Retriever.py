@@ -177,35 +177,6 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
 
             return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
 
-        case 'medical-lemm-single':
-            from .datasets.medical.Dataset import Dataset
-            from .datasets.medical.settings import pickle_paths
-            ds = Dataset()
-            index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
-            index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-            index = PickleLoader( index_filename ).load()
-            corpus = ds.toList()
-            termsFilters:list[AbstractTermsFilter] = [
-                OccuredTermsFilter( index=index, threshold=0.5 ),
-                WeightedTermsFilter( index=index, corpus=corpus, limit=200 )
-            ]
-            return TermsRetriever( termsFilters=termsFilters )
-
-        case 'medical-lemm-2gram':
-            from .datasets.medical.Dataset import Dataset
-            from .datasets.medical.settings import pickle_paths
-            ds = Dataset()
-            index_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram'
-            index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-            index = PickleLoader( index_filename ).load()
-            corpus = ds.toList()
-            termsFilters:list[AbstractTermsFilter] = [
-                OccuredTermsFilter( index=index, threshold=0.5 ),
-                WeightedTermsFilter( index=index, corpus=corpus, limit=200 )
-            ]
-            return TermsRetriever( termsFilters=termsFilters )
-
-
         case 'arxiv-sentences-jina-kmeans':
             from .datasets.arXiv.Dataset import Dataset
             from .datasets.arXiv.settings import pickle_paths
@@ -263,6 +234,40 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
             return TermsRetriever( termsFilters=termsFilters )
 
+        case 'medical-lemm-single':
+            from .datasets.medical.Dataset import Dataset
+            from .datasets.medical.settings import pickle_paths
+            ds = Dataset()
+            index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
+            index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
+            index = PickleLoader( index_filename ).load()
+            corpus = ds.toList()
+            termsFilters:list[AbstractTermsFilter] = [
+                OccuredTermsFilter( index=index, threshold=0.5 ),
+                WeightedTermsFilter( index=index, corpus=corpus, limit=200 )
+            ]
+            return TermsRetriever( termsFilters=termsFilters )
+
+        case 'medical-lemm-2gram':
+            from .datasets.medical.Dataset import Dataset
+            from .datasets.medical.settings import pickle_paths
+            ds = Dataset()
+            index_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram'
+            index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
+            index = PickleLoader( index_filename ).load()
+            corpus = ds.toList()
+            termsFilters:list[AbstractTermsFilter] = [
+                OccuredTermsFilter( index=index, threshold=0.5 ),
+                WeightedTermsFilter( index=index, corpus=corpus, limit=200 )
+            ]
+            return TermsRetriever( termsFilters=termsFilters )
+
+        case 'medical-sentences-b25':
+            from .datasets.medical.Dataset import Dataset
+            sentences, tags = Dataset().toSentences()
+            termsFilters = [ B25TermsFilter( corpus=sentences ) ]
+            return TermsRetriever( termsFilters=termsFilters )
+
         case 'medical-sentences-jina-kmeans':
             from .datasets.medical.settings import pickle_paths
             clusters_descr = 'sentences-jina-kmeans'
@@ -276,15 +281,9 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             ]
             return TermsRetriever( termsFilters=termsFilters )
 
-        case 'medical-sentences-b25':
-            from .datasets.medical.Dataset import Dataset
-            sentences, tags = Dataset().toSentences()
-            termsFilters = [ B25TermsFilter( corpus=sentences ) ]
-            return TermsRetriever( termsFilters=termsFilters )
-
-        case 'medical-sentences-jina-faiss':
+        case 'medical-sentences-glove-faiss':
             from .datasets.medical.settings import pickle_paths
-            descr = 'sentences-jina'
+            descr = 'sentences-glove'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
             embeddings = PickleLoader( filename ).load()
             termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
@@ -293,6 +292,14 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
         case 'medical-sentences-bert-faiss':
             from .datasets.medical.settings import pickle_paths
             descr = 'sentences-bert'
+            filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
+            embeddings = PickleLoader( filename ).load()
+            termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
+            return TermsRetriever( termsFilters=termsFilters )
+
+        case 'medical-sentences-jina-faiss':
+            from .datasets.medical.settings import pickle_paths
+            descr = 'sentences-jina'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
             embeddings = PickleLoader( filename ).load()
             termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]

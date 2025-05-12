@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import sys
 
 import nltk
+
 nltk.download( 'punkt_tab' ) # required by word_tokenize()
 from nltk.tokenize import word_tokenize
 
@@ -13,6 +14,7 @@ from sentence_transformers import SentenceTransformer
 from .Preprocessor import Preprocessor, NaivePreprocessor, LemmPreprocessor, StemmPreprocessor
 from .helpers.Pickle import PickleLoader
 from .helpers.typing import QueryAnalyzedType
+from .models.GloveModel import GloveModel, gloveModelFactory
 
 class AbstractQueryAnalyzer( ABC ):
 
@@ -37,7 +39,7 @@ class QueryAnalyzerWithVectorizer( AbstractQueryAnalyzer):
 
 class QueryAnalyzerWithPretrained( AbstractQueryAnalyzer):
 
-    def __init__( self, preprocessor:Preprocessor, model:SentenceTransformer ):
+    def __init__( self, preprocessor:Preprocessor, model:SentenceTransformer|GloveModel ):
         super().__init__()
         self._preprocessor = preprocessor
         self._model = model
@@ -45,7 +47,6 @@ class QueryAnalyzerWithPretrained( AbstractQueryAnalyzer):
     def analyze( self, query:str ) -> QueryAnalyzedType:
         query_preprocessed = self._preprocessor.transform( [ query ] )
         query_terms = list( word_tokenize( query_preprocessed[ 0 ] ) )
-        # query_repr = self._model.encode( query_preprocessed )
         query_repr = self._model.encode( query )
         return { 'query': query, 'terms': query_terms, 'repr': csr_matrix( query_repr ) } # convert to spmatrix
 
@@ -78,6 +79,11 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             vectorizer = PickleLoader( vectorizer_filename ).load()
             return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )
 
+        case 'arxiv-naive-glove':
+            preprocessor = NaivePreprocessor()
+            model = gloveModelFactory( 'arxiv' )
+            return QueryAnalyzerWithPretrained( preprocessor, model )
+
         case 'medical-lemm-single-tfidf':
             from .datasets.medical.settings import pickle_paths
             preprocessor = LemmPreprocessor()
@@ -101,15 +107,20 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             return QueryAnalyzerWithPretrained( preprocessor, model )
 
-        case 'naive-jina':
+        case 'medical-naive-glove':
             preprocessor = NaivePreprocessor()
-            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
-            model.max_seq_length = 1024 # control your input sequence length up to 8192
+            model = gloveModelFactory( 'medical' )
             return QueryAnalyzerWithPretrained( preprocessor, model )
 
         case 'naive-bert':
             preprocessor = NaivePreprocessor()
             model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True, local_files_only=True )
+            return QueryAnalyzerWithPretrained( preprocessor, model )
+
+        case 'naive-jina':
+            preprocessor = NaivePreprocessor()
+            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
+            model.max_seq_length = 1024 # control your input sequence length up to 8192
             return QueryAnalyzerWithPretrained( preprocessor, model )
 
         case _:

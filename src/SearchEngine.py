@@ -101,6 +101,36 @@ def searchEngineFactory( option:str ):
             ranker = rankerFactory( option )
             return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
 
+        case 'arxiv-sentences-glove-b25':
+            queryAnalyzer = queryAnalyzerFactory( 'arxiv-naive-glove' )
+            retriever = retrieverFactory( 'arxiv-sentences-b25' )
+            ranker = rankerFactory( 'arxiv-glove' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'arxiv-sentences-jina-b25':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+            retriever = retrieverFactory( 'arxiv-sentences-b25' )
+            ranker = rankerFactory( 'arxiv-jina' )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'arxiv-sentences-jina-kmeans':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+            retriever = retrieverFactory( 'arxiv-sentences-jina-kmeans' )
+            ranker = rankerFactory( 'arxiv-jina' )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'arxiv-sentences-bert-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-bert' )
+            retriever = retrieverFactory( 'arxiv-sentences-bert-faiss' )
+            ranker = rankerFactory( 'arxiv-bert' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'arxiv-sentences-jina-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+            retriever = retrieverFactory( 'arxiv-sentences-jina-faiss' )
+            ranker = rankerFactory( 'arxiv-jina' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
         case 'medical-lemm-single-tfidf':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'medical-lemm-single' )
@@ -113,29 +143,23 @@ def searchEngineFactory( option:str ):
             ranker = rankerFactory( option )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
+        case 'medical-sentences-glove-b25':
+            queryAnalyzer = queryAnalyzerFactory( 'medical-naive-glove' )
+            retriever = retrieverFactory( 'medical-sentences-b25' )
+            ranker = rankerFactory( 'medical-glove' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'medical-sentences-glove-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'medical-naive-glove' )
+            retriever = retrieverFactory( 'medical-sentences-glove-faiss' )
+            ranker = rankerFactory( 'medical-glove' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
         case 'medical-lemm-single-jina':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'medical-lemm-single' )
             ranker = rankerFactory( 'medical-jina' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
-
-        case 'arxiv-sentences-jina-kmeans':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
-            retriever = retrieverFactory( 'arxiv-sentences-jina-kmeans' )
-            ranker = rankerFactory( 'arxiv-jina' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
-
-        case 'medical-sentences-jina-kmeans':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
-            retriever = retrieverFactory( 'medical-sentences-jina-kmeans' )
-            ranker = rankerFactory( 'medical-jina' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
-
-        case 'arxiv-sentences-jina-b25':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
-            retriever = retrieverFactory( 'arxiv-sentences-b25' )
-            ranker = rankerFactory( 'arxiv-jina' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case 'medical-sentences-jina-b25':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
@@ -143,28 +167,22 @@ def searchEngineFactory( option:str ):
             ranker = rankerFactory( 'medical-jina' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
-        case 'arxiv-sentences-jina-faiss':
+        case 'medical-sentences-jina-kmeans':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
-            retriever = retrieverFactory( 'arxiv-sentences-jina-faiss' )
-            ranker = rankerFactory( 'arxiv-jina' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
-
-        case 'medical-sentences-jina-faiss':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
-            retriever = retrieverFactory( 'medical-sentences-jina-faiss' )
+            retriever = retrieverFactory( 'medical-sentences-jina-kmeans' )
             ranker = rankerFactory( 'medical-jina' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
-
-        case 'arxiv-sentences-bert-faiss':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-bert' )
-            retriever = retrieverFactory( 'arxiv-sentences-bert-faiss' )
-            ranker = rankerFactory( 'arxiv-bert' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case 'medical-sentences-bert-faiss':
             queryAnalyzer = queryAnalyzerFactory( 'naive-bert' )
             retriever = retrieverFactory( 'medical-sentences-bert-faiss' )
             ranker = rankerFactory( 'medical-bert' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'medical-sentences-jina-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+            retriever = retrieverFactory( 'medical-sentences-jina-faiss' )
+            ranker = rankerFactory( 'medical-jina' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case _:
@@ -187,6 +205,7 @@ if __name__ == "__main__":
         case 'arxiv-lemm-single-tfidf' |\
              'arxiv-lemm-2gram-tfidf' |\
              'arxiv-lemm-single-jina' |\
+             'arxiv-sentences-glove-b25' |\
              'arxiv-sentences-jina-kmeans' |\
              'arxiv-sentences-jina-b25' |\
              'arxiv-sentences-jina-faiss' |\
