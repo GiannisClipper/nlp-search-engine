@@ -8,9 +8,12 @@ from src.settings import pretrained_models
 
 class GloveModel:   
 
-    def __init__( self, corpus:list[str], embedding_dim:int=300 ):
+    def __init__( self, corpus:list[str], embeddings_filename:str, embedding_dim:int=300 ):
 
         self._corpus = corpus
+        self._embeddings_filename = embeddings_filename
+        # self._embeddings_filename = pretrained_models[ 'glove' ]
+
         self._embedding_dim = embedding_dim
         self._preprocessor = NaivePreprocessor()
         self._tokenMaker = SingleTokenMaker()
@@ -23,8 +26,7 @@ class GloveModel:
 
         # read the word embeddings from file
         self._embeddings = np.zeros( ( vocab_size, self._embedding_dim ) )
-        filename = pretrained_models[ 'glove' ]
-        with open( filename, encoding="utf8" ) as f:
+        with open( self._embeddings_filename, encoding="utf8" ) as f:
             for line in f:
                 word, *vector = line.split()
                 if word in self._word_index:
@@ -65,14 +67,18 @@ def gloveModelFactory( option:str ):
 
         case 'arxiv':
             from ..datasets.arXiv.Dataset import Dataset
+            from ..datasets.arXiv.settings import pickle_paths
             corpus = Dataset().toListTitlesSummaries()
-            model = GloveModel( corpus )
+            embeddings_filename = f"{pickle_paths[ 'corpus_repr' ]}/glove-retrained.txt"
+            model = GloveModel( corpus, embeddings_filename )
             return model
 
         case 'medical':
             from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
             corpus = Dataset().toListTitlesAbstracts()
-            model = GloveModel( corpus )
+            embeddings_filename = f"{pickle_paths[ 'corpus_repr' ]}/glove-retrained.txt"
+            model = GloveModel( corpus, embeddings_filename )
             return model
 
         case _:
