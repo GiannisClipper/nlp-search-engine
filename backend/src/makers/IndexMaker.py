@@ -8,22 +8,28 @@ from nltk.tokenize import word_tokenize
 import pytrie
 
 from ..Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
-
+from ..makers.Tokenizer import AbstractTokenizer, SingleTokenizer, SingleAndTwogramTokenizer
 from ..helpers.decorators import with_time_counter
 from ..helpers.Pickle import PickleLoader, PickleSaver
+from ..helpers.Timer import Timer
 
+# ------------------------------------------------- #
+# Class to create reverse indexes from vocabularies #
+# ------------------------------------------------- #
 
 class AbstractIndexMaker( ABC ):
 
     def __init__( 
         self, 
         corpus:list[str], 
-        preprocessor:Preprocessor, 
-        vocabularyLoader:PickleLoader
+        preprocessor:Preprocessor,
+        tokenizer:AbstractTokenizer,
+        vocabulary_filename:str
     ):
         self._corpus = corpus
         self._preprocessor = preprocessor
-        self._vocabularyLoader = vocabularyLoader
+        self._tokenizer = tokenizer
+        self._vocabulary_filename = vocabulary_filename
 
     @abstractmethod
     def make( self ):
@@ -33,63 +39,64 @@ class AbstractIndexMaker( ABC ):
         return self.__class__
 
 
-class IndexMaker( AbstractIndexMaker ):
+class TrieIndexMaker( AbstractIndexMaker ):
 
     def make( self ):
+
         print( f'\nPreprocessing...' )
+        timer = Timer( start=True )        
+        vocabulary = PickleLoader( self._vocabulary_filename ).load()
         corpus = self._preprocessor.transform( self._corpus )
-        vocabulary = self._vocabularyLoader.load()
+        tokenized_corpus:list[list[str]] = [ self._tokenizer.tokenize( doc ) for doc in corpus ]
+        print( f'(passed {timer.stop()} secs)' )
 
-        @with_time_counter
-        def create_index( message=None, *args, **kwargs ):
+        print( f'\nCreating index...' )
+        timer = Timer( start=True )        
 
-            corpus = kwargs[ 'corpus' ]
-            vocabulary = kwargs[ 'vocabulary' ]
+        # initialize index with all terms  
+        index = pytrie.StringTrie()
+        for term in vocabulary:
+            index[ term ] = {}
 
-            # split documents in tokens
-            for i in range( len( corpus ) ):
-                corpus[ i ] = tuple( word_tokenize( corpus[ i ] ) )
+        # iterate the documents of the corpus
+        for i in range( len( tokenized_corpus ) ):
 
-            # initialize index with all terms  
-            index = pytrie.StringTrie()
-            for term in vocabulary:
-                index[ term ] = {}
+            # iterate the tokens of a document
+            for j in range( len( tokenized_corpus[ i ] ) ):
 
-            # iterate the documents of the corpus
-            for i in range( len( corpus ) ):
+                # if the term exists in index/vocabulary
+                if tokenized_corpus[ i ][ j ] in index:
 
-                # iterate the tokens of a document
-                for j in range( len( corpus[ i ] ) ):
+                    # if term not already occurred in document
+                    if i not in index[ tokenized_corpus[ i ][ j ] ]: # type: ignore
+                        index[ tokenized_corpus[ i ][ j ] ][ i ] = [] # type: ignore
 
-                    # if the term exists in index/vocabulary
-                    if corpus[ i ][ j ] in index:
+                    # add the term occurrence
+                    index[ tokenized_corpus[ i ][ j ] ][ i ].append( j ) # type: ignore
 
-                        # if term not already occurred in document
-                        if i not in index[ corpus[ i ][ j ] ]: # type: ignore
-                            index[ corpus[ i ][ j ] ][ i ] = [] # type: ignore
-
-                        # add the term occurrence
-                        index[ corpus[ i ][ j ] ][ i ].append( j ) # type: ignore
-
-            return index
-        
-        return create_index( '\nCreating index...', corpus=corpus, vocabulary=vocabulary )
+        print( f'(passed {timer.stop()} secs)' )
+        return index
 
 
 def make_and_save( 
     pickle_paths:dict,
     vocabulary_descr:str, 
-    corpus:list[str], 
-    PreprocessorClass, 
+    corpus:list[str],
+    PreprocessorClass,
+    TokenizerClass, 
 ):
+    
+    # make index
     vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl"
-    indexMaker = IndexMaker(
+    indexMaker = TrieIndexMaker(
         corpus,
         PreprocessorClass(),
-        PickleLoader( vocabulary_filename )
+        TokenizerClass(),
+        vocabulary_filename
     )
     index = indexMaker.make()
 
+    # save index   
     index_filename = f"{pickle_paths[ 'indexes' ]}/{vocabulary_descr}.pkl"
     PickleSaver( index_filename ).save( index )
 
@@ -110,7 +117,8 @@ if __name__ == "__main__":
                 pickle_paths,
                 vocabulary_descr='title-summary_lower-punct-specials-stops-stemm_single',
                 corpus=Dataset().toListTitlesSummaries(),
-                PreprocessorClass=StemmPreprocessor
+                PreprocessorClass=StemmPreprocessor,
+                TokenizerClass=SingleTokenizer
             )
 
         case 'arxiv-lemm-single':
@@ -120,7 +128,8 @@ if __name__ == "__main__":
                 pickle_paths,
                 vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_single',
                 corpus=Dataset().toListTitlesSummaries(),
-                PreprocessorClass=LemmPreprocessor
+                PreprocessorClass=LemmPreprocessor,
+                TokenizerClass=SingleTokenizer
             )
 
         case 'arxiv-lemm-2gram':
@@ -130,7 +139,8 @@ if __name__ == "__main__":
                 pickle_paths,
                 vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_2gram',
                 corpus=Dataset().toListTitlesSummaries(),
-                PreprocessorClass=LemmPreprocessor
+                PreprocessorClass=LemmPreprocessor,
+                TokenizerClass=SingleAndTwogramTokenizer
             )
 
         case 'medical-lemm-single':
@@ -140,7 +150,8 @@ if __name__ == "__main__":
                 pickle_paths,
                 vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_single',
                 corpus=Dataset().toListTitlesAbstracts(),
-                PreprocessorClass=LemmPreprocessor
+                PreprocessorClass=LemmPreprocessor,
+                TokenizerClass=SingleTokenizer
             )
 
         case 'medical-lemm-2gram':
@@ -150,7 +161,8 @@ if __name__ == "__main__":
                 pickle_paths,
                 vocabulary_descr='title-summary_lower-punct-specials-stops-lemm_2gram',
                 corpus=Dataset().toListTitlesAbstracts(),
-                PreprocessorClass=LemmPreprocessor
+                PreprocessorClass=LemmPreprocessor,
+                TokenizerClass=SingleAndTwogramTokenizer
             )
 
         case _:
