@@ -9,7 +9,7 @@ from ..helpers.Timer import Timer
 # Class to create vectors (tf or tfidf) from corpora #
 # -------------------------------------------------- #
 
-class VectorsMakerer:
+class VectorsMaker:
 
     def __init__( 
             self, 
@@ -52,7 +52,7 @@ def make_and_save(
 
     vocabulary = PickleLoader( f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl" ).load()
 
-    vectorizerMaker = VectorsMakerer(
+    vectorizerMaker = VectorsMaker(
         VectorizerClass,
         vocabulary,
         corpus,
@@ -68,7 +68,7 @@ def make_and_save(
     PickleSaver( corpus_repr_filename ).save( corpus_repr )
 
 
-# RUN: python -m src.makers.VectorsMakerer [option]
+# RUN: python -m src.makers.VectorsMaker [option]
 if __name__ == "__main__": 
 
     option = None

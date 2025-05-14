@@ -1,22 +1,20 @@
-from abc import ABC, abstractmethod
-
 import sys
-
-import nltk
-
-nltk.download( 'punkt_tab' ) # required by word_tokenize()
-from nltk.tokenize import word_tokenize
-
-import numpy as np
+from abc import ABC, abstractmethod
 from scipy.sparse import spmatrix, csr_matrix
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sentence_transformers import SentenceTransformer
+
 from .Preprocessor import Preprocessor, NaivePreprocessor, LemmPreprocessor, StemmPreprocessor
+from .makers.Tokenizer import AbstractTokenizer, SingleTokenizer, SingleAndTwogramTokenizer
 from .helpers.Pickle import PickleLoader
 from .helpers.typing import QueryAnalyzedType
 from .models.GloveModel import GloveModel, gloveModelFactory
 
 class AbstractQueryAnalyzer( ABC ):
+
+    def __init__( self, preprocessor:Preprocessor, tokenizer:AbstractTokenizer ):
+        self._preprocessor = preprocessor
+        self._tokenizer = tokenizer
 
     @abstractmethod
     def analyze( self, query:str ) -> QueryAnalyzedType:
@@ -25,30 +23,28 @@ class AbstractQueryAnalyzer( ABC ):
 
 class QueryAnalyzerWithVectorizer( AbstractQueryAnalyzer):
 
-    def __init__( self, preprocessor:Preprocessor, vectorizer:CountVectorizer|TfidfVectorizer ):
-        super().__init__()
-        self._preprocessor = preprocessor
+    def __init__( self, preprocessor:Preprocessor, tokenizer:AbstractTokenizer, vectorizer:CountVectorizer|TfidfVectorizer ):
+        super().__init__( preprocessor, tokenizer )
         self._vectorizer = vectorizer
 
     def analyze( self, query:str ) -> QueryAnalyzedType:
         query_preprocessed = self._preprocessor.transform( [ query ] )
-        query_terms = list( word_tokenize( query_preprocessed[ 0 ] ) )
-        query_repr = self._vectorizer.transform( query_preprocessed )
-        return { 'query': query, 'terms': query_terms, 'repr': query_repr }
+        tokens = self._tokenizer.tokenize( query_preprocessed[ 0 ] )
+        vectors = self._vectorizer.transform( query_preprocessed )
+        return { 'query': query, 'tokens': tokens, 'repr': vectors }
 
 
 class QueryAnalyzerWithPretrained( AbstractQueryAnalyzer):
 
-    def __init__( self, preprocessor:Preprocessor, model:SentenceTransformer|GloveModel ):
-        super().__init__()
-        self._preprocessor = preprocessor
+    def __init__( self, preprocessor:Preprocessor, tokenizer:AbstractTokenizer, model:SentenceTransformer|GloveModel ):
+        super().__init__( preprocessor, tokenizer )
         self._model = model
 
     def analyze( self, query:str ) -> QueryAnalyzedType:
         query_preprocessed = self._preprocessor.transform( [ query ] )
-        query_terms = list( word_tokenize( query_preprocessed[ 0 ] ) )
-        query_repr = self._model.encode( query )
-        return { 'query': query, 'terms': query_terms, 'repr': csr_matrix( query_repr ) } # convert to spmatrix
+        tokens = self._tokenizer.tokenize( query_preprocessed[ 0 ] )
+        embeddings = self._model.encode( query )
+        return { 'query': query, 'tokens': tokens, 'repr': csr_matrix( embeddings ) } # convert to spmatrix
 
 
 def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
@@ -58,70 +54,80 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
         case 'arxiv-stemm-single-count':
             from .datasets.arXiv.settings import pickle_paths
             preprocessor = StemmPreprocessor()
+            tokenizer = SingleTokenizer()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
             vectorizer = PickleLoader( vectorizer_filename ).load()
-            return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )
+            return QueryAnalyzerWithVectorizer( preprocessor, tokenizer, vectorizer )
 
         case 'arxiv-lemm-single-tfidf':
             from .datasets.arXiv.settings import pickle_paths
             preprocessor = LemmPreprocessor()
+            tokenizer = SingleTokenizer()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
             vectorizer = PickleLoader( vectorizer_filename ).load()
-            return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )
+            return QueryAnalyzerWithVectorizer( preprocessor, tokenizer, vectorizer )
 
         case 'arxiv-lemm-2gram-tfidf':
             from .datasets.arXiv.settings import pickle_paths
             preprocessor = LemmPreprocessor()
+            tokenizer = SingleAndTwogramTokenizer()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram_tfidf'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
             vectorizer = PickleLoader( vectorizer_filename ).load()
-            return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )
+            return QueryAnalyzerWithVectorizer( preprocessor, tokenizer, vectorizer )
 
         case 'arxiv-naive-glove':
             preprocessor = NaivePreprocessor()
+            tokenizer = SingleTokenizer()
             model = gloveModelFactory( 'arxiv' )
-            return QueryAnalyzerWithPretrained( preprocessor, model )
+            return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case 'medical-lemm-single-tfidf':
             from .datasets.medical.settings import pickle_paths
             preprocessor = LemmPreprocessor()
+            tokenizer = SingleTokenizer()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
             vectorizer = PickleLoader( vectorizer_filename ).load()
-            return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )
+            return QueryAnalyzerWithVectorizer( preprocessor, tokenizer, vectorizer )
 
         case 'medical-lemm-2gram-tfidf':
             from .datasets.medical.settings import pickle_paths
             preprocessor = LemmPreprocessor()
+            tokenizer = SingleAndTwogramTokenizer()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram_tfidf'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
             vectorizer = PickleLoader( vectorizer_filename ).load()
-            return QueryAnalyzerWithVectorizer( preprocessor, vectorizer )
+            return QueryAnalyzerWithVectorizer( preprocessor, tokenizer, vectorizer )
 
         case 'medical-lemm-single-jina':
             from .datasets.medical.settings import pickle_paths
             preprocessor = LemmPreprocessor()
+            tokenizer = SingleTokenizer()
             model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
             model.max_seq_length = 1024 # control your input sequence length up to 8192
-            return QueryAnalyzerWithPretrained( preprocessor, model )
+            return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case 'medical-naive-glove':
             preprocessor = NaivePreprocessor()
+            tokenizer = SingleTokenizer()
             model = gloveModelFactory( 'medical' )
-            return QueryAnalyzerWithPretrained( preprocessor, model )
+            return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case 'naive-bert':
             preprocessor = NaivePreprocessor()
+            tokenizer = SingleTokenizer()
             model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True, local_files_only=True )
-            return QueryAnalyzerWithPretrained( preprocessor, model )
+            return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case 'naive-jina':
             preprocessor = NaivePreprocessor()
+            tokenizer = SingleTokenizer()
             model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
             model.max_seq_length = 1024 # control your input sequence length up to 8192
-            return QueryAnalyzerWithPretrained( preprocessor, model )
+            return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case _:
             raise Exception( 'queryAnalyzerFactory(): No valid option.' )

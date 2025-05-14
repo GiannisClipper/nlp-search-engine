@@ -34,7 +34,7 @@ class OccuredTermsFilter( AbstractIndexedTermsFilter ):
 
     def filter( self, query_analyzed:QueryAnalyzedType, threshold:float=0.5 ) -> list[str]:
         
-        terms = query_analyzed[ 'terms' ]
+        terms = query_analyzed[ 'tokens' ]
 
         # take 2grams into account
         twograms = []
@@ -73,7 +73,7 @@ class WeightedTermsFilter( AbstractIndexedTermsFilter ):
 
     def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
 
-        terms = query_analyzed[ 'terms' ]
+        terms = query_analyzed[ 'tokens' ]
 
         # take 2grams into account
         twograms = []
@@ -130,9 +130,9 @@ class B25TermsFilter( AbstractTermsFilter ):
         self._model.index( bm25s.tokenize( corpus ) )
 
     def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
-        # query = ' '.join( query_analyzed[ 'terms' ] )
+        # query = ' '.join( query_analyzed[ 'tokens' ] )
         # isents, scores = self._model.retrieve( bm25s.tokenize( query ), k=100 )
-        isents, scores = self._model.retrieve( [ query_analyzed[ 'terms' ] ], k=100 )
+        isents, scores = self._model.retrieve( [ query_analyzed[ 'tokens' ] ], k=100 )
         isents = [ str(isent) for isent in isents[0] ]
         return isents
 
