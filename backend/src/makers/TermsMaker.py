@@ -1,10 +1,9 @@
 from abc import ABC, abstractmethod
+from .Tokenizer import SingleTokenizer, TwogramTokenizer
 
-import nltk
-nltk.download( 'punkt_tab' ) # required by word_tokenize()
-
-from nltk.tokenize import word_tokenize
-from nltk import ngrams
+# --------------------------------------------------------------------- #
+# Classes to extract uniques terms (single terms or 2grams) from a text #
+# --------------------------------------------------------------------- #
 
 # abstract class 
 class TermsMaker( ABC ):
@@ -13,12 +12,8 @@ class TermsMaker( ABC ):
         self._limit = limit
 
     @abstractmethod
-    def make( self, text:str ) -> tuple[str,...]:
-        self._tokens = tuple( word_tokenize( text ) )
-
-    @property
-    def tokens( self ) -> tuple[str,...]:
-        return self._tokens
+    def make( self, text:str ) -> list[str]:
+        pass
 
     def __str__( self ):
         return self.__class__.__name__
@@ -26,27 +21,32 @@ class TermsMaker( ABC ):
 
 class SingleTermsMaker( TermsMaker ):
 
-    def make( self, text:str ) -> tuple[str,...]:
-        super().make( text )
+    def make( self, text:str ) -> list[str]:
+        tokens = SingleTokenizer().tokenize( text )
         singles = {}
-        for token in self._tokens:
+        for token in tokens:
             singles[ token ] = singles.get( token, 0 ) + 1
         singles = list( singles.items() )
         singles.sort( key=lambda x: x[1], reverse=True )
-        self._tokens = tuple( x[0] for x in singles )[:self._limit if self._limit > 0 else None]
-        return self._tokens
+        return [ x[0] for x in singles ][:self._limit if self._limit > 0 else None]
 
 
 class TwogramTermsMaker( TermsMaker ):
 
-    def make( self, text:str ) -> tuple[str,...]:
-        super().make( text )
-        self._tokens = tuple( x + ' ' + y for x, y in ngrams( self._tokens, 2 ) )
+    def make( self, text:str ) -> list[str]:
+        tokens = TwogramTokenizer().tokenize( text )
         twograms = {}
-        for token in self._tokens:
+        for token in tokens:
             twograms[ token ] = twograms.get( token, 0 ) + 1
         twograms = list( twograms.items() )
         twograms.sort( key=lambda x: x[1], reverse=True )
-        self._tokens =  tuple( x[0] for x in twograms )[:self._limit if self._limit > 0 else None]
-        return self._tokens
+        return [ x[0] for x in twograms ][:self._limit if self._limit > 0 else None]
 
+
+if __name__ == '__main__':
+
+    text = 'This is a test from a collection of test examples but a test comprehensive enough'
+
+    print( SingleTermsMaker().make( text ) )
+
+    print( TwogramTermsMaker().make( text ) )
