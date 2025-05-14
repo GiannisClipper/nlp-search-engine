@@ -2,7 +2,6 @@ import sys
 
 from ..Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 from .TermsMaker import AbstractTermsMaker, SingleTermsMaker, TwogramTermsMaker
-from ..helpers.decorators import with_time_counter
 from ..helpers.Pickle import PickleSaver
 from ..helpers.Timer import Timer
 

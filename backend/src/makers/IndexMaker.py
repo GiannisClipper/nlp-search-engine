@@ -1,15 +1,9 @@
 import sys
 from abc import ABC, abstractmethod
-
-import nltk
-nltk.download( 'punkt_tab' ) # required by word_tokenize()
-from nltk.tokenize import word_tokenize
-
 import pytrie
 
 from ..Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 from ..makers.Tokenizer import AbstractTokenizer, SingleTokenizer, SingleAndTwogramTokenizer
-from ..helpers.decorators import with_time_counter
 from ..helpers.Pickle import PickleLoader, PickleSaver
 from ..helpers.Timer import Timer
 
@@ -21,15 +15,15 @@ class AbstractIndexMaker( ABC ):
 
     def __init__( 
         self, 
+        vocabulary:list[str],
         corpus:list[str], 
         preprocessor:Preprocessor,
-        tokenizer:AbstractTokenizer,
-        vocabulary_filename:str
+        tokenizer:AbstractTokenizer
     ):
+        self._vocabulary = vocabulary
         self._corpus = corpus
         self._preprocessor = preprocessor
         self._tokenizer = tokenizer
-        self._vocabulary_filename = vocabulary_filename
 
     @abstractmethod
     def make( self ):
@@ -45,7 +39,6 @@ class TrieIndexMaker( AbstractIndexMaker ):
 
         print( f'\nPreprocessing...' )
         timer = Timer( start=True )        
-        vocabulary = PickleLoader( self._vocabulary_filename ).load()
         corpus = self._preprocessor.transform( self._corpus )
         tokenized_corpus:list[list[str]] = [ self._tokenizer.tokenize( doc ) for doc in corpus ]
         print( f'(passed {timer.stop()} secs)' )
@@ -55,7 +48,7 @@ class TrieIndexMaker( AbstractIndexMaker ):
 
         # initialize index with all terms  
         index = pytrie.StringTrie()
-        for term in vocabulary:
+        for term in self._vocabulary:
             index[ term ] = {}
 
         # iterate the documents of the corpus
@@ -87,12 +80,12 @@ def make_and_save(
 ):
     
     # make index
-    vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl"
+    vocabulary = PickleLoader( f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl" ).load()
     indexMaker = TrieIndexMaker(
+        vocabulary,
         corpus,
         PreprocessorClass(),
         TokenizerClass(),
-        vocabulary_filename
     )
     index = indexMaker.make()
 

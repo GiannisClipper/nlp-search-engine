@@ -2,36 +2,40 @@ import sys
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 from ..Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
-
-from ..helpers.decorators import with_time_counter
 from ..helpers.Pickle import PickleLoader, PickleSaver
+from ..helpers.Timer import Timer
 
-class VectorizerMaker:
+# -------------------------------------------------- #
+# Class to create vectors (tf or tfidf) from corpora #
+# -------------------------------------------------- #
+
+class VectorsMakerer:
 
     def __init__( 
             self, 
+            VectorizerClass:type[CountVectorizer|TfidfVectorizer],
+            vocabulary:list[str], 
             corpus:list[str], 
             preprocessor:Preprocessor, 
-            vocabularyLoader:PickleLoader, 
-            VectorizerClass:type[CountVectorizer|TfidfVectorizer]
         ):
+        self._vocabulary = vocabulary
+        self._VectorizerClass = VectorizerClass
         self._corpus = corpus
         self._preprocessor = preprocessor
-        self._vocabularyLoader = vocabularyLoader
-        self._VectorizerClass = VectorizerClass
 
     def make( self ):
-        print( f'\nPreprocessing...' )
+        print( f'Preprocessing...' )
+        timer = Timer( start=True )        
         corpus = self._preprocessor.transform( self._corpus )
-        vocabulary = self._vocabularyLoader.load()
+        print( f'(passed {timer.stop()} secs)' )
 
-        @with_time_counter
-        def create_vectorizer( message=None, *args, **kwargs ):
-            vectorizer = self._VectorizerClass( vocabulary=vocabulary )
-            corpus_repr = vectorizer.fit_transform( corpus )
-            return vectorizer, corpus_repr
+        print( f'Creating vector representations...' )
+        timer = Timer( start=True )        
+        vectorizer = self._VectorizerClass( vocabulary=self._vocabulary )
+        corpus_repr = vectorizer.fit_transform( corpus )
+        print( f'(passed {timer.stop()} secs)' )
 
-        return create_vectorizer( '\nCreating vectorizer...' )
+        return vectorizer, corpus_repr
 
     def __str__( self ):
         return self.__class__    
@@ -40,31 +44,31 @@ class VectorizerMaker:
 def make_and_save( 
     pickle_paths:dict,
     vocabulary_descr:str, 
-    vectorizer_descr:str, 
+    vectorizer_descr:str,
     corpus:list[str], 
     PreprocessorClass, 
     VectorizerClass
 ):
 
-    vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl"
+    vocabulary = PickleLoader( f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_descr}.pkl" ).load()
 
-    vectorizerMaker = VectorizerMaker(
+    vectorizerMaker = VectorsMakerer(
+        VectorizerClass,
+        vocabulary,
         corpus,
         PreprocessorClass(),
-        PickleLoader( vocabulary_filename ),
-        VectorizerClass
     )
     vectorizer, corpus_repr = vectorizerMaker.make()
 
     vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
     PickleSaver( vectorizer_filename ).save( vectorizer )
 
-    # common description with vectorizer
+    # corpus representation has common description with vectorizer
     corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
     PickleSaver( corpus_repr_filename ).save( corpus_repr )
 
 
-# RUN: python -m src.makers.VectorizerMaker [option]
+# RUN: python -m src.makers.VectorsMakerer [option]
 if __name__ == "__main__": 
 
     option = None
