@@ -1,10 +1,14 @@
 import sys
 
 from ..Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
-from .TermsMaker import TermsMaker, SingleTermsMaker, TwogramTermsMaker
-
+from .TermsMaker import AbstractTermsMaker, SingleTermsMaker, TwogramTermsMaker
 from ..helpers.decorators import with_time_counter
 from ..helpers.Pickle import PickleSaver
+from ..helpers.Timer import Timer
+
+# ----------------------------------------- #
+# Class to create vocabularies from corpora #
+# ----------------------------------------- #
 
 class VocabularyMaker:
 
@@ -12,33 +16,37 @@ class VocabularyMaker:
             self, 
             corpus:list[str], 
             preprocessor:Preprocessor, 
-            termsMakers:list[TermsMaker] 
+            termsMakers:list[AbstractTermsMaker] 
         ):
         self._corpus = corpus
         self._preprocessor = preprocessor
         self._termsMakers = termsMakers
-        self._tokens:list[str]
+        self._terms:list[str]
 
     def make( self ) -> list[str]:
         print( f'\nPreprocessing...' )
         corpus = self._preprocessor.transform( self._corpus )
-        step = len( corpus ) // 5 if len( corpus ) > 5 else 1 
-        print( f'corpus[::{step}]:', corpus[::step] )
+ 
+        # print some indicative output
+        # step = len( corpus ) // 5 if len( corpus ) > 5 else 1 
+        # print( f'corpus[::{step}]:', corpus[::step] )
 
-        @with_time_counter
-        def create_vocabulary( message=None, *args, **kwargs ):
-            result = []
-            for termsMaker in self._termsMakers:
-                result += termsMaker.make( ' '.join( corpus ) )
-            return result
+        print( 'Creating vocabulary...' )
+        timer = Timer( start=True )        
+        result = []
+        for termsMaker in self._termsMakers:
+            result += termsMaker.make( ' '.join( corpus ) )
+        self._terms = result
+        print( f'(passed {timer.stop()} secs)' )
 
-        self._tokens = create_vocabulary( '\nCreating vocabulary...' )
-        step = len( self._tokens ) // 50 if len( self._tokens ) > 50 else 1 
-        print( f'\nVocabulary[::{step}]:', len( self._tokens ), self._tokens[::step] )
-        return self._tokens
+        # print some indicative output
+        # step = len( self._terms ) // 50 if len( self._terms ) > 50 else 1 
+        # print( f'\nVocabulary[::{step}]:', len( self._terms ), self._terms[::step] )
+ 
+        return self._terms
 
     def vocabulary( self ) -> list[str]:
-        return self._tokens
+        return self._terms
 
     def __str__( self ):
         return self.__class__
@@ -49,7 +57,7 @@ def make_and_save(
     vocabulary_decsr:str,
     corpus:list[str], 
     preprocessor:Preprocessor,
-    termsMakers:list[TermsMaker]
+    termsMakers:list[AbstractTermsMaker]
 ):
     vocabularyMaker = VocabularyMaker( corpus, preprocessor, termsMakers )
     vocabulary = vocabularyMaker.make()

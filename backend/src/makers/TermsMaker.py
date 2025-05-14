@@ -6,7 +6,7 @@ from .Tokenizer import SingleTokenizer, TwogramTokenizer
 # --------------------------------------------------------------------- #
 
 # abstract class 
-class TermsMaker( ABC ):
+class AbstractTermsMaker( ABC ):
 
     def __init__( self, limit:int=0 ):
         self._limit = limit
@@ -19,7 +19,7 @@ class TermsMaker( ABC ):
         return self.__class__.__name__
 
 
-class SingleTermsMaker( TermsMaker ):
+class SingleTermsMaker( AbstractTermsMaker ):
 
     def make( self, text:str ) -> list[str]:
         tokens = SingleTokenizer().tokenize( text )
@@ -31,7 +31,7 @@ class SingleTermsMaker( TermsMaker ):
         return [ x[0] for x in singles ][:self._limit if self._limit > 0 else None]
 
 
-class TwogramTermsMaker( TermsMaker ):
+class TwogramTermsMaker( AbstractTermsMaker ):
 
     def make( self, text:str ) -> list[str]:
         tokens = TwogramTokenizer().tokenize( text )
