@@ -2,7 +2,7 @@ import sys
 from gensim.models import Word2Vec, KeyedVectors
 from ..settings import pretrained_models
 from ..Preprocessor import NaivePreprocessor
-from ..makers.TokenMaker import SingleTokenMaker
+from ..makers.TermsMaker import SingleTermsMaker
 from ..helpers.Timer import Timer
 
 class GloveRetrainer:
@@ -26,7 +26,7 @@ class GloveRetrainer:
         timer = Timer( start=True )
         print( f"Preprocessing sentences..." )
         sentences_preprocessed = NaivePreprocessor().transform( sentences )
-        tkzr = SingleTokenMaker()
+        tkzr = SingleTermsMaker()
         sentences_tokenized = [ tkzr.make( s ) for s in sentences_preprocessed ]
         print( f'(passed {timer.stop()} secs)' )
 

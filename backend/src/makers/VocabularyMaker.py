@@ -1,7 +1,7 @@
 import sys
 
 from ..Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
-from .TokenMaker import TokenMaker, SingleTokenMaker, TwogramTokenMaker
+from .TermsMaker import TermsMaker, SingleTermsMaker, TwogramTermsMaker
 
 from ..helpers.decorators import with_time_counter
 from ..helpers.Pickle import PickleSaver
@@ -12,11 +12,11 @@ class VocabularyMaker:
             self, 
             corpus:list[str], 
             preprocessor:Preprocessor, 
-            tokenMakers:list[TokenMaker] 
+            termsMakers:list[TermsMaker] 
         ):
         self._corpus = corpus
         self._preprocessor = preprocessor
-        self._tokenMakers = tokenMakers
+        self._termsMakers = termsMakers
         self._tokens:list[str]
 
     def make( self ) -> list[str]:
@@ -28,8 +28,8 @@ class VocabularyMaker:
         @with_time_counter
         def create_vocabulary( message=None, *args, **kwargs ):
             result = []
-            for tokenMaker in self._tokenMakers:
-                result += tokenMaker.make( ' '.join( corpus ) )
+            for termsMaker in self._termsMakers:
+                result += termsMaker.make( ' '.join( corpus ) )
             return result
 
         self._tokens = create_vocabulary( '\nCreating vocabulary...' )
@@ -49,9 +49,9 @@ def make_and_save(
     vocabulary_decsr:str,
     corpus:list[str], 
     preprocessor:Preprocessor,
-    tokenMakers:list[TokenMaker]
+    termsMakers:list[TermsMaker]
 ):
-    vocabularyMaker = VocabularyMaker( corpus, preprocessor, tokenMakers )
+    vocabularyMaker = VocabularyMaker( corpus, preprocessor, termsMakers )
     vocabulary = vocabularyMaker.make()
 
     vocabulary_filename = f"{pickle_paths[ 'vocabularies' ]}/{vocabulary_decsr}.pkl"
@@ -75,7 +75,7 @@ if __name__ == "__main__":
                 vocabulary_decsr='title-summary_lower-punct-specials-stops-stemm_single',
                 corpus=Dataset().toListTitlesSummaries(),
                 preprocessor=StemmPreprocessor(),
-                tokenMakers=[ SingleTokenMaker() ]
+                termsMakers=[ SingleTermsMaker() ]
             )
 
         case 'arxiv-lemm-single':
@@ -86,7 +86,7 @@ if __name__ == "__main__":
                 vocabulary_decsr='title-summary_lower-punct-specials-stops-lemm_single',
                 corpus=Dataset().toListTitlesSummaries(),
                 preprocessor=LemmPreprocessor(),
-                tokenMakers=[ SingleTokenMaker() ]
+                termsMakers=[ SingleTermsMaker() ]
             )
 
         case 'arxiv-lemm-2gram':
@@ -97,7 +97,7 @@ if __name__ == "__main__":
                 vocabulary_decsr='title-summary_lower-punct-specials-stops-lemm_2gram',
                 corpus=Dataset().toListTitlesSummaries(),
                 preprocessor=LemmPreprocessor(),
-                tokenMakers=[ SingleTokenMaker(), TwogramTokenMaker( limit=1000 ) ]
+                termsMakers=[ SingleTermsMaker(), TwogramTermsMaker( limit=1000 ) ]
             )
 
         case 'medical-lemm-single':
@@ -108,7 +108,7 @@ if __name__ == "__main__":
                 vocabulary_decsr='title-summary_lower-punct-specials-stops-lemm_single',
                 corpus=Dataset().toListTitlesAbstracts(),
                 preprocessor=LemmPreprocessor(),
-                tokenMakers=[ SingleTokenMaker() ]
+                termsMakers=[ SingleTermsMaker() ]
             )
 
         case 'medical-lemm-2gram':
@@ -119,7 +119,7 @@ if __name__ == "__main__":
                 vocabulary_decsr='title-summary_lower-punct-specials-stops-lemm_2gram',
                 corpus=Dataset().toListTitlesAbstracts(),
                 preprocessor=LemmPreprocessor(),
-                tokenMakers=[ SingleTokenMaker(), TwogramTokenMaker( limit=1000 ) ]
+                termsMakers=[ SingleTermsMaker(), TwogramTermsMaker( limit=1000 ) ]
             )
 
         case _:

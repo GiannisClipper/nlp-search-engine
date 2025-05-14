@@ -3,7 +3,7 @@
 
 import numpy as np
 from src.Preprocessor import NaivePreprocessor
-from src.makers.TokenMaker import SingleTokenMaker
+from src.makers.TermsMaker import SingleTermsMaker
 from src.settings import pretrained_models
 
 class GloveModel:   
@@ -16,7 +16,7 @@ class GloveModel:
 
         self._embedding_dim = embedding_dim
         self._preprocessor = NaivePreprocessor()
-        self._tokenMaker = SingleTokenMaker()
+        self._termsMaker = SingleTermsMaker()
 
         # make the vocabulary from corpus
         corpus_preprocessed = self._preprocessor.transform( self._corpus )
@@ -34,7 +34,7 @@ class GloveModel:
                     self._embeddings[ idx ] = np.array( vector, dtype=np.float32 )[:self._embedding_dim]
 
     def _tokenize( self, text:str ):
-        return self._tokenMaker.make( text.lower() )
+        return self._termsMaker.make( text.lower() )
 
     def _encode_one( self, sentence ):
         words = self._tokenize( sentence )

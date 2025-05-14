@@ -7,7 +7,7 @@ from nltk.tokenize import word_tokenize
 from nltk import ngrams
 
 # abstract class 
-class TokenMaker( ABC ):
+class TermsMaker( ABC ):
 
     def __init__( self, limit:int=0 ):
         self._limit = limit
@@ -24,7 +24,7 @@ class TokenMaker( ABC ):
         return self.__class__.__name__
 
 
-class SingleTokenMaker( TokenMaker ):
+class SingleTermsMaker( TermsMaker ):
 
     def make( self, text:str ) -> tuple[str,...]:
         super().make( text )
@@ -37,7 +37,7 @@ class SingleTokenMaker( TokenMaker ):
         return self._tokens
 
 
-class TwogramTokenMaker( TokenMaker ):
+class TwogramTermsMaker( TermsMaker ):
 
     def make( self, text:str ) -> tuple[str,...]:
         super().make( text )
