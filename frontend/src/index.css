@@ -1,0 +1,142 @@
+:root {
+    font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+  
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* main skeleton (header, main) */
+
+* {
+    margin: 0;
+    padding: 0;
+    /* border: 1px dotted grey; */
+}
+
+#root {
+    min-height: 100vh;
+    background: #f6f6f6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    margin-bottom: 2em;
+    border-bottom: 3px dashed #e3e3e3;
+    padding: 1em;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.main {
+    min-width: 800px;
+    width: 100%;
+    max-width: 1280px;
+    /* border: 1px dotted grey; */
+}
+
+.header > .left,
+.header > .right {
+    height: 6em;
+}
+
+.header > .left {
+    padding-left: 1.5em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.header .title {
+    font-size:2em;
+    font-weight: 500;
+}
+
+.header .subtitle {
+    font-size:.75em;
+    text-align: center
+}
+
+.header > .right {
+    padding-right: 1.5em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+.header > .right > .selected > button {
+    background: yellow;
+}
+
+.header > .right button {
+    aspect-ratio: 2/2;
+    margin: .5em;
+}
+
+/* search option */
+
+.search.option {
+    margin: 1.5em;
+    display: flex;
+    flex-direction: column;
+}
+
+.search.option > .params > .top {
+    margin-bottom: 1em;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between; /* horizontal justification */
+    align-items: center; /* vertical alignment */
+}
+
+.search.option > .params > .bottom {
+    display: flex;
+    flex-direction: row;
+    justify-content: center; /* horizontal justification */
+    align-items: center; /* vertical alignment */
+}
+
+.search.option > .params > .bottom > * {
+    margin: 0 .5em;
+}
+
+input, button {
+    padding: 0 .5em;
+    border: 1px solid #e3e3e3;
+}
+
+input:focus, button:focus {
+    outline: none;
+    border: 1px solid #c3c3c3;
+}  
+
+input.query {
+    height: 40px;
+    font-size: medium;
+    width: calc( 100% - 80px );
+}
+
+button.go {
+    height: 40px;
+    aspect-ratio: 2/2;
+    font-size: large;
+}
+
+input.names, 
+input.period {
+    height: 30px;
+    font-size: small;
+    width: 30%;
+}
+
