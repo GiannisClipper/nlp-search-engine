@@ -5,6 +5,10 @@ from ..Preprocessor import NaivePreprocessor
 from ..makers.TermsMaker import SingleTermsMaker
 from ..helpers.Timer import Timer
 
+# ------------------------------------------------------------ #
+# Class to retrain GloVe embeddings regarding corpus sentences #
+# ------------------------------------------------------------ #
+
 class GloveRetrainer:
 
     def __init__( self, sentences:list[str], output_filename:str ):
@@ -60,7 +64,7 @@ class GloveRetrainer:
         w2v_model.train(
             sentences_tokenized,
             total_examples=w2v_model.corpus_count,
-            epochs=10
+            epochs=30
         )
         print( f'(passed {timer.stop()} secs)' )
 

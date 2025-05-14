@@ -40,13 +40,13 @@ class TermsSearchEngine( AbstractSearchEngine ):
 
     def _analyze( self, query:str ) -> None:
 
-        # Analyze query into terms and vectors
+        # Analyze query into terms and vectors/embeddings
         print( 'Analyze query...' )
         self._query_analyzed:QueryAnalyzedType = self._queryAnalyzer.analyze( query )
 
     def _retrieve( self ) -> None:
 
-        # Retrieve documents or sentences based on terms
+        # Retrieve documents or sentences based on query
         print( 'Retrieve docs/sentences...' )
         self._retrieved = self._retriever.retrieve( query_analyzed=self._query_analyzed )
 
@@ -71,7 +71,7 @@ class PeriodNamesTermsSearchEngine( TermsSearchEngine ):
 
     def _retrieve( self, names:list[str]|None=None, period:str|None=None ) -> None:
 
-        # Retrieve documents or sentences based on terms
+        # Retrieve documents or sentences based on query
         print( 'Retrieve docs/sentences...' )
         self._retrieved = self._retriever.retrieve( period=period, names=names, query_analyzed=self._query_analyzed )
 
@@ -105,6 +105,12 @@ def searchEngineFactory( option:str ):
             queryAnalyzer = queryAnalyzerFactory( 'arxiv-naive-glove' )
             retriever = retrieverFactory( 'arxiv-sentences-b25' )
             ranker = rankerFactory( 'arxiv-glove' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'arxiv-sentences-glove-retrained-b25':
+            queryAnalyzer = queryAnalyzerFactory( 'arxiv-naive-glove-retrained' )
+            retriever = retrieverFactory( 'arxiv-sentences-b25' )
+            ranker = rankerFactory( 'arxiv-glove-retrained' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case 'arxiv-sentences-jina-b25':
@@ -149,10 +155,22 @@ def searchEngineFactory( option:str ):
             ranker = rankerFactory( 'medical-glove' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
+        case 'medical-sentences-glove-retrained-b25':
+            queryAnalyzer = queryAnalyzerFactory( 'medical-naive-glove-retrained' )
+            retriever = retrieverFactory( 'medical-sentences-b25' )
+            ranker = rankerFactory( 'medical-glove-retrained' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
         case 'medical-sentences-glove-faiss':
             queryAnalyzer = queryAnalyzerFactory( 'medical-naive-glove' )
             retriever = retrieverFactory( 'medical-sentences-glove-faiss' )
             ranker = rankerFactory( 'medical-glove' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'medical-sentences-glove-retrained-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'medical-naive-glove-retrained' )
+            retriever = retrieverFactory( 'medical-sentences-glove-retrained-faiss' )
+            ranker = rankerFactory( 'medical-glove-retrained' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case 'medical-lemm-single-jina':

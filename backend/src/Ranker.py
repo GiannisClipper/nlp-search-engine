@@ -153,6 +153,15 @@ def rankerFactory( option:str ):
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
+        case 'medical-glove-retrained':
+            from .datasets.medical.Dataset import Dataset
+            from .datasets.medical.settings import pickle_paths
+            representations_descr = 'sentences-glove-retrained'
+            representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
+            representations = PickleLoader( representations_filename ).load()
+            sentences, tags = Dataset().toSentences()
+            return SentRanker( representations, tags )
+
         case 'medical-bert':
             from .datasets.medical.Dataset import Dataset
             from .datasets.medical.settings import pickle_paths

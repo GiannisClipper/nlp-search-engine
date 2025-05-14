@@ -2,8 +2,8 @@
 # NOTICE: NLTK was unable to find stanford-postagger.jar! Set the CLASSPATH
 
 import numpy as np
-from src.Preprocessor import NaivePreprocessor
-from src.makers.TermsMaker import SingleTermsMaker
+from src.Preprocessor import LowerWordsPreprocessor, NaivePreprocessor
+from src.makers.Tokenizer import SingleTokenizer
 from src.settings import pretrained_models
 
 class GloveModel:   
@@ -12,15 +12,14 @@ class GloveModel:
 
         self._corpus = corpus
         self._embeddings_filename = embeddings_filename
-        # self._embeddings_filename = pretrained_models[ 'glove' ]
-
         self._embedding_dim = embedding_dim
-        self._preprocessor = NaivePreprocessor()
-        self._termsMaker = SingleTermsMaker()
+        self._preprocessor = LowerWordsPreprocessor()
+        self._tokenizer = SingleTokenizer()
 
         # make the vocabulary from corpus
         corpus_preprocessed = self._preprocessor.transform( self._corpus )
-        words = self._tokenize( ' '.join( corpus_preprocessed ) )
+        words = self._tokenizer.tokenize( ' '.join( corpus_preprocessed ) )
+        words = list( set( words ) )
         self._word_index = { w:idx for idx, w in enumerate( words ) }
         vocab_size = len( words ) + 1 # add 1 due to reserved 0 index
 
@@ -33,17 +32,22 @@ class GloveModel:
                     idx = self._word_index[ word ]
                     self._embeddings[ idx ] = np.array( vector, dtype=np.float32 )[:self._embedding_dim]
 
-    def _tokenize( self, text:str ):
-        return self._termsMaker.make( text.lower() )
+    # def _tokenize( self, text:str ):
+    #     return self._termsMaker.make( text.lower() )
 
     def _encode_one( self, sentence ):
-        words = self._tokenize( sentence )
+        # words = self._tokenize( sentence )
+        sentence_preprocessed = self._preprocessor.transform( sentence )
+        words = self._tokenizer.tokenize( ''.join( sentence_preprocessed ) )
         embeddings = [ self._embeddings[ self._word_index[ word ] ] for word in words if word in self._word_index ]
         if len( embeddings ) == 0:
-            return np.zeros( 2 * self._embedding_dim, dtype=np.float32 )
+            return np.zeros( 1 * self._embedding_dim, dtype=np.float32 )
         
         # concatanate the mean value for each dimension + the max value for each dimension
-        return np.round( np.concatenate( [ np.mean( embeddings, axis=0 ), np.amax( embeddings, axis=0 ) ], dtype=np.float32 ), decimals=8 )
+        # return np.round( np.concatenate( [ np.mean( embeddings, axis=0 ), np.amax( embeddings, axis=0 ) ], dtype=np.float32 ), decimals=8 )
+
+        # the mean value for each dimension
+        return np.round( np.mean( embeddings, axis=0, dtype=np.float32 ), decimals=8 )
 
     def encode( self, sentences:str|list[str] ):
 
@@ -67,6 +71,13 @@ def gloveModelFactory( option:str ):
 
         case 'arxiv':
             from ..datasets.arXiv.Dataset import Dataset
+            corpus = Dataset().toListTitlesSummaries()
+            embeddings_filename = pretrained_models[ 'glove' ]
+            model = GloveModel( corpus, embeddings_filename )
+            return model
+
+        case 'arxiv-retrained':
+            from ..datasets.arXiv.Dataset import Dataset
             from ..datasets.arXiv.settings import pickle_paths
             corpus = Dataset().toListTitlesSummaries()
             embeddings_filename = f"{pickle_paths[ 'corpus_repr' ]}/glove-retrained.txt"
@@ -74,6 +85,13 @@ def gloveModelFactory( option:str ):
             return model
 
         case 'medical':
+            from ..datasets.medical.Dataset import Dataset
+            corpus = Dataset().toListTitlesAbstracts()
+            embeddings_filename = pretrained_models[ 'glove' ]
+            model = GloveModel( corpus, embeddings_filename )
+            return model
+
+        case 'medical-retrained':
             from ..datasets.medical.Dataset import Dataset
             from ..datasets.medical.settings import pickle_paths
             corpus = Dataset().toListTitlesAbstracts()

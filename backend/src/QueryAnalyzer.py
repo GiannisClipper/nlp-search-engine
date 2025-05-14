@@ -4,7 +4,7 @@ from scipy.sparse import spmatrix, csr_matrix
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sentence_transformers import SentenceTransformer
 
-from .Preprocessor import Preprocessor, NaivePreprocessor, LemmPreprocessor, StemmPreprocessor
+from .Preprocessor import Preprocessor, LowerWordsPreprocessor, NaivePreprocessor, LemmPreprocessor, StemmPreprocessor
 from .makers.Tokenizer import AbstractTokenizer, SingleTokenizer, SingleAndTwogramTokenizer
 from .helpers.Pickle import PickleLoader
 from .helpers.typing import QueryAnalyzedType
@@ -115,9 +115,15 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case 'medical-naive-glove':
-            preprocessor = NaivePreprocessor()
+            preprocessor = LowerWordsPreprocessor()
             tokenizer = SingleTokenizer()
             model = gloveModelFactory( 'medical' )
+            return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
+
+        case 'medical-naive-glove-retrained':
+            preprocessor = NaivePreprocessor()
+            tokenizer = SingleTokenizer()
+            model = gloveModelFactory( 'medical-retrained' )
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case 'naive-bert':

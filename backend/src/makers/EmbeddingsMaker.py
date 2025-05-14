@@ -7,6 +7,10 @@ from sentence_transformers import SentenceTransformer
 from ..helpers.Pickle import PickleSaver, PickleLoader
 from ..models.GloveModel import GloveModel, gloveModelFactory
 
+# --------------------------------------------------------------------- #
+# Class to make sentence embeddings regarding various pretrained models #
+# --------------------------------------------------------------------- #
+
 class EmbeddingsMaker:
 
     def __init__( self, model:SentenceTransformer|GloveModel, sentences:list[str], embeddings_filename_base:str, embeddings_filename_merged:str ):
@@ -83,6 +87,16 @@ def embeddingsMakerFactory( option:str ):
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
 
+        case 'arxiv-sentences-glove-retrained':
+            from ..datasets.arXiv.Dataset import Dataset
+            from ..datasets.arXiv.settings import pickle_paths
+            model = gloveModelFactory( 'arxiv-retrained' )
+            sentences, tags = Dataset().toSentences()
+            embeddings_descr = 'sentences-glove-retrained'
+            embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
+            embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
+            return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
+
         case 'arxiv-sentences-bert':
             from ..datasets.arXiv.Dataset import Dataset
             from ..datasets.arXiv.settings import pickle_paths
@@ -110,6 +124,16 @@ def embeddingsMakerFactory( option:str ):
             model = gloveModelFactory( 'medical' )
             sentences, tags = Dataset().toSentences()
             embeddings_descr = 'sentences-glove'
+            embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
+            embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
+            return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
+
+        case 'medical-sentences-glove-retrained':
+            from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
+            model = gloveModelFactory( 'medical-retrained' )
+            sentences, tags = Dataset().toSentences()
+            embeddings_descr = 'sentences-glove-retrained'
             embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
@@ -148,12 +172,14 @@ if __name__ == "__main__":
 
     match option:
 
-        case 'arxiv-sentences-jina' |\
+        case 'arxiv-sentences-glove' |\
+             'arxiv-sentences-glove-retrained' |\
              'arxiv-sentences-bert' |\
-             'arxiv-sentences-glove' |\
-             'medical-sentences-jina' |\
+             'arxiv-sentences-jina' |\
+             'medical-sentences-glove' |\
+             'medical-sentences-glove-retrained' |\
              'medical-sentences-bert' |\
-             'medical-sentences-glove':
+             'medical-sentences-jina':
             maker = embeddingsMakerFactory( option )
             maker.make()
 
