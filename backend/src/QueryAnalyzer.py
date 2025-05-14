@@ -10,6 +10,10 @@ from .helpers.Pickle import PickleLoader
 from .helpers.typing import QueryAnalyzedType
 from .models.GloveModel import GloveModel, gloveModelFactory
 
+# -------------------------------------------------------------------------------- #
+# Classes to analyze queries into tokens and representation (vector or embeddings) #
+# -------------------------------------------------------------------------------- #
+
 class AbstractQueryAnalyzer( ABC ):
 
     def __init__( self, preprocessor:Preprocessor, tokenizer:AbstractTokenizer ):

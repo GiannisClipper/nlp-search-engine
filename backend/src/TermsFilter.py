@@ -8,6 +8,9 @@ from scipy import sparse
 from .helpers.typing import QueryAnalyzedType
 from .Preprocessor import NaivePreprocessor
 
+# ----------------------------------------------------------------------------------- #
+# Classes to filter docs or sentences regarding the terms or the embedding of a query #
+# ----------------------------------------------------------------------------------- #
 
 class AbstractTermsFilter( ABC ):
 
@@ -34,28 +37,22 @@ class OccuredTermsFilter( AbstractIndexedTermsFilter ):
 
     def filter( self, query_analyzed:QueryAnalyzedType, threshold:float=0.5 ) -> list[str]:
         
-        terms = query_analyzed[ 'tokens' ]
+        tokens = query_analyzed[ 'tokens' ]
 
-        # take 2grams into account
-        twograms = []
-        for i in range( len( terms ) -1 ):
-            twograms.append( terms[ i ] + ' ' + terms[ i + 1 ] )
-        terms += twograms
+        # keep only tokens existing in index
+        tokens = [ t for t in tokens if t in self._index ] 
 
-        # keep only terms existing in index
-        terms = [ t for t in terms if t in self._index ] 
+        # extract the unique terms
+        terms = list( set( tokens ) )
 
         doc_stats = {}
         for term in terms:
 
-            # if term is included in index
-            # if term in self._index:
-
-                # iterate all docs the term is ocuured within
-                for idoc in self._index[ term ].keys():
-                    if idoc not in doc_stats:
-                        doc_stats[ idoc ] = 0
-                    doc_stats[ idoc ] += 1
+            # iterate all docs the term is ocuured within
+            for idoc in self._index[ term ].keys():
+                if idoc not in doc_stats:
+                    doc_stats[ idoc ] = 0
+                doc_stats[ idoc ] += 1
 
         # select docs with including the half terms at least
         minTerms = len( terms ) * threshold if threshold > 0.0 else 1
@@ -73,32 +70,26 @@ class WeightedTermsFilter( AbstractIndexedTermsFilter ):
 
     def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
 
-        terms = query_analyzed[ 'tokens' ]
+        tokens = query_analyzed[ 'tokens' ]
 
-        # take 2grams into account
-        twograms = []
-        for i in range( len( terms ) -1 ):
-            twograms.append( terms[ i ] + ' ' + terms[ i + 1 ] )
-        terms += twograms
+        # keep only tokens existing in index
+        tokens = [ t for t in tokens if t in self._index ] 
 
-        # keep only terms existing in index
-        terms = [ t for t in terms if t in self._index ] 
+        # extract the unique terms
+        terms = list( set( tokens ) )
 
         term_weights = {}
         doc_stats = {}
         for term in terms:
 
-            # if term is included in index
-            # if term in self._index:
+            # compute a term weight like idf (+1 to avoid zero division)
+            term_weights[ term ] = math.log10( len( self._corpus ) / ( 1 + len( self._index[ term ].keys() ) ) )
 
-                # compute a term weight like idf (+1 to avoid zero division)
-                term_weights[ term ] = math.log10( len( self._corpus ) / ( 1 + len( self._index[ term ].keys() ) ) )
-
-                # iterate all docs the term is ocurred within
-                for idoc in self._index[ term ].keys():
-                    if idoc not in doc_stats:
-                        doc_stats[ idoc ] = 0
-                    doc_stats[ idoc ] += term_weights[ term ]
+            # iterate all docs the term is ocurred within
+            for idoc in self._index[ term ].keys():
+                if idoc not in doc_stats:
+                    doc_stats[ idoc ] = 0
+                doc_stats[ idoc ] += term_weights[ term ]
 
         # sort the documents' weights and get the top to check similarities
         result = [ ( idoc, weight ) for idoc, weight in doc_stats.items() ]
@@ -120,6 +111,7 @@ class ClusteredTermsFilter( AbstractTermsFilter ):
         result = [ str(isent) for isent, l in enumerate( self._model.labels_ ) if l == label ]
         return result
 
+
 class B25TermsFilter( AbstractTermsFilter ):
 
     def __init__( self, corpus:list[str] ):
@@ -135,6 +127,7 @@ class B25TermsFilter( AbstractTermsFilter ):
         isents, scores = self._model.retrieve( [ query_analyzed[ 'tokens' ] ], k=100 )
         isents = [ str(isent) for isent in isents[0] ]
         return isents
+
 
 class FaissTermsFilter( AbstractTermsFilter ):
 
