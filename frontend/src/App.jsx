@@ -1,13 +1,27 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import './styles/App.css'
 import SearchOption from './SearchOption'
 import HistoryOption from './HistoryOption'
-import './styles/App.css'
+import { requestInfo } from './helpers/requests'
 
 function App() {
 
     const [ engineOption, setEngineOption ] = useState( 'unknown' )
     const [ option, setOption ] = useState( 'search' )
     const [ onRequest, setOnRequest ] = useState( null )
+
+    useEffect( () => {
+        const request = async () => {
+            const info = await requestInfo()
+            if ( info.isError ) {
+                alert( info.statusText )
+                setEngineOption( null )
+            } else {
+                setEngineOption( info.option )
+            }
+        }
+        request()
+    }, [] )
 
     return (
         <>
