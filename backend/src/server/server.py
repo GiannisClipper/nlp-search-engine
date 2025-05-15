@@ -1,9 +1,16 @@
 import sys
 from flask import Flask, request
+
+# CORS in a Flask API
+# https://medium.com/@mterrano1/cors-in-a-flask-api-38051388f8cc
+from flask_cors import CORS
+
 from src.SearchEngine import searchEngineFactory, AbstractSearchEngine
 from src.datasets.arXiv.Dataset import Dataset
 
 app = Flask( __name__ )
+CORS( app )
+
 option:None|str = None
 engine:AbstractSearchEngine
 corpus:list
@@ -23,6 +30,12 @@ def get_doc( idoc ):
 @app.route( '/', methods=[ 'GET' ] )
 def main():
     return f'Search engine ({option}) is up and running...'
+
+@app.route( '/info', methods=[ 'GET' ] )
+def info():
+    return {
+        'option': option
+    }
 
 @app.route( '/search', methods=[ 'POST', 'GET' ] )
 def search():
