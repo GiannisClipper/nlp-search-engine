@@ -1,10 +1,10 @@
-.search.option {
+.search-option {
   margin: 1.5em;
   display: flex;
   flex-direction: column;
 }
 
-.search.option > .params > .top {
+.search-option > .params > .top {
   margin-bottom: 1em;
   display: flex;
   flex-direction: row;
@@ -12,14 +12,14 @@
   align-items: center; /* vertical alignment */
 }
 
-.search.option > .params > .bottom {
+.search-option > .params > .bottom {
   display: flex;
   flex-direction: row;
   justify-content: center; /* horizontal justification */
   align-items: center; /* vertical alignment */
 }
 
-.search.option > .params > .bottom > * {
+.search-option > .params > .bottom > * {
   margin: 0 .5em;
 }
 
@@ -52,3 +52,6 @@ input.period {
   width: 30%;
 }
 
+.search-option .documents {
+  margin-top: 2em;
+}

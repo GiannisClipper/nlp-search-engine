@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import './styles/SearchOption.css'
 import { requestSearch } from './helpers/requests'
+import Document from './Document'
 
 function SearchOption( { onRequest, setOnRequest } ) {
 
     const [ query, setQuery ] = useState( '' )
     const [ authors, setAuthors ] = useState( '' )
     const [ published, setPublished ] = useState( '' )
+    const [ documents, setDocuments ] = useState( [] )
 
     useEffect( () => {
         if ( onRequest === 'go request' ) {
@@ -17,6 +19,7 @@ function SearchOption( { onRequest, setOnRequest } ) {
                     setOnRequest( null )
                 } else {
                     console.log( result )
+                    setDocuments( result.data )
                     setOnRequest( null )
                 }
             }
@@ -25,13 +28,10 @@ function SearchOption( { onRequest, setOnRequest } ) {
         }
     }, [onRequest] )
 
-    const goSearch = async () => {
-        result = requestSearch( { query, names, published } )
-        console.log( result )
-    }
+    console.log( 'documents:', documents )
 
     return (
-        <div className='search option'>
+        <div className='search-option'>
             <div className='params'>
                 <div className='top'>
                     <input 
@@ -73,6 +73,9 @@ function SearchOption( { onRequest, setOnRequest } ) {
                         onChange={ e => setPublished( e.target.value ) }
                     />
                 </div>
+            </div>
+            <div className='documents'>
+                { documents.map( d => <Document document={d} /> ) }
             </div>
         </div>
     )

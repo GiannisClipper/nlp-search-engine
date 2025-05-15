@@ -1,0 +1,34 @@
+.document {
+  margin-top: 1em;
+  border: 1px dotted green;
+}
+
+.document * {
+  font-size: small;
+}
+
+.document > * {
+  margin: .25em;
+}
+
+.document .supertitle {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.document .supertitle .left {
+  display: flex;
+  flex-direction: row;
+}
+
+.document .supertitle .right {
+  display: flex;
+  flex-direction: row;
+  justify-content: right;
+}
+
+.document .title {
+  font-size: medium;
+  font-weight: 500;
+}
