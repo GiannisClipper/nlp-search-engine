@@ -12,12 +12,12 @@ function App() {
 
     useEffect( () => {
         const request = async () => {
-            const info = await requestInfo()
-            if ( info.isError ) {
-                alert( info.statusText )
-                setEngineOption( null )
+            const result = await requestInfo()
+            if ( result.error ) {
+                alert( result.error.message )
+                setEngineOption( 'unknown' )
             } else {
-                setEngineOption( info.option )
+                setEngineOption( result.data.option )
             }
         }
         request()
