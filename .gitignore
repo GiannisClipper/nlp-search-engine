@@ -3,3 +3,5 @@ appvenv/
 local/
 pickles/
 pretrained_models/
+
+node_modules/

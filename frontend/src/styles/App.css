@@ -1,0 +1,66 @@
+#root {
+  min-height: 100vh;
+  background: #f6f6f6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  margin-bottom: 2em;
+  border-bottom: 3px dashed #e3e3e3;
+  padding: 1em;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.main {
+  min-width: 800px;
+  width: 100%;
+  max-width: 1024px;
+  /* border: 1px dotted grey; */
+}
+
+.header > .left,
+.header > .right {
+  height: 6em;
+}
+
+.header > .left {
+  padding-left: 1.5em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header .title {
+  font-size:2em;
+  font-weight: 500;
+}
+
+.header .subtitle {
+  font-size:.75em;
+  text-align: center
+}
+
+.header > .right {
+  padding-right: 1.5em;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.header > .right > .selected > button {
+  background: yellow;
+}
+
+.header > .right button {
+  aspect-ratio: 2/2;
+  margin: .5em;
+}
