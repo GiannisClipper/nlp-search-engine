@@ -48,9 +48,10 @@ def search():
         published = request.args.get( 'published' )
 
     if request.method == 'POST':
-        query = request.form[ 'query' ]
-        authors = request.form[ 'authors' ]
-        published = request.form[ 'published' ]
+        params = request.get_json()
+        query = params[ 'query' ]
+        authors = params[ 'authors' ]
+        published = params[ 'published' ]
 
     print( query, authors, published )
     if not query or query.strip() == '':
