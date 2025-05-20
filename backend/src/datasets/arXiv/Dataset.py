@@ -92,6 +92,17 @@ class Dataset:
         mean_sentence_length = sum( lengths ) / len( lengths )
         max_sentence_length = max( lengths )
 
+        print( 'Num of sentences', 'docs' )
+        lengths.sort()
+        last_length = lengths[0]
+        counter = 0
+        for l in lengths:
+            if l != last_length:
+                print( last_length, counter )
+                last_length = l
+                counter = 0
+            counter += 1
+
         # analyze the authors
         authors, tags = self.toAuthors()
         unique_authors = set( authors )

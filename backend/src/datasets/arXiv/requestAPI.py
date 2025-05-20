@@ -2,17 +2,17 @@ import os
 import urllib.request as request
 import time
 
-import settings
-from Categories import Categories
+from .settings import dataset_path, catgs_filter
+from .Categories import Categories
 
 # arXiv API User's Manual
 # https://info.arxiv.org/help/api/user-manual.html
 
 has_requested = False
-for catg_id, _ in Categories( settings.catgs_filter ).toTuples():
+for catg_id, _ in Categories( catgs_filter ).toTuples():
 
     # compose filename
-    filename = f'downloads/{catg_id}-1100.xml'
+    filename = f'{dataset_path}/downloads/{catg_id}-1100.xml'
 
     # no request whenever already has done
     if os.path.exists( filename ):
