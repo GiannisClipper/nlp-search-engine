@@ -89,18 +89,6 @@ if __name__ == "__main__":
                 VectorizerClass=CountVectorizer
             )
 
-        case 'arxiv-stemm-single-tfidf':
-            from ..datasets.arXiv.Dataset import Dataset
-            from ..datasets.arXiv.settings import pickle_paths
-            make_and_save( 
-                pickle_paths, 
-                vocabulary_descr='title-summary_lower-punct-specials-stops-stemm_single', 
-                vectorizer_descr='title-summary_lower-punct-specials-stops-stemm_single_tfidf', 
-                corpus=Dataset().toListTitlesSummaries(), 
-                PreprocessorClass=StemmPreprocessor,
-                VectorizerClass=TfidfVectorizer
-            )
-
         case 'arxiv-lemm-single-count':
             from ..datasets.arXiv.Dataset import Dataset
             from ..datasets.arXiv.settings import pickle_paths
@@ -111,6 +99,18 @@ if __name__ == "__main__":
                 corpus=Dataset().toListTitlesSummaries(), 
                 PreprocessorClass=LemmPreprocessor,
                 VectorizerClass=CountVectorizer
+            )
+
+        case 'arxiv-stemm-single-tfidf':
+            from ..datasets.arXiv.Dataset import Dataset
+            from ..datasets.arXiv.settings import pickle_paths
+            make_and_save( 
+                pickle_paths, 
+                vocabulary_descr='title-summary_lower-punct-specials-stops-stemm_single', 
+                vectorizer_descr='title-summary_lower-punct-specials-stops-stemm_single_tfidf', 
+                corpus=Dataset().toListTitlesSummaries(), 
+                PreprocessorClass=StemmPreprocessor,
+                VectorizerClass=TfidfVectorizer
             )
 
         case 'arxiv-lemm-single-tfidf':

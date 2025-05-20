@@ -2,9 +2,9 @@
 # NOTICE: NLTK was unable to find stanford-postagger.jar! Set the CLASSPATH
 
 import numpy as np
-from src.Preprocessor import LowerWordsPreprocessor, NaivePreprocessor
-from src.makers.Tokenizer import SingleTokenizer
-from src.settings import pretrained_models
+from ..Preprocessor import LowerWordsPreprocessor
+from ..makers.Tokenizer import SingleTokenizer
+from ..settings import pretrained_models
 
 class GloveModel:   
 

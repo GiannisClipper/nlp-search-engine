@@ -2,6 +2,9 @@ __pycache__/
 appvenv/
 local/
 pickles/
-pretrained_models/
+
+pretrained_models/*.gz
+pretrained_models/*.bin
+pretrained_models/glove.6B.300d.txt
 
 node_modules/
