@@ -59,7 +59,7 @@ class Dataset:
             tags.append( f'{i}' )
         return dates, tags
 
-    def analyze( self ):
+    def info( self ):
 
         # to count the records per category
         catg_ids = { id: 0 for id, _ in Categories( arxivSettings.catgs_filter ).toTuples() }
@@ -79,6 +79,23 @@ class Dataset:
             elif l <= 512: summary_lengths[ 'le512' ] += 1
             else: summary_lengths[ 'gt512' ] += 1
 
+        # print results
+        print( "\nTotal records:", len( records ) )
+        print( "Records per category:", catg_ids )
+        print( "Sum of records per category (possible records in more than 1 category):", sum( catg_ids.values() ) )
+        print( "Summary lengths (in chars):", summary_lengths )
+
+
+        # to check records encountered in many categories
+        # for key, record in records():
+        #     if len( record[ 'catg_ids' ] ) > 1:
+        #         print( key, record[ 'catg_ids' ] )
+
+        # to check utf-8 encoding
+        # print( records[ 12181 ] )
+
+    def info_sentences( self ):
+
         # analyze the sentences
         sentences, tags = self.toSentences()
         lengths = {}
@@ -88,44 +105,29 @@ class Dataset:
                 lengths[ idoc ] = 0
             lengths[ idoc ] += 1
         lengths = [ v for k, v in lengths.items() ]
-        min_sentence_length = min( lengths )
-        mean_sentence_length = sum( lengths ) / len( lengths )
-        max_sentence_length = max( lengths )
+        # min_sentence_length = min( lengths )
+        # mean_sentence_length = sum( lengths ) / len( lengths )
+        # max_sentence_length = max( lengths )
 
-        print( 'Num of sentences', 'docs' )
+        print( "\nTotal sentences:", len( sentences ) )
+        # print( "Min-Mean-Max sentence length:", min_sentence_length, mean_sentence_length, max_sentence_length )
+
         lengths.sort()
         last_length = lengths[0]
         counter = 0
         for l in lengths:
             if l != last_length:
-                print( last_length, counter )
+                print( f'Num of sentences:{last_length}, docs:{counter}' )
                 last_length = l
                 counter = 0
             counter += 1
 
-        # analyze the authors
+    def info_authors( self ):
+
         authors, tags = self.toAuthors()
         unique_authors = set( authors )
-
-        # print results
-        print( "\nTotal records:", len( records ) )
-        print( "Records per category:", catg_ids )
-        print( "Total per category (possible records in more than 1 category):", sum( catg_ids.values() ) )
-        print( "Summary lengths:", summary_lengths )
-
-        print( "\nTotal sentences:", len( sentences ) )
-        print( "Min-Mean-Max sentence length:", min_sentence_length, mean_sentence_length, max_sentence_length )
-
-        print( "\nTotal authors:", len( authors ) )
-        print( "Unique authors:", len( unique_authors ) )
-
-        # to check records encountered in many categories
-        # for key, record in records():
-        #     if len( record[ 'catg_ids' ] ) > 1:
-        #         print( key, record[ 'catg_ids' ] )
-
-        # to check utf-8 encoding
-        # print( records[ 12181 ] )
+        print( "\nTotal author names:", len( authors ) )
+        print( "Unique author names:", len( unique_authors ) )
 
 
 # RUN: python -m arXit.Dataset -m [option]
@@ -143,9 +145,17 @@ if __name__ == "__main__":
 
     match option:
 
-        case 'ds':
+        case 'info':
             ds = Dataset()
-            ds.analyze()
+            ds.info()
+
+        case 'info-sentences':
+            ds = Dataset()
+            ds.info_sentences()
+
+        case 'info-authors':
+            ds = Dataset()
+            ds.info_authors()
 
         case 'get':
             ds = Dataset()
