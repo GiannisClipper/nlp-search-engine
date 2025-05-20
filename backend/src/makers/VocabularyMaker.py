@@ -37,6 +37,7 @@ class VocabularyMaker:
             result += termsMaker.make( ' '.join( corpus ) )
         self._terms = result
         print( f'(passed {timer.stop()} secs)' )
+        print( f'Number of terms:{len(self._terms)}' )
 
         # print some indicative output
         # step = len( self._terms ) // 50 if len( self._terms ) > 50 else 1 
