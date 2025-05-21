@@ -136,12 +136,12 @@ class FaissTermsFilter( AbstractTermsFilter ):
         embedding_dim = corpus_embeddings.shape[ 1 ]
         self._index = faiss.IndexFlatIP( embedding_dim )  # Inner product for cosine similarity
         # self._index = faiss.IndexFlatL2( embedding_dim )  # L2 = Euclidean distance
-        # faiss.normalize_L2( corpus_embeddings )
+        faiss.normalize_L2( corpus_embeddings )
         self._index.add( corpus_embeddings ) # type: ignore
 
     def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
         embedding = sparse.lil_matrix( query_analyzed[ 'repr' ] ).toarray()
-        # faiss.normalize_L2( embedding )
+        faiss.normalize_L2( embedding )
         print( 'query_embedding.shape:', embedding.shape )
         distances, indices = self._index.search( embedding, k=100 ) # type: ignore
         isents = [ str(isent) for isent in indices[0] ]
