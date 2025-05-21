@@ -112,7 +112,7 @@ class ClusteredTermsFilter( AbstractTermsFilter ):
         return result
 
 
-class B25TermsFilter( AbstractTermsFilter ):
+class BM25TermsFilter( AbstractTermsFilter ):
 
     def __init__( self, corpus:list[str] ):
         super().__init__()

@@ -101,21 +101,21 @@ def searchEngineFactory( option:str ):
             ranker = rankerFactory( option )
             return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
 
-        case 'arxiv-sentences-glove-b25':
+        case 'arxiv-sentences-glove-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'arxiv-naive-glove' )
-            retriever = retrieverFactory( 'arxiv-sentences-b25' )
+            retriever = retrieverFactory( 'arxiv-sentences-bm25' )
             ranker = rankerFactory( 'arxiv-glove' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
-        case 'arxiv-sentences-glove-retrained-b25':
+        case 'arxiv-sentences-glove-retrained-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'arxiv-naive-glove-retrained' )
-            retriever = retrieverFactory( 'arxiv-sentences-b25' )
+            retriever = retrieverFactory( 'arxiv-sentences-bm25' )
             ranker = rankerFactory( 'arxiv-glove-retrained' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
-        case 'arxiv-sentences-jina-b25':
+        case 'arxiv-sentences-jina-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
-            retriever = retrieverFactory( 'arxiv-sentences-b25' )
+            retriever = retrieverFactory( 'arxiv-sentences-bm25' )
             ranker = rankerFactory( 'arxiv-jina' )
             return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
 
@@ -149,15 +149,15 @@ def searchEngineFactory( option:str ):
             ranker = rankerFactory( option )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
-        case 'medical-sentences-glove-b25':
+        case 'medical-sentences-glove-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'medical-naive-glove' )
-            retriever = retrieverFactory( 'medical-sentences-b25' )
+            retriever = retrieverFactory( 'medical-sentences-bm25' )
             ranker = rankerFactory( 'medical-glove' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
-        case 'medical-sentences-glove-retrained-b25':
+        case 'medical-sentences-glove-retrained-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'medical-naive-glove-retrained' )
-            retriever = retrieverFactory( 'medical-sentences-b25' )
+            retriever = retrieverFactory( 'medical-sentences-bm25' )
             ranker = rankerFactory( 'medical-glove-retrained' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
@@ -179,9 +179,9 @@ def searchEngineFactory( option:str ):
             ranker = rankerFactory( 'medical-jina' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
-        case 'medical-sentences-jina-b25':
+        case 'medical-sentences-jina-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
-            retriever = retrieverFactory( 'medical-sentences-b25' )
+            retriever = retrieverFactory( 'medical-sentences-bm25' )
             ranker = rankerFactory( 'medical-jina' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
@@ -223,9 +223,9 @@ if __name__ == "__main__":
         case 'arxiv-lemm-single-tfidf' |\
              'arxiv-lemm-2gram-tfidf' |\
              'arxiv-lemm-single-jina' |\
-             'arxiv-sentences-glove-b25' |\
+             'arxiv-sentences-glove-bm25' |\
              'arxiv-sentences-jina-kmeans' |\
-             'arxiv-sentences-jina-b25' |\
+             'arxiv-sentences-jina-bm25' |\
              'arxiv-sentences-jina-faiss' |\
              'arxiv-sentences-bert-faiss':
 
@@ -239,7 +239,7 @@ if __name__ == "__main__":
                 print( f"{doc['id']} {doc['catg_ids']} {res[1]}" )
 
         case 'medical-sentences-jina-kmeans' |\
-             'medical-sentences-jina-b25':
+             'medical-sentences-jina-bm25':
 
             engine = searchEngineFactory( option )
             results = engine.search( query )

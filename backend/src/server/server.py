@@ -71,7 +71,7 @@ if __name__ == '__main__':
     match option:
         case 'arxiv-lemm-single-tfidf' |\
              'arxiv-lemm-2gram-tfidf' |\
-             'arxiv-sentences-glove-b25' |\
+             'arxiv-sentences-glove-bm25' |\
              'arxiv-sentences-bert-faiss':
             engine = searchEngineFactory( option )
             corpus = Dataset().toList()

@@ -4,7 +4,7 @@ from typing import cast
 from .helpers.typing import QueryAnalyzedType
 
 from .TermsFilter import AbstractTermsFilter, OccuredTermsFilter, WeightedTermsFilter
-from .TermsFilter import ClusteredTermsFilter, B25TermsFilter, FaissTermsFilter
+from .TermsFilter import ClusteredTermsFilter, BM25TermsFilter, FaissTermsFilter
 from .NameFilter import NamesFilter
 from .PeriodFilter import PeriodFilter
 from .helpers.Pickle import PickleLoader
@@ -194,7 +194,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             termsFilters = [ ClusteredTermsFilter( model=clustering_model ) ]
             return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
 
-        case 'arxiv-sentences-b25':
+        case 'arxiv-sentences-bm25':
             from .datasets.arXiv.Dataset import Dataset
             from .datasets.arXiv.settings import pickle_paths
             ds = Dataset()
@@ -203,7 +203,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             names, tags = ds.toAuthors()
             namesFilter = NamesFilter( names=names, tags=tags )
             sentences, tags = ds.toSentences()
-            termsFilters = [ B25TermsFilter( corpus=sentences ) ]
+            termsFilters = [ BM25TermsFilter( corpus=sentences ) ]
             return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
 
         case 'arxiv-sentences-jina-faiss':
@@ -262,10 +262,10 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             ]
             return TermsRetriever( termsFilters=termsFilters )
 
-        case 'medical-sentences-b25':
+        case 'medical-sentences-bm25':
             from .datasets.medical.Dataset import Dataset
             sentences, tags = Dataset().toSentences()
-            termsFilters = [ B25TermsFilter( corpus=sentences ) ]
+            termsFilters = [ BM25TermsFilter( corpus=sentences ) ]
             return TermsRetriever( termsFilters=termsFilters )
 
         case 'medical-sentences-jina-kmeans':
@@ -277,7 +277,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             # sentences, tags = Dataset().toSentences()
             termsFilters = [
                 ClusteredTermsFilter( model=clustering_model ),
-                # B25TermsFilter( sentences )
+                # BM25TermsFilter( sentences )
             ]
             return TermsRetriever( termsFilters=termsFilters )
 

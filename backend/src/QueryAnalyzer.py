@@ -88,6 +88,12 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             model = gloveModelFactory( 'arxiv' )
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
+        case 'arxiv-naive-glove-retrained':
+            preprocessor = NaivePreprocessor()
+            tokenizer = SingleTokenizer()
+            model = gloveModelFactory( 'arxiv-retrained' )
+            return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
+
         case 'medical-lemm-single-tfidf':
             from .datasets.medical.settings import pickle_paths
             preprocessor = LemmPreprocessor()

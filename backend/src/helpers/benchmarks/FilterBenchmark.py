@@ -2,7 +2,7 @@ import sys
 from abc import ABC, abstractmethod
 from src.QueryAnalyzer import AbstractQueryAnalyzer, queryAnalyzerFactory
 from src.TermsFilter import AbstractTermsFilter, OccuredTermsFilter, WeightedTermsFilter
-from src.TermsFilter import ClusteredTermsFilter, B25TermsFilter, FaissTermsFilter
+from src.TermsFilter import ClusteredTermsFilter, BM25TermsFilter, FaissTermsFilter
 from src.datasets.medical.Dataset import Dataset, Queries, QueriesResults
 from src.datasets.medical.settings import pickle_paths
 from src.helpers.Pickle import PickleLoader
@@ -102,10 +102,10 @@ if __name__ == "__main__":
             benchmark = SentenceFilterBenchmark( queryAnalyzer, filter )
             print( benchmark.conduct() )
 
-        case 'b25':
+        case 'bm25':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
             sentences, tags = Dataset().toSentences()
-            filter = B25TermsFilter( corpus=sentences )
+            filter = BM25TermsFilter( corpus=sentences )
             benchmark = SentenceFilterBenchmark( queryAnalyzer, filter )
             print( benchmark.conduct() )
 

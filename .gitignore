@@ -3,8 +3,10 @@ appvenv/
 local/
 pickles/
 
-pretrained_models/*.gz
-pretrained_models/*.bin
-pretrained_models/glove.6B.300d.txt
+**/pretrained_models/GoogleNews-vectors-negative300.bin.gz
+**/pretrained_models/GoogleNews-vectors-negative300.bin
+**/pretrained_models/cc.en.300.bin.gz
+**/pretrained_models/cc.en.300.bin
+**/pretrained_models/glove.6B.300d.txt
 
 node_modules/
