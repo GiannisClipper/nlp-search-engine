@@ -162,6 +162,10 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             raise Exception( 'queryAnalyzerFactory(): No valid option.' )
 
 
+##########################################
+# for development and debugging purposes #
+##########################################
+
 # RUN: python -m src.QueryAnalyzer [option]
 if __name__ == "__main__": 
 

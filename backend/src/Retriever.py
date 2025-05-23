@@ -357,6 +357,10 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             raise Exception( 'retrieverFactory(): No valid option.' )
 
 
+##########################################
+# for development and debugging purposes #
+##########################################
+
 # RUN: python -m src.Retriever
 if __name__ == "__main__": 
 

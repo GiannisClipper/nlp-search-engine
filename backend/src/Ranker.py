@@ -204,6 +204,10 @@ def rankerFactory( option:str ):
             raise Exception( 'rankerFactory(): No valid option.' )
 
 
+##########################################
+# for development and debugging purposes #
+##########################################
+
 # RUN: python -m src.DocEstimator [option]
 if __name__ == "__main__": 
 

@@ -189,12 +189,6 @@ def searchEngineFactory( option:str ):
             ranker = rankerFactory( 'medical-glove-retrained' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
-        case 'medical-lemm-single-jina':
-            queryAnalyzer = queryAnalyzerFactory( option )
-            retriever = retrieverFactory( 'medical-lemm-single' )
-            ranker = rankerFactory( 'medical-jina' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
-
         case 'medical-sentences-jina-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
             retriever = retrieverFactory( 'medical-sentences-bm25' )
@@ -220,8 +214,12 @@ def searchEngineFactory( option:str ):
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case _:
-            raise Exception( 'searchEngineFactory(): No valid option.' )
+            raise Exception( 'searchEngineFactory(): No valid option.', option )
 
+
+##########################################
+# for development and debugging purposes #
+##########################################
 
 # RUN: python -m src.SearchEngine
 if __name__ == "__main__": 
@@ -236,17 +234,19 @@ if __name__ == "__main__":
 
     match option:
 
-        case 'arxiv-lemm-single-tfidf' |\
+        case 'arxiv-stemm-single-count' |\
+             'arxiv-lemm-single-tfidf' |\
              'arxiv-lemm-2gram-tfidf' |\
-             'arxiv-lemm-single-jina' |\
              'arxiv-sentences-glove-bm25' |\
-             'arxiv-sentences-jina-kmeans' |\
+             'arxiv-sentences-glove-retrained-bm25' |\
              'arxiv-sentences-jina-bm25' |\
+             'arxiv-sentences-jina-kmeans' |\
              'arxiv-sentences-jina-faiss' |\
              'arxiv-sentences-bert-faiss':
 
             engine = searchEngineFactory( option )
             results = engine.search( query )
+            # print( results )
 
             from .datasets.arXiv.Dataset import Dataset
             corpus = Dataset().toList()

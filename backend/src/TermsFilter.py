@@ -54,8 +54,10 @@ class OccuredTermsFilter( AbstractIndexedTermsFilter ):
                     doc_stats[ idoc ] = 0
                 doc_stats[ idoc ] += 1
 
-        # select docs with including the half terms at least
-        minTerms = len( terms ) * threshold if threshold > 0.0 else 1
+        # select docs with including the half of the single terms at least
+        # excluding 2-grams to avoid low rate of filtering due to redundancy of terms  
+        single_terms = [ t for t in terms if len( t.split() ) == 1 ]
+        minTerms = len( single_terms ) * threshold if threshold > 0.0 else 1
         result = [ ( idoc, stat ) for idoc, stat in doc_stats.items() if stat >= minTerms ]
         result = [ i for i, _ in result ]
         return result
@@ -124,7 +126,7 @@ class BM25TermsFilter( AbstractTermsFilter ):
     def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
         # query = ' '.join( query_analyzed[ 'tokens' ] )
         # isents, scores = self._model.retrieve( bm25s.tokenize( query ), k=100 )
-        isents, scores = self._model.retrieve( [ query_analyzed[ 'tokens' ] ], k=100 )
+        isents, scores = self._model.retrieve( [ query_analyzed[ 'tokens' ] ], k=200 )
         isents = [ str(isent) for isent in isents[0] ]
         return isents
 
@@ -143,6 +145,6 @@ class FaissTermsFilter( AbstractTermsFilter ):
         embedding = sparse.lil_matrix( query_analyzed[ 'repr' ] ).toarray()
         faiss.normalize_L2( embedding )
         print( 'query_embedding.shape:', embedding.shape )
-        distances, indices = self._index.search( embedding, k=100 ) # type: ignore
+        distances, indices = self._index.search( embedding, k=200 ) # type: ignore
         isents = [ str(isent) for isent in indices[0] ]
         return isents
