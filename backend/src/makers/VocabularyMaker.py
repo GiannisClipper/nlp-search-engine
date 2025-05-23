@@ -108,6 +108,21 @@ if __name__ == "__main__":
                 termsMakers=[ SingleTermsMaker(), TwogramTermsMaker( limit=1000 ) ]
             )
 
+        ###########
+        # medical #
+        ###########
+
+        case 'medical-stemm-single':
+            from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
+            make_and_save( 
+                pickle_paths,
+                vocabulary_decsr='title-summary_lower-punct-specials-stops-stemm_single',
+                corpus=Dataset().toListTitlesAbstracts(),
+                preprocessor=StemmPreprocessor(),
+                termsMakers=[ SingleTermsMaker() ]
+            )
+
         case 'medical-lemm-single':
             from ..datasets.medical.Dataset import Dataset
             from ..datasets.medical.settings import pickle_paths

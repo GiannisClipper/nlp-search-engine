@@ -94,6 +94,19 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             model = gloveModelFactory( 'arxiv-retrained' )
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
+        ###########
+        # medical #
+        ###########
+
+        case 'medical-stemm-single-count':
+            from .datasets.medical.settings import pickle_paths
+            preprocessor = StemmPreprocessor()
+            tokenizer = SingleTokenizer()
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
+            vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
+            vectorizer = PickleLoader( vectorizer_filename ).load()
+            return QueryAnalyzerWithVectorizer( preprocessor, tokenizer, vectorizer )
+
         case 'medical-lemm-single-tfidf':
             from .datasets.medical.settings import pickle_paths
             preprocessor = LemmPreprocessor()

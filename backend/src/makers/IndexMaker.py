@@ -136,6 +136,21 @@ if __name__ == "__main__":
                 TokenizerClass=SingleAndTwogramTokenizer
             )
 
+        ###########
+        # medical #
+        ###########
+
+        case 'medical-stemm-single':
+            from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
+            make_and_save(
+                pickle_paths,
+                vocabulary_descr='title-summary_lower-punct-specials-stops-stemm_single',
+                corpus=Dataset().toListTitlesAbstracts(),
+                PreprocessorClass=StemmPreprocessor,
+                TokenizerClass=SingleTokenizer
+            )
+
         case 'medical-lemm-single':
             from ..datasets.medical.Dataset import Dataset
             from ..datasets.medical.settings import pickle_paths

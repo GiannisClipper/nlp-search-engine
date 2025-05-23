@@ -137,6 +137,22 @@ if __name__ == "__main__":
                 VectorizerClass=TfidfVectorizer
             )
 
+        ###########
+        # medical #
+        ###########
+
+        case 'medical-stemm-single-count':
+            from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
+            make_and_save( 
+                pickle_paths,
+                vocabulary_descr='title-summary_lower-punct-specials-stops-stemm_single', 
+                vectorizer_descr='title-summary_lower-punct-specials-stops-stemm_single_count', 
+                corpus=Dataset().toListTitlesAbstracts(), 
+                PreprocessorClass=StemmPreprocessor,
+                VectorizerClass=CountVectorizer
+            )
+
         case 'medical-lemm-single-tfidf':
             from ..datasets.medical.Dataset import Dataset
             from ..datasets.medical.settings import pickle_paths

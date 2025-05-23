@@ -133,6 +133,28 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
 
     match option:
 
+        case 'arxiv-stemm-single':
+            from .datasets.arXiv.Dataset import Dataset
+            from .datasets.arXiv.settings import pickle_paths
+            ds = Dataset()
+
+            dates, tags = ds.toPublished()
+            periodFilter = PeriodFilter( dates=dates, tags=tags )
+
+            names, tags = ds.toAuthors()
+            namesFilter = NamesFilter( names=names, tags=tags )
+
+            index_descr = 'title-summary_lower-punct-specials-stops-stemm_single'
+            index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
+            index = PickleLoader( index_filename ).load()
+            corpus = ds.toList()
+            termsFilters = [
+                OccuredTermsFilter( index=index, threshold=0.5 ),
+                WeightedTermsFilter( index=index, corpus=corpus, limit=200 )
+            ]
+
+            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
+
         case 'arxiv-lemm-single':
             from .datasets.arXiv.Dataset import Dataset
             from .datasets.arXiv.settings import pickle_paths
@@ -232,6 +254,24 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
             embeddings = PickleLoader( filename ).load()
             termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
+            return TermsRetriever( termsFilters=termsFilters )
+
+        ###########
+        # medical #
+        ###########
+
+        case 'medical-stemm-single':
+            from .datasets.medical.Dataset import Dataset
+            from .datasets.medical.settings import pickle_paths
+            ds = Dataset()
+            index_descr = 'title-summary_lower-punct-specials-stops-stemm_single'
+            index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
+            index = PickleLoader( index_filename ).load()
+            corpus = ds.toList()
+            termsFilters:list[AbstractTermsFilter] = [
+                OccuredTermsFilter( index=index, threshold=0.5 ),
+                WeightedTermsFilter( index=index, corpus=corpus, limit=200 )
+            ]
             return TermsRetriever( termsFilters=termsFilters )
 
         case 'medical-lemm-single':

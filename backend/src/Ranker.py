@@ -112,6 +112,15 @@ def rankerFactory( option:str ):
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
+        case 'arxiv-glove-retrained':
+            from .datasets.arXiv.Dataset import Dataset
+            from .datasets.arXiv.settings import pickle_paths
+            representations_descr = 'sentences-glove-retrained'
+            representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
+            representations = PickleLoader( representations_filename ).load()
+            sentences, tags = Dataset().toSentences()
+            return SentRanker( representations, tags )
+
         case 'arxiv-bert':
             from .datasets.arXiv.Dataset import Dataset
             from .datasets.arXiv.settings import pickle_paths
@@ -129,6 +138,17 @@ def rankerFactory( option:str ):
             representations = PickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
+
+        ###########
+        # medical #
+        ###########
+
+        case 'medical-stemm-single-count':
+            from .datasets.medical.settings import pickle_paths
+            vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
+            corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
+            corpus_repr = PickleLoader( corpus_repr_filename ).load()
+            return DocRanker( corpus_repr )
 
         case 'medical-lemm-single-tfidf':
             from .datasets.medical.settings import pickle_paths

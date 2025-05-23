@@ -89,6 +89,12 @@ def searchEngineFactory( option:str ):
 
     match option:
 
+        case 'arxiv-stemm-single-count':
+            queryAnalyzer = queryAnalyzerFactory( option )
+            retriever = retrieverFactory( 'arxiv-stemm-single' )
+            ranker = rankerFactory( option )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
+
         case 'arxiv-lemm-single-tfidf':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'arxiv-lemm-single' )
@@ -135,6 +141,16 @@ def searchEngineFactory( option:str ):
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
             retriever = retrieverFactory( 'arxiv-sentences-jina-faiss' )
             ranker = rankerFactory( 'arxiv-jina' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        ###########
+        # medical #
+        ###########
+
+        case 'medical-stemm-single-count':
+            queryAnalyzer = queryAnalyzerFactory( option )
+            retriever = retrieverFactory( 'medical-stemm-single' )
+            ranker = rankerFactory( option )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case 'medical-lemm-single-tfidf':

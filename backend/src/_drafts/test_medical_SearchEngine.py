@@ -11,7 +11,7 @@ if not option:
     raise Exception( 'No option passed.' )
 
 engine = searchEngineFactory( option )    
-queries = Queries().toList()[:30]
+queries = Queries().toList()[:100]
 results = []
 start_time = time.time()
 for q in queries:
