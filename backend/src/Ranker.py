@@ -182,6 +182,15 @@ def rankerFactory( option:str ):
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
+        case 'medical-jina':
+            from .datasets.medical.Dataset import Dataset
+            from .datasets.medical.settings import pickle_paths
+            representations_descr = 'sentences-jina'
+            representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
+            representations = PickleLoader( representations_filename ).load()
+            sentences, tags = Dataset().toSentences()
+            return SentRanker( representations, tags )
+
         case 'medical-bert':
             from .datasets.medical.Dataset import Dataset
             from .datasets.medical.settings import pickle_paths
@@ -191,10 +200,10 @@ def rankerFactory( option:str ):
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
-        case 'medical-jina':
+        case 'medical-bert-retrained':
             from .datasets.medical.Dataset import Dataset
             from .datasets.medical.settings import pickle_paths
-            representations_descr = 'sentences-jina'
+            representations_descr = 'sentences-bert-retrained'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()

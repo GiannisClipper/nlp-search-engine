@@ -337,6 +337,14 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
             return TermsRetriever( termsFilters=termsFilters )
 
+        case 'medical-sentences-jina-faiss':
+            from .datasets.medical.settings import pickle_paths
+            descr = 'sentences-jina'
+            filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
+            embeddings = PickleLoader( filename ).load()
+            termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
+            return TermsRetriever( termsFilters=termsFilters )
+
         case 'medical-sentences-bert-faiss':
             from .datasets.medical.settings import pickle_paths
             descr = 'sentences-bert'
@@ -345,9 +353,9 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
             return TermsRetriever( termsFilters=termsFilters )
 
-        case 'medical-sentences-jina-faiss':
+        case 'medical-sentences-bert-retrained-faiss':
             from .datasets.medical.settings import pickle_paths
-            descr = 'sentences-jina'
+            descr = 'sentences-bert-retrained'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
             embeddings = PickleLoader( filename ).load()
             termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]

@@ -138,6 +138,17 @@ def embeddingsMakerFactory( option:str ):
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
 
+        case 'medical-sentences-jina':
+            from ..datasets.medical.Dataset import Dataset
+            from ..datasets.medical.settings import pickle_paths
+            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
+            model.max_seq_length = 1024 # control your input sequence length up to 8192
+            sentences, tags = Dataset().toSentences()
+            embeddings_descr = 'sentences-jina'
+            embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
+            embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
+            return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
+
         case 'medical-sentences-bert':
             from ..datasets.medical.Dataset import Dataset
             from ..datasets.medical.settings import pickle_paths
@@ -148,13 +159,13 @@ def embeddingsMakerFactory( option:str ):
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
 
-        case 'medical-sentences-jina':
+        case 'medical-sentences-bert-retrained':
             from ..datasets.medical.Dataset import Dataset
             from ..datasets.medical.settings import pickle_paths
-            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
-            model.max_seq_length = 1024 # control your input sequence length up to 8192
+            model_folder = f"{pickle_paths[ 'corpus_repr' ]}/bert-retrained"
+            model = SentenceTransformer( model_folder, trust_remote_code=True, local_files_only=True )
             sentences, tags = Dataset().toSentences()
-            embeddings_descr = 'sentences-jina'
+            embeddings_descr = 'sentences-bert-retrained'
             embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
             embeddings_filename_merged = f"{pickle_paths[ 'corpus_repr' ]}/{embeddings_descr}.pkl"
             return EmbeddingsMaker( model, sentences, embeddings_filename_base, embeddings_filename_merged )
@@ -174,12 +185,13 @@ if __name__ == "__main__":
 
         case 'arxiv-sentences-glove' |\
              'arxiv-sentences-glove-retrained' |\
-             'arxiv-sentences-bert' |\
              'arxiv-sentences-jina' |\
+             'arxiv-sentences-bert' |\
              'medical-sentences-glove' |\
              'medical-sentences-glove-retrained' |\
+             'medical-sentences-jina' |\
              'medical-sentences-bert' |\
-             'medical-sentences-jina':
+             'medical-sentences-bert-retrained':
             maker = embeddingsMakerFactory( option )
             maker.make()
 

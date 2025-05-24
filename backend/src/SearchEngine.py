@@ -201,16 +201,22 @@ def searchEngineFactory( option:str ):
             ranker = rankerFactory( 'medical-jina' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
+        case 'medical-sentences-jina-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+            retriever = retrieverFactory( 'medical-sentences-jina-faiss' )
+            ranker = rankerFactory( 'medical-jina' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
         case 'medical-sentences-bert-faiss':
             queryAnalyzer = queryAnalyzerFactory( 'naive-bert' )
             retriever = retrieverFactory( 'medical-sentences-bert-faiss' )
             ranker = rankerFactory( 'medical-bert' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
-        case 'medical-sentences-jina-faiss':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
-            retriever = retrieverFactory( 'medical-sentences-jina-faiss' )
-            ranker = rankerFactory( 'medical-jina' )
+        case 'medical-sentences-bert-retrained-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-bert-retrained' )
+            retriever = retrieverFactory( 'medical-sentences-bert-retrained-faiss' )
+            ranker = rankerFactory( 'medical-bert-retrained' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case _:

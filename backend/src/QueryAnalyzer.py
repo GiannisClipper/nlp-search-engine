@@ -145,17 +145,25 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             model = gloveModelFactory( 'medical-retrained' )
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
+        case 'naive-jina':
+            preprocessor = NaivePreprocessor()
+            tokenizer = SingleTokenizer()
+            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
+            model.max_seq_length = 1024 # control your input sequence length up to 8192
+            return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
+
         case 'naive-bert':
             preprocessor = NaivePreprocessor()
             tokenizer = SingleTokenizer()
             model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True, local_files_only=True )
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
-        case 'naive-jina':
+        case 'naive-bert-retrained':
             preprocessor = NaivePreprocessor()
             tokenizer = SingleTokenizer()
-            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
-            model.max_seq_length = 1024 # control your input sequence length up to 8192
+            from .datasets.medical.settings import pickle_paths
+            model_folder = f"{pickle_paths[ 'corpus_repr' ]}/bert-retrained"
+            model = SentenceTransformer( model_folder, trust_remote_code=True, local_files_only=True )
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case _:
