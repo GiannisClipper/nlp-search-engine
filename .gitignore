@@ -8,5 +8,7 @@ pickles/
 **/pretrained_models/cc.en.300.bin.gz
 **/pretrained_models/cc.en.300.bin
 **/pretrained_models/glove.6B.300d.txt
+**/pretrained_models/judge_model
+**/pretrained_models/judge_model_tokenizer
 
 node_modules/
