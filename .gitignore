@@ -1,14 +1,17 @@
 __pycache__/
 appvenv/
 local/
-pickles/
+**/pickles/*/*.pkl
+**/pickles/corpus_repr/glove-retrained.txt
+**/pickles/corpus_repr/bert-retrained
 
 **/pretrained_models/GoogleNews-vectors-negative300.bin.gz
 **/pretrained_models/GoogleNews-vectors-negative300.bin
 **/pretrained_models/cc.en.300.bin.gz
 **/pretrained_models/cc.en.300.bin
+**/pretrained_models/glove6b300dtxt.zip
 **/pretrained_models/glove.6B.300d.txt
-**/pretrained_models/*judge_model
-**/pretrained_models/*judge_model_tokenizer
+**/pretrained_models/*/*
+**/pretrained_models/*/*
 
 node_modules/
