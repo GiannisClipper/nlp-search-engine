@@ -2,7 +2,7 @@ from typing import cast
 from transformers import AutoModelForCausalLM, AutoModelForSeq2SeqLM, AutoTokenizer, pipeline # type: ignore
 from .settings import pretrained_models
 
-class JudgeTester:
+class JudgeModel:
 
     def __init__( self ):
 
@@ -35,10 +35,10 @@ class JudgeTester:
 # for development and debugging purposes #
 ##########################################
 
-# RUN: python -m src.JudgeTester
+# RUN: python -m src.JudgeModel
 if __name__ == "__main__": 
 
-    tester = JudgeTester()
+    model = JudgeModel()
 
     queries = [ 
         "How does photosynthesis work?",
@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     counter = 0
     for query, answer in zip( queries, answers ):
-        result = tester.judge( query, answer )
+        result = model.judge( query, answer )
         counter += 1
         print( f"{counter}." )
         print( f"Q:{query}" )

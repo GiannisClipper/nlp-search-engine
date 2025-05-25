@@ -1,6 +1,6 @@
 from ..SearchEngine import searchEngineFactory
 from ..datasets.arXiv.Dataset import Dataset
-from ..JudgeTester import JudgeTester
+from ..JudgeModel import JudgeModel
 
 queries = [
     "Regarding operating systems...", #0
@@ -67,13 +67,13 @@ for iquery, query in enumerate( queries ):
     titles_summaries = [ corpus[ idoc ][ 'title' ] + '-' + corpus[ idoc ][ 'summary' ] for idoc in results ] 
     print( '------------------------------------' )
     print( f'Query #{iquery+1}: {query}' )
-    tester = JudgeTester()
+    model = JudgeModel()
 
     counter = 0
     yes = 0
     no = 0
     for answer in titles_summaries:
-        result = tester.judge( query, answer )
+        result = model.judge( query, answer )
         counter += 1
         yes += 1 if result == 'yes' else 0
         no += 1 if result == 'no' else 0
