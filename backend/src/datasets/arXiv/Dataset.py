@@ -130,7 +130,7 @@ class Dataset:
         print( "Unique author names:", len( unique_authors ) )
 
 
-# RUN: python -m arXit.Dataset -m [option]
+# RUN: python -m arXiv.Dataset -m [option]
 if __name__ == "__main__":
 
     option = None
