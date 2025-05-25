@@ -77,6 +77,12 @@ class Preprocessor:
         return ', '.join( [ str( t ) for t in self._transformations ] )
 
 
+class DummyPreprocessor( Preprocessor ):
+
+    def __init__( self ):
+        super().__init__( [] )
+
+
 class LowerWordsPreprocessor( Preprocessor ):
 
     def __init__( self ):

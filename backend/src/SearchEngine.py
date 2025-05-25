@@ -75,14 +75,20 @@ class PeriodNamesTermsSearchEngine( TermsSearchEngine ):
         print( 'Retrieve docs/sentences...' )
         self._retrieved = self._retriever.retrieve( period=period, names=names, query_analyzed=self._query_analyzed )
 
-    def _search( self, query:str, names:list[str]|None=None, period:str|None=None ) -> list[tuple[str,float]]:
+    def search( self, query:str, names:list[str]|None=None, period:str|None=None ) -> list[tuple[str,float]]:
 
         self._analyze( query )
         self._retrieve( period=period, names=names )
         if len( self._retrieved ) == 0:
             return []
         self._rank()
-        return self._ranked
+
+        results = self._ranked
+
+        # Keep results with similarity >= 0.5
+        results = [ r for r in results if r[1] >= 0.25 ]
+
+        return results
 
 
 def searchEngineFactory( option:str ):
@@ -131,16 +137,16 @@ def searchEngineFactory( option:str ):
             ranker = rankerFactory( 'arxiv-jina' )
             return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
 
-        case 'arxiv-sentences-bert-faiss':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-bert' )
-            retriever = retrieverFactory( 'arxiv-sentences-bert-faiss' )
-            ranker = rankerFactory( 'arxiv-bert' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
-
         case 'arxiv-sentences-jina-faiss':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+            queryAnalyzer = queryAnalyzerFactory( 'dummy-jina' )
             retriever = retrieverFactory( 'arxiv-sentences-jina-faiss' )
             ranker = rankerFactory( 'arxiv-jina' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+
+        case 'arxiv-sentences-bert-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'dummy-bert' )
+            retriever = retrieverFactory( 'arxiv-sentences-bert-faiss' )
+            ranker = rankerFactory( 'arxiv-bert' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         ###########
@@ -202,19 +208,19 @@ def searchEngineFactory( option:str ):
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case 'medical-sentences-jina-faiss':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+            queryAnalyzer = queryAnalyzerFactory( 'dummy-jina' )
             retriever = retrieverFactory( 'medical-sentences-jina-faiss' )
             ranker = rankerFactory( 'medical-jina' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case 'medical-sentences-bert-faiss':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-bert' )
+            queryAnalyzer = queryAnalyzerFactory( 'dummy-bert' )
             retriever = retrieverFactory( 'medical-sentences-bert-faiss' )
             ranker = rankerFactory( 'medical-bert' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
 
         case 'medical-sentences-bert-retrained-faiss':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-bert-retrained' )
+            queryAnalyzer = queryAnalyzerFactory( 'dummy-bert-retrained' )
             retriever = retrieverFactory( 'medical-sentences-bert-retrained-faiss' )
             ranker = rankerFactory( 'medical-bert-retrained' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker )
