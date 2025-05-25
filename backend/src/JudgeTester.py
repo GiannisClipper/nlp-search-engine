@@ -35,7 +35,7 @@ class JudgeTester:
 # for development and debugging purposes #
 ##########################################
 
-# RUN: python -m src.Retriever
+# RUN: python -m src.JudgeTester
 if __name__ == "__main__": 
 
     tester = JudgeTester()
