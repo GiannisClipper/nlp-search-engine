@@ -33,16 +33,18 @@ class Dataset:
         return self._records
     
     def toListTitlesSummaries( self ) -> list[str]:
-        return [ r[ 'title' ] + '-' + r[ 'summary' ] for r in self._records ]
+        return [ r[ 'title' ] + ' - ' + r[ 'summary' ] for r in self._records ]
 
     def toSentences( self ) -> tuple[list[str],list[str]]:
         sentences = []
         tags = []
-        for i, doc in enumerate( self.toListTitlesSummaries() ):
-            some_sentences = sent_tokenize( doc )
-            for j, sentence in enumerate( some_sentences ):
+        for i, doc in enumerate( self.toList() ):
+            sentences.append( doc[ 'title' ] )
+            tags.append( f'{i}.0' )
+            more_sentences = sent_tokenize( doc[ 'summary' ] )
+            for j, sentence in enumerate( more_sentences ):
                 sentences.append( sentence )
-                tags.append( f'{i}.{j}' )
+                tags.append( f'{i}.{j+1}' )
         return sentences, tags
 
     def toAuthors( self ) -> tuple[list[str],list[str]]:
