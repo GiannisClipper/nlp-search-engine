@@ -4,6 +4,10 @@ from sklearn.cluster import KMeans
 import numpy as np
 from ..helpers.Pickle import PickleSaver, PickleLoader
 
+# +-----------------------------------------------+
+# | Code to carry out represetnations' clustering |
+# +-----------------------------------------------+
+
 class AbstractClustersMaker( ABC ):
 
     def __init__( self, model:KMeans, data:list|np.ndarray, filename:str ):

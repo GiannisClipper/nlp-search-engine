@@ -8,6 +8,10 @@ from .Retriever import AbstractRetriever, retrieverFactory
 from .Ranker import AbstractRanker, rankerFactory
 from .helpers.typing import QueryAnalyzedType
 
+# ------------------------------ #
+# Code to compose search engines #
+#------------------------------- #
+
 class AbstractSearchEngine( ABC ):
 
     def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, retriever:AbstractRetriever, ranker:AbstractRanker ):
@@ -229,9 +233,9 @@ def searchEngineFactory( option:str ):
             raise Exception( 'searchEngineFactory(): No valid option.', option )
 
 
-##########################################
-# for development and debugging purposes #
-##########################################
+# +----------------------------------------+
+# | For development and debugging purposes |
+# +----------------------------------------+
 
 # RUN: python -m src.SearchEngine
 if __name__ == "__main__": 

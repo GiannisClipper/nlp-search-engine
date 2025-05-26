@@ -10,6 +10,10 @@ from .PeriodFilter import PeriodFilter
 from .helpers.Pickle import PickleLoader
 from .helpers.DocViewer import DocViewer
 
+# ----------------------------------------------------------- #
+# Code to retrieve docs or sentences based on passing filters #
+# ----------------------------------------------------------- #
+
 # FROM ChatGPT: Example, Multiple Inheritance with Parameters
 # Each class picks its own arguments and passes the rest up the chain.
 # **kwargs carries the remaining parameters.
@@ -34,7 +38,6 @@ from .helpers.DocViewer import DocViewer
 #     def __init__(self, a_param, b_param, c_param):
 #         print("D's constructor")
 #         super().__init__(a_param=a_param, b_param=b_param, c_param=c_param)
-
 
 class AbstractRetriever( ABC ):
 
@@ -365,9 +368,9 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             raise Exception( 'retrieverFactory(): No valid option.' )
 
 
-##########################################
-# for development and debugging purposes #
-##########################################
+# +----------------------------------------+
+# | For development and debugging purposes |
+# +----------------------------------------+
 
 # RUN: python -m src.Retriever
 if __name__ == "__main__": 

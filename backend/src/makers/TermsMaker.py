@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from .Tokenizer import SingleTokenizer, TwogramTokenizer
 
-# --------------------------------------------------------------------- #
-# Classes to extract uniques terms (single terms or 2grams) from a text #
-# --------------------------------------------------------------------- #
+# ----------------------------------------------------------------- #
+# Code to extract unique terms (single terms or 2grams) from a text #
+# ----------------------------------------------------------------- #
 
 # abstract class 
 class AbstractTermsMaker( ABC ):

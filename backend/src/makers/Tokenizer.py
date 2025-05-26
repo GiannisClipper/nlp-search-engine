@@ -4,9 +4,9 @@ nltk.download( 'punkt_tab' ) # required by word_tokenize()
 from nltk.tokenize import word_tokenize
 from nltk import ngrams
 
-# ------------------------------------------------------------------ #
-# Classes to split text into tokens (single terms or 2grams or both) #
-# ------------------------------------------------------------------ #
+# --------------------------------------------------------------- #
+# Code to split text into tokens (single terms or 2grams or both) #
+# --------------------------------------------------------------- #
 
 # abstract class 
 class AbstractTokenizer( ABC ):

@@ -1,6 +1,10 @@
 import sys
 from .datasets.arXiv.Dataset import Dataset
 
+# ------------------------------------------------- #
+# Code to filter docs matching specific date period #
+# ------------------------------------------------- #
+
 class PeriodFilter:
 
     def __init__( self, dates:list[str], tags:list[str] ):
@@ -24,6 +28,10 @@ class PeriodFilter:
     def tags( self ):
         return self._tags
 
+
+# +----------------------------------------+
+# | For development and debugging purposes |
+# +----------------------------------------+
 
 # RUN: python -m src.PeriodFilter [from_date,to_date]
 if __name__ == "__main__":

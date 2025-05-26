@@ -2,6 +2,10 @@ import os
 import subprocess
 from ..settings import pretrained_models
 
+# +-----------------------------------+
+# | Code to download GloVe embeddings |
+# +-----------------------------------+
+
 class GloveDownloader:
 
     def __init__( self, url:str, zip_filename:str, filename:str ):

@@ -2,6 +2,10 @@ from typing import cast
 from transformers import AutoModelForCausalLM, AutoModelForSeq2SeqLM, AutoTokenizer, pipeline # type: ignore
 from .settings import pretrained_models
 
+# +-----------------------------------+
+# | Code to make use of a judge model |
+# +-----------------------------------+
+
 class JudgeModel:
 
     def __init__( self ):
@@ -31,9 +35,9 @@ class JudgeModel:
         return cast( str, result )
 
 
-##########################################
-# for development and debugging purposes #
-##########################################
+# +----------------------------------------+
+# | For development and debugging purposes |
+# +----------------------------------------+
 
 # RUN: python -m src.JudgeModel
 if __name__ == "__main__": 

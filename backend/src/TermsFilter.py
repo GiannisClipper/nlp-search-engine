@@ -8,9 +8,9 @@ from scipy import sparse
 from .helpers.typing import QueryAnalyzedType
 from .Preprocessor import NaivePreprocessor
 
-# ----------------------------------------------------------------------------------- #
-# Classes to filter docs or sentences regarding the terms or the embedding of a query #
-# ----------------------------------------------------------------------------------- #
+# -------------------------------------------------------------------------------- #
+# Code to filter docs or sentences regarding the terms or the embedding of a query #
+# -------------------------------------------------------------------------------- #
 
 class AbstractTermsFilter( ABC ):
 

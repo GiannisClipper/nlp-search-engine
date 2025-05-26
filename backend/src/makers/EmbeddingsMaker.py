@@ -7,9 +7,9 @@ from sentence_transformers import SentenceTransformer
 from ..helpers.Pickle import PickleSaver, PickleLoader
 from ..models.GloveModel import GloveModel, gloveModelFactory
 
-# --------------------------------------------------------------------- #
-# Class to make sentence embeddings regarding various pretrained models #
-# --------------------------------------------------------------------- #
+# ---------------------------------------------------------------------- #
+# Code to create sentence embeddings regarding various pretrained models #
+# ---------------------------------------------------------------------- #
 
 class EmbeddingsMaker:
 

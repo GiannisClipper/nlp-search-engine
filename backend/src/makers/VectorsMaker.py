@@ -5,9 +5,9 @@ from ..Preprocessor import Preprocessor, LemmPreprocessor, StemmPreprocessor
 from ..helpers.Pickle import PickleLoader, PickleSaver
 from ..helpers.Timer import Timer
 
-# -------------------------------------------------- #
-# Class to create vectors (tf or tfidf) from corpora #
-# -------------------------------------------------- #
+# ------------------------------------------------- #
+# Code to create vectors (tf or tfidf) from corpora #
+# ------------------------------------------------- #
 
 class VectorsMaker:
 

@@ -1,6 +1,10 @@
 import sys
 from .datasets.arXiv.Dataset import Dataset
 
+# ------------------------------------------- #
+# Code to filter docs matching specific names #
+# ------------------------------------------- #
+
 class NameFilter:
 
     def __init__( self, names:list[str], tags:list[str] ):
@@ -73,6 +77,10 @@ class NamesFilter( NameFilter ):
 
         return list( results )
 
+
+# +----------------------------------------+
+# | For development and debugging purposes |
+# +----------------------------------------+
 
 # RUN: python -m src.NameFilter [text]
 if __name__ == "__main__":

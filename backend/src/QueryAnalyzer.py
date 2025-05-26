@@ -10,9 +10,9 @@ from .helpers.Pickle import PickleLoader
 from .helpers.typing import QueryAnalyzedType
 from .models.GloveModel import GloveModel, gloveModelFactory
 
-# -------------------------------------------------------------------------------- #
-# Classes to analyze queries into tokens and representation (vector or embeddings) #
-# -------------------------------------------------------------------------------- #
+# ----------------------------------------------------------------------------- #
+# Code to analyze queries into tokens and representation (vector or embeddings) #
+# ----------------------------------------------------------------------------- #
 
 class AbstractQueryAnalyzer( ABC ):
 
@@ -177,9 +177,9 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             raise Exception( 'queryAnalyzerFactory(): No valid option.' )
 
 
-##########################################
-# for development and debugging purposes #
-##########################################
+# +----------------------------------------+
+# | For development and debugging purposes |
+# +----------------------------------------+
 
 # RUN: python -m src.QueryAnalyzer [option]
 if __name__ == "__main__": 

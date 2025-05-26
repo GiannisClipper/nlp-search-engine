@@ -1,6 +1,10 @@
 from transformers import AutoModelForCausalLM, AutoModelForSeq2SeqLM, AutoTokenizer, pipeline # type: ignore
 from ..settings import pretrained_models
 
+# +--------------------------------+
+# | Code to download a judge model |
+# +--------------------------------+
+
 # RUN: python -m src.pretrained_models.JudgeModelDownloader
 if __name__ == "__main__": 
 

@@ -5,9 +5,9 @@ from .TermsMaker import AbstractTermsMaker, SingleTermsMaker, TwogramTermsMaker
 from ..helpers.Pickle import PickleSaver
 from ..helpers.Timer import Timer
 
-# ----------------------------------------- #
-# Class to create vocabularies from corpora #
-# ----------------------------------------- #
+# ---------------------------------------- #
+# Code to create vocabularies from corpora #
+# ---------------------------------------- #
 
 class VocabularyMaker:
 

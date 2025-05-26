@@ -5,6 +5,10 @@ from scipy.sparse import spmatrix
 from .helpers.Pickle import PickleLoader
 from .helpers.computators import compute_similarities0
 
+# ------------------------------------------------- #
+# Code to rank document or sentence representations #
+# ------------------------------------------------- #
+
 class AbstractRanker( ABC ):
 
     def __init__( self, representations:spmatrix ):
@@ -17,6 +21,7 @@ class AbstractRanker( ABC ):
     @abstractmethod
     def rank( self, query_repr:spmatrix, filtered:list[str] ) -> list[tuple[str,float]]:
         pass
+
 
 class DocRanker( AbstractRanker ):
 
@@ -213,9 +218,9 @@ def rankerFactory( option:str ):
             raise Exception( 'rankerFactory(): No valid option.' )
 
 
-##########################################
-# for development and debugging purposes #
-##########################################
+# +----------------------------------------+
+# | For development and debugging purposes |
+# +----------------------------------------+
 
 # RUN: python -m src.DocEstimator [option]
 if __name__ == "__main__": 

@@ -6,6 +6,10 @@ from nltk.tokenize import sent_tokenize
 
 from . import settings as medicalSettings
 
+# +--------------------------------+
+# | Code to manage medical dataset |
+# +--------------------------------+
+
 class Dataset:
 
     def __init__( self ):
@@ -195,6 +199,10 @@ class ResultMetrics:
             print( '---------- -------- -------- -------- -------- -------- --------' )
             print( f'{"MEAN":<10} {mean(self._tp):8.4f} {mean(self._fp):8.4f} {mean(self._fn):8.4f} {mean(self._precision):8.4f} {mean(self._recall):8.4f} {mean(self._f1):8.4f}' )
 
+
+# +----------------------------------------+
+# | For development and debugging purposes |
+# +----------------------------------------+
 
 # RUN: python -m medical.Dataset [option]
 if __name__ == "__main__":

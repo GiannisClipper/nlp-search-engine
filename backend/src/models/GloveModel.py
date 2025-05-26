@@ -6,6 +6,10 @@ from ..Preprocessor import LowerWordsPreprocessor
 from ..makers.Tokenizer import SingleTokenizer
 from ..settings import pretrained_models
 
+# +----------------------------------------+
+# | Code to make use of a GloVe embeddings |
+# +----------------------------------------+
+
 class GloveModel:   
 
     def __init__( self, corpus:list[str], embeddings_filename:str, embedding_dim:int=300 ):

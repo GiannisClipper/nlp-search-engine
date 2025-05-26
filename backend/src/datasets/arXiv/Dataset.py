@@ -7,6 +7,10 @@ from nltk.tokenize import sent_tokenize
 from . import settings as arxivSettings
 from .Categories import Categories
 
+# +------------------------------+
+# | Code to manage arXiv dataset |
+# +------------------------------+
+
 class Dataset:
 
     def __init__( self ):
@@ -129,6 +133,10 @@ class Dataset:
         print( "\nTotal author names:", len( authors ) )
         print( "Unique author names:", len( unique_authors ) )
 
+
+# +----------------------------------------+
+# | For development and debugging purposes |
+# +----------------------------------------+
 
 # RUN: python -m arXiv.Dataset -m [option]
 if __name__ == "__main__":

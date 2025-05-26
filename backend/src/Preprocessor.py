@@ -10,6 +10,10 @@ from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 from nltk.stem import WordNetLemmatizer
 
+# --------------------------------------- #
+# Code to carry out preprocessing actions #
+# --------------------------------------- #
+
 # abstract class 
 class Transformation( ABC ):
     def __init__( self ):

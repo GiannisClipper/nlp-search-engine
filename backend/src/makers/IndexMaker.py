@@ -7,9 +7,9 @@ from ..makers.Tokenizer import AbstractTokenizer, SingleTokenizer, SingleAndTwog
 from ..helpers.Pickle import PickleLoader, PickleSaver
 from ..helpers.Timer import Timer
 
-# ------------------------------------------------- #
-# Class to create reverse indexes from vocabularies #
-# ------------------------------------------------- #
+# ------------------------------------------------ #
+# Code to create reverse indexes from vocabularies #
+# ------------------------------------------------ #
 
 class AbstractIndexMaker( ABC ):
 

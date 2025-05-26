@@ -5,9 +5,9 @@ from ..Preprocessor import NaivePreprocessor
 from ..makers.TermsMaker import SingleTermsMaker
 from ..helpers.Timer import Timer
 
-# ------------------------------------------------------------ #
-# Class to retrain GloVe embeddings regarding corpus sentences #
-# ------------------------------------------------------------ #
+# ----------------------------------------------------------- #
+# Code to retrain GloVe embeddings regarding corpus sentences #
+# ----------------------------------------------------------- #
 
 class GloveRetrainer:
 
