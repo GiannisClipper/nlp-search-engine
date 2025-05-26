@@ -63,14 +63,15 @@ corpus = Dataset().toList()
 
 all_results = []
 
-for iquery, query in enumerate( queries[:] ):
+for iquery, query in enumerate( queries ):
+# for iquery, query in enumerate( queries[5:6] ):
 
     results = engine.search( query )[:10] # results is a list of tuples [ ('docid', rate), ... ]
     # print( results )
     idocs = [ int(r[0]) for r in results ]
     ranking = '0.00-0.00'
     if len( results ) > 0:
-        ranking = str(round(results[0][1],2)) + '-' + str(round(results[-1][1],2))
+        ranking = f'{results[0][1]:.2f}-{results[-1][1]:.2f}'
 
     # titles = [ corpus[ idoc ][ 'title' ] for idoc in results ] 
     # print( '\n'.join( titles ) )
@@ -87,9 +88,9 @@ for iquery, query in enumerate( queries[:] ):
         counter += 1
         yes += 1 if result == 'yes' else 0
         no += 1 if result == 'no' else 0
-        # print( f"Answer #{counter}: {answer}" )
-        # print( f"Relevant ?: {result}" )
-        # print( '-----------' )
+        print( f"Answer #{counter}: {answer}" )
+        print( f"Relevant ?: {result}" )
+        print( '-----------' )
     print( f'{counter} answers, {yes} relevant(s), {no} non relevant(s)' )
     all_results.append( { 'answers': counter, 'yes': yes, 'no': no, 'ranking': ranking } )
 
@@ -101,14 +102,14 @@ all_answers = 0
 all_yes = 0
 all_no = 0
 
-print( 'Answers    Relevants  Non Relev. Ranking   Query' )
-print( '---------- ---------- ---------- --------- ---------------------------------------------------------------------' )
+print( 'Answers Yes No Ranking   Query' )
+print( '------- --- -- --------- ----------------------------------------------------------------' )
 for query, result in zip( queries, all_results ):
     counter += 1
     all_answers += result['answers']
     all_yes += result['yes']
     all_no += result['no']
-    print( f"{result['answers']:10d} {result['yes']:10d} {result['no']:10d} {result['ranking']} #{counter}: {query}" )
+    print( f"{result['answers']:7d} {result['yes']:3d} {result['no']:2d} {result['ranking']} #{counter} {query}" )
 
-print( '---------- ---------- ---------- --------- ---------------------------------------------------------------------' )
-print( f"{all_answers:10d} {all_yes:10d} {all_no:10d} ({round(all_yes/all_answers,2)} total precision)" )
+print( '------- --- -- --------- ----------------------------------------------------------------' )
+print( f"{all_answers:7d} {all_yes:3d} {all_no:2d} ({round(all_yes/all_answers,2)} total precision)" )

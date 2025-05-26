@@ -1,3 +1,4 @@
+import os
 from transformers import AutoModelForCausalLM, AutoModelForSeq2SeqLM, AutoTokenizer, pipeline # type: ignore
 from ..settings import pretrained_models
 
@@ -20,13 +21,19 @@ if __name__ == "__main__":
     # model_id = "google/flan-t5-small" # no good results, responded no instead of yes in simple queries
     model_id = "google/flan-t5-base" # better responses than 'small' model
 
-    print( f'Loading {model_id} tokenizer...' )
-    tokenizer = AutoTokenizer.from_pretrained( model_id )
-    print( f'Saving tokenizer...' )
-    tokenizer.save_pretrained( pretrained_models[ 'judge-model-tokenizer' ] )
+    if os.path.exists( pretrained_models[ 'judge-model-tokenizer' ] ):
+        print( f'{pretrained_models[ 'judge-model-tokenizer' ]} already exists.' )
+    else:
+        print( f'Loading {model_id} tokenizer...' )
+        tokenizer = AutoTokenizer.from_pretrained( model_id )
+        print( f'Saving tokenizer...' )
+        tokenizer.save_pretrained( pretrained_models[ 'judge-model-tokenizer' ] )
 
-    print( f'Loading {model_id} model...' )
-    # model = AutoModelForCausalLM.from_pretrained( model_id )
-    model = AutoModelForSeq2SeqLM.from_pretrained( model_id )
-    print( f'Saving model...' )
-    model.save_pretrained( pretrained_models[ 'judge-model' ] )
+    if os.path.exists( pretrained_models[ 'judge-model' ] ):
+        print( f'{pretrained_models[ 'judge-model' ]} already exists.' )
+    else:
+        print( f'Loading {model_id} model...' )
+        # model = AutoModelForCausalLM.from_pretrained( model_id )
+        model = AutoModelForSeq2SeqLM.from_pretrained( model_id )
+        print( f'Saving model...' )
+        model.save_pretrained( pretrained_models[ 'judge-model' ] )
