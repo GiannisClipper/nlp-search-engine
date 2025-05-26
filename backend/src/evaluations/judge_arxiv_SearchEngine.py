@@ -63,8 +63,8 @@ corpus = Dataset().toList()
 
 all_results = []
 
-for iquery, query in enumerate( queries ):
-# for iquery, query in enumerate( queries[5:6] ):
+# for iquery, query in enumerate( queries ):
+for iquery, query in enumerate( queries[5:6] ):
 
     results = engine.search( query )[:10] # results is a list of tuples [ ('docid', rate), ... ]
     # print( results )
@@ -73,9 +73,11 @@ for iquery, query in enumerate( queries ):
     if len( results ) > 0:
         ranking = f'{results[0][1]:.2f}-{results[-1][1]:.2f}'
 
+    # titles_summaries = [ r[2]['title'] + '-' + r[2]['summarized'] for r in results ]
     # titles = [ corpus[ idoc ][ 'title' ] for idoc in results ] 
     # print( '\n'.join( titles ) )
     titles_summaries = [ corpus[ idoc ][ 'title' ] + '-' + corpus[ idoc ][ 'summary' ] for idoc in idocs ] 
+
     print( '------------------------------------' )
     print( f'Query #{iquery+1}: {query}' )
     model = JudgeModel()
