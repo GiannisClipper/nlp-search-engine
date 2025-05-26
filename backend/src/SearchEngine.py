@@ -14,7 +14,13 @@ from .helpers.typing import QueryAnalyzedType
 
 class AbstractSearchEngine( ABC ):
 
-    def __init__( self, queryAnalyzer:AbstractQueryAnalyzer, retriever:AbstractRetriever, ranker:AbstractRanker ):
+    def __init__( 
+        self, 
+        queryAnalyzer:AbstractQueryAnalyzer, 
+        retriever:AbstractRetriever, 
+        ranker:AbstractRanker,
+        threshold:float=0.0
+    ):
         self._queryAnalyzer = queryAnalyzer
         self._query_analyzed:QueryAnalyzedType
 
@@ -23,6 +29,8 @@ class AbstractSearchEngine( ABC ):
 
         self._ranker = ranker
         self._ranked = list[tuple[str,float]]
+
+        self._threshold = threshold
 
     @abstractmethod
     def _analyze( self, query:str ) -> None:
@@ -68,8 +76,9 @@ class TermsSearchEngine( AbstractSearchEngine ):
         if len( self._retrieved ) == 0:
             return []
         self._rank()
-        return self._ranked
 
+        # return results regarding threshold
+        return [ r for r in self._ranked if r[1] >= self._threshold ]
 
 class PeriodNamesTermsSearchEngine( TermsSearchEngine ):
 
@@ -87,15 +96,14 @@ class PeriodNamesTermsSearchEngine( TermsSearchEngine ):
             return []
         self._rank()
 
-        results = self._ranked
-
-        # Keep results with similarity >= 0.5
-        results = [ r for r in results if r[1] >= 0.25 ]
-
-        return results
+        # return results regarding threshold
+        return [ r for r in self._ranked if r[1] >= self._threshold ]
 
 
 def searchEngineFactory( option:str ):
+
+    VEC_THRESHOLD = 0.25 # for tf, tfidf vectors
+    EMB_THRESHOLD = 0.45 # for embeddings
 
     match option:
 
@@ -103,55 +111,55 @@ def searchEngineFactory( option:str ):
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'arxiv-stemm-single' )
             ranker = rankerFactory( option )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, threshold=VEC_THRESHOLD )
 
         case 'arxiv-lemm-single-tfidf':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'arxiv-lemm-single' )
             ranker = rankerFactory( option )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, threshold=VEC_THRESHOLD )
 
         case 'arxiv-lemm-2gram-tfidf':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'arxiv-lemm-2gram' )
             ranker = rankerFactory( option )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, threshold=VEC_THRESHOLD )
 
         case 'arxiv-sentences-glove-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'arxiv-naive-glove' )
             retriever = retrieverFactory( 'arxiv-sentences-bm25' )
             ranker = rankerFactory( 'arxiv-glove' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, threshold=EMB_THRESHOLD )
 
         case 'arxiv-sentences-glove-retrained-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'arxiv-naive-glove-retrained' )
             retriever = retrieverFactory( 'arxiv-sentences-bm25' )
             ranker = rankerFactory( 'arxiv-glove-retrained' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, threshold=EMB_THRESHOLD )
 
         case 'arxiv-sentences-jina-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
             retriever = retrieverFactory( 'arxiv-sentences-bm25' )
             ranker = rankerFactory( 'arxiv-jina' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, threshold=EMB_THRESHOLD )
 
         case 'arxiv-sentences-jina-kmeans':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
             retriever = retrieverFactory( 'arxiv-sentences-jina-kmeans' )
             ranker = rankerFactory( 'arxiv-jina' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, threshold=EMB_THRESHOLD )
 
         case 'arxiv-sentences-jina-faiss':
             queryAnalyzer = queryAnalyzerFactory( 'dummy-jina' )
             retriever = retrieverFactory( 'arxiv-sentences-jina-faiss' )
             ranker = rankerFactory( 'arxiv-jina' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, threshold=EMB_THRESHOLD )
 
         case 'arxiv-sentences-bert-faiss':
             queryAnalyzer = queryAnalyzerFactory( 'dummy-bert' )
             retriever = retrieverFactory( 'arxiv-sentences-bert-faiss' )
             ranker = rankerFactory( 'arxiv-bert' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker )
+            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, threshold=EMB_THRESHOLD )
 
         ###########
         # medical #

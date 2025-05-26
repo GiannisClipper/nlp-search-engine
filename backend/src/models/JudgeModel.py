@@ -1,6 +1,6 @@
 from typing import cast
 from transformers import AutoModelForCausalLM, AutoModelForSeq2SeqLM, AutoTokenizer, pipeline # type: ignore
-from .settings import pretrained_models
+from ..settings import pretrained_models
 
 # +-----------------------------------+
 # | Code to make use of a judge model |

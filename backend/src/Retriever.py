@@ -243,7 +243,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
             embeddings = PickleLoader( filename ).load()
             termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
-            return TermsRetriever( termsFilters=termsFilters )
+            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
 
         case 'arxiv-sentences-bert-faiss':
             from .datasets.arXiv.Dataset import Dataset
@@ -257,7 +257,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
             embeddings = PickleLoader( filename ).load()
             termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
-            return TermsRetriever( termsFilters=termsFilters )
+            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
 
         ###########
         # medical #
