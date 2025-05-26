@@ -53,20 +53,40 @@ class SimilaritySummarizer( AbstractSummarizer ):
             tag = sentence[ 1 ].split( '.' )
             if str( idoc ) == tag[ 0 ] and tag[ 1 ] != '0': # sentence 0 is the title
                 similarity = cosine_similarity( query_repr.reshape(1, -1), self._sent_repr[ isent ].reshape(1, -1) ) # type: ignore
-                results.append( ( isent, similarity ) )
-        results.sort( key=lambda x: x[1], reverse=True )
+                results.append( [ self._sentences[isent][0], similarity ] )
+                if ( idoc ==2993 ):
+                    print( self._sentences[isent][0] )
 
-        # get sentences' texts
-        summarized = [ self._sentences[isent][0] for isent, _ in results ]
-        summarized = ' '.join( summarized )
+        summarized = ''
+        while True:
 
-        # prepare result
+            # compose a summarized paragraph
+            summarized = [ sent for sent, _ in results ]
+            summarized = ' '.join( summarized )
+            summarized = summarized.split( ' ' )
+            summarized = [ s for s in summarized if len(s)>0 ]
+
+            # check the current state and decide
+            if len( summarized ) <= self._limit or len( results ) <= 1:
+                if len( summarized ) > self._limit:
+                    summarized = summarized[:self._limit] 
+                    summarized.append( ' (...)' )
+                summarized = ' '.join( summarized )
+                break
+            
+            # remove the sentence with the minimum similarity
+            imin = 0
+            min_sim = results[0][1]
+            for i, ( _, sim ) in enumerate( results ):
+                if sim <= min_sim:
+                    imin = i
+            if imin == 0 and results[1][0][0:6] != '(...) ':
+                results[1][0] = '(...) ' + results[1][0] 
+            if imin > 0 and results[imin-1][0][-6:] != ' (...)':
+                results[imin-1][0] = results[imin-1][0] + ' (...)'
+            results.pop( imin )
+
         title = self._corpus[ idoc ][ 'title' ]
-        summarized = summarized.split( ' ' )
-        summarized = [ s for s in summarized if len(s)>0 ]
-        dots = '...' if len( summarized ) > self._limit else '' 
-        summarized = ' '.join( summarized[:self._limit] ) + dots
-
         return { 'title': title, 'summarized': summarized }
 
 
