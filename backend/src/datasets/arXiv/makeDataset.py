@@ -2,22 +2,22 @@ import os
 import json
 import xml.etree.ElementTree as ET
 
-from . import settings
 from .Categories import Categories
+from .settings import dataset_path, dataset_filename, catgs_filter
 
 # check if the dataset already exists
-if os.path.exists( settings.dataset_filename ):
-    print( f'{settings.dataset_filename} already exists.' )
+if os.path.exists( dataset_filename ):
+    print( f'{dataset_filename} already exists.' )
     exit(0)
 
 # to hold the entries that will be retrieved
 records = dict()
 
 # iterate all categories - xml files
-for catg_id, _ in Categories( settings.catgs_filter ).toTuples():
+for catg_id, _ in Categories( catgs_filter ).toTuples():
 
     # compose the xml filename
-    filename = f'downloads/{catg_id}-1100.xml'
+    filename = f'{dataset_path}/downloads/{catg_id}-1100.xml'
 
     # check if the xml file exists
     if not os.path.exists( filename ):
@@ -46,7 +46,9 @@ for catg_id, _ in Categories( settings.catgs_filter ).toTuples():
 
         title = entry.find( '{http://www.w3.org/2005/Atom}title' )
         if title !=None and title.text != None:
-            title = " ".join( title.text.split( "\n" ) ).strip()
+            lines = title.text.split( "\n" )
+            lines = [ l.strip() for l in lines ]
+            title = " ".join( lines )
 
         published = entry.find( '{http://www.w3.org/2005/Atom}published' )
         if published !=None and published.text != None:
@@ -58,7 +60,10 @@ for catg_id, _ in Categories( settings.catgs_filter ).toTuples():
 
         summary = entry.find( '{http://www.w3.org/2005/Atom}summary' )
         if summary != None and summary.text != None:
-            summary = " ".join( summary.text.split( "\n" ) ).strip()
+            lines = summary.text.split( "\n" )
+            lines = [ l.strip() for l in lines ]
+            summary = " ".join( lines )
+
 
         authors = []
         for author in entry.findall( '{http://www.w3.org/2005/Atom}author' ):
@@ -96,8 +101,8 @@ for catg_id, _ in Categories( settings.catgs_filter ).toTuples():
 
 # save dataset as jsonl file (jsonl: each line represents a json object)
 print( 'Total records:', len( records ) )
-print( f'Save {settings.dataset_filename}...' )
-with open( settings.dataset_filename, 'w', encoding="utf-8" ) as f:
+print( f'Save {dataset_filename}...' )
+with open( dataset_filename, 'w', encoding="utf-8" ) as f:
     for key, record in records.items():
         json.dump( record, f )
         f.write( '\n' )

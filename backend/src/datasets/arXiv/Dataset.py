@@ -87,7 +87,13 @@ class Dataset:
 
         # print results
         print( "\nTotal records:", len( records ) )
-        print( "Records per category:", catg_ids )
+        # print( "Records per category:", catg_ids )
+        print( "---------------------")
+        print( "Records per category:" )
+        for id, descr in Categories( None ).toTuples():
+            print( f'{id} {descr} {catg_ids.get(id,0)}' )
+        print( "---------------------")
+
         print( "Sum of records per category (possible records in more than 1 category):", sum( catg_ids.values() ) )
         print( "Summary lengths (in chars):", summary_lengths )
 

@@ -5,9 +5,13 @@ dataset_path = os.path.dirname( os.path.realpath( __file__ ) )
 dataset_filename = f'{dataset_path}/dataset.jsonl'
 
 catgs_filename = f'{dataset_path}/downloads/categories.txt'
+
 # to select specific categories (not all)
-catgs_filter = [ 'AI', 'CL', 'DB', 'DC', 'DS', 'GL', 'IR', 'LG', 'NI', 'PL' , 'SE', 'SI' ]
-catgs_filter = [ f'cs.{id}' for id in catgs_filter ]
+# catgs_filter = [ 'AI', 'CL', 'DB', 'DC', 'DS', 'GL', 'IR', 'LG', 'NI', 'PL' , 'SE', 'SI' ]
+# catgs_filter = [ f'cs.{id}' for id in catgs_filter ]
+
+# to select all categories
+catgs_filter = None 
 
 pickle_paths = {
     'preprocessors': f'{dataset_path}/pickles/preprocessors',
