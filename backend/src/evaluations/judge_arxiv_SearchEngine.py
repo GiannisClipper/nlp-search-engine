@@ -4,45 +4,45 @@ from ..datasets.arXiv.Dataset import Dataset
 from ..models.JudgeModel import JudgeModel
 
 queries = [
-    "Regarding operating systems...", #0
-    "Available research about linux distributions?",
-    "Do you remember MS DOS?",
+    "Anything regarding operating systems in general...", #0
+    "Is there any available research about linux operating system?",
+    "From MS DOS to Windows and then...",
 
     "Info about cloud computing and distributed systems...", #3
-    "What the meaning of SaaS, PaaS and IaaS...",
-    "Any cost analysis and comparison between cloud systems and local servers?",
+    "What the meaning of SaaS, PaaS and IaaS?",
+    "Articles about virtualization or dockerization.",
 
-    "About Javascript and frontend frameworks?", #6
+    "About Javascript and frontend development?", #6
     "What about the evolution of web browsers...", 
-    "Research regarding the localstorage feature in web development...",
+    "Regarding the localstorage feature in web development...",
 
     "What about mobile applications?", #9
     "The role of JAVA in android development...",
     "Is React Native a good alternative for mobile programming?",
 
     "Papers discussing databases (either sql or nosql)...", #12
-    "A description about DBMS...",
-    "What are the differences between databases, data warehouses and data lakes?",
+    "A description about DBMS such oracle...",
+    "Articles about databases, warehouses, data lakes?",
 
-    "Are ML algoriths useful in the healthcare sector?", #15
+    "Useful ML algoriths in healthcare sector?", #15
     "Machine learning and natural language processing...",
-    "Any general review about AI?",
+    "A general review and the history of AI?",
 
     "Technological innovations within smart city context?", #18
-    "The role of sensors and the IoT in smart cities...",
-    "Are digital technologies involved into sutainability goals?",
+    "The role of sensors and IoT in smart citiy implementations...",
+    "Information and communication technologies in shipping industry.",
 
-    "Available stuff on neural networks?", #21
-    "Anything about convolutional neural networks...",
-    "The approach of the transformers in ML.",
+    "Any available stuff on neural networks?", #21
+    "More specific stuff about convolutional neural networks...",
+    "The arising of the transformers in ML.",
 
     "About information retrieval and natural language processing...", #24
-    "Discussing preprocessing, tokenization and similar techniques...",
-    "How to extact semantics in NLP?",
+    "Preprocessing, tokenization and similar techniques...",
+    "How semantics are approached in NLP?",
 
-    "The TCP/IP protocol in networking.", #27
-    "Any info about SDN approach in networks?",
-    "Information and communication technologies in shipping industry."
+    "The TCP and UDP protocols in networking.", #27
+    "Info about SDN approach in networks.",
+    "What about the past and the future of the Internet?"
 ]
 
 # option = 'arxiv-lemm-single-tfidf'
@@ -76,7 +76,7 @@ for iquery, query in enumerate( queries ):
     # titles_summaries = [ r[2]['title'] + '-' + r[2]['summarized'] for r in results ]
     # titles = [ corpus[ idoc ][ 'title' ] for idoc in results ] 
     # print( '\n'.join( titles ) )
-    titles_summaries = [ corpus[ idoc ][ 'title' ] + '-' + corpus[ idoc ][ 'summary' ] for idoc in idocs ] 
+    titles_summaries = [ corpus[ idoc ][ 'title' ] + ' - ' + corpus[ idoc ][ 'summary' ] for idoc in idocs ] 
 
     print( '------------------------------------' )
     print( f'Query #{iquery+1}: {query}' )

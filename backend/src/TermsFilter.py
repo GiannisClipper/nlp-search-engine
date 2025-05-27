@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import math
 
-from sklearn.cluster import KMeans 
+from sklearn.cluster import KMeans
 import bm25s
 import faiss
 from scipy import sparse

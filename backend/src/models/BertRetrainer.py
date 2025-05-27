@@ -1,7 +1,8 @@
 import sys
-from ..helpers.Timer import Timer
 from sentence_transformers import SentenceTransformer, InputExample, losses
 from torch.utils.data import DataLoader
+from ..helpers.Timer import Timer
+from ..settings import pretrained_models
 
 # ---------------------------------------------------------------- #
 # Class to retrain BERT-like embeddings regarding corpus sentences #
@@ -15,9 +16,7 @@ class BertRetrainer:
 
     def retrain( self ):
 
-
         # Load the pre-trained model
-        # model = SentenceTransformer( 'all-MiniLM-L6-v2' )
         timer = Timer( start=True )
         print( f"Loading pretrained model..." )
         model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True, local_files_only=True )

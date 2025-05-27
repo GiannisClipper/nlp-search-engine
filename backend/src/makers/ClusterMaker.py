@@ -1,6 +1,7 @@
 import sys
 from abc import ABC, abstractmethod
-from sklearn.cluster import KMeans
+from typing import cast
+from sklearn.cluster import KMeans, AgglomerativeClustering
 import numpy as np
 from ..helpers.Pickle import PickleSaver, PickleLoader
 
@@ -10,7 +11,7 @@ from ..helpers.Pickle import PickleSaver, PickleLoader
 
 class AbstractClustersMaker( ABC ):
 
-    def __init__( self, model:KMeans, data:list|np.ndarray, filename:str ):
+    def __init__( self, model:KMeans|AgglomerativeClustering, data:list|np.ndarray, filename:str ):
         self._model = model
         self._data = data
         self._filename = filename
@@ -29,12 +30,13 @@ class AbstractClustersMaker( ABC ):
 class KMeansClustersMaker( AbstractClustersMaker ):
 
     def __init__( self, data:np.ndarray, filename:str ):
-        K = data.shape[ 0 ] // 100
+        K = data.shape[ 0 ] // 200
         model = KMeans( n_clusters=K, random_state=32 )
         super().__init__( model, data, filename )
 
     def make( self ):
         print( 'Perform clustering...' )
+        self._model = cast( KMeans, self._model )
         self._model.fit( self._data )
         print( 'Centroids shape:', self._model.cluster_centers_.shape )
         print( 'Labels shape:', self._model.labels_.shape )
@@ -65,6 +67,15 @@ def clustersMakerFactory( option:str ):
             clustering_filename = f"{pickle_paths[ 'clusters' ]}/{clustering_descr}.pkl"
             return KMeansClustersMaker( representations, clustering_filename )
 
+        case 'medical-sentences-bert-kmeans':
+            from ..datasets.medical.settings import pickle_paths
+            representations_descr = 'sentences-bert'
+            representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
+            representations = PickleLoader( representations_filename ).load()
+            clustering_descr = 'sentences-bert-kmeans'
+            clustering_filename = f"{pickle_paths[ 'clusters' ]}/{clustering_descr}.pkl"
+            return KMeansClustersMaker( representations, clustering_filename )
+
         case _:
             raise Exception( 'clustersMakerFactory(): No valid option.' )
 
@@ -83,6 +94,10 @@ if __name__ == "__main__":
             maker.make()
 
         case 'medical-sentences-jina-kmeans':
+            maker = clustersMakerFactory( option )
+            maker.make()
+
+        case 'medical-sentences-bert-kmeans':
             maker = clustersMakerFactory( option )
             maker.make()
 

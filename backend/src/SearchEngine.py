@@ -249,24 +249,31 @@ def searchEngineFactory( option:str ):
         #     summarizer = summarizerFactory( 'medical-naive' )
         #     return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
-        case 'medical-sentences-jina-bm25':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+        # case 'medical-sentences-jina-bm25':
+        #     queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+        #     retriever = retrieverFactory( 'medical-sentences-bm25' )
+        #     ranker = rankerFactory( 'medical-jina' )
+        #     summarizer = summarizerFactory( 'medical-naive' )
+        #     return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
+
+        # case 'medical-sentences-jina-kmeans':
+        #     queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
+        #     retriever = retrieverFactory( 'medical-sentences-jina-kmeans' )
+        #     ranker = rankerFactory( 'medical-jina' )
+        #     summarizer = summarizerFactory( 'medical-naive' )
+        #     return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
+
+        case 'medical-sentences-bert-bm25':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-bert' )
             retriever = retrieverFactory( 'medical-sentences-bm25' )
-            ranker = rankerFactory( 'medical-jina' )
+            ranker = rankerFactory( 'medical-bert' )
             summarizer = summarizerFactory( 'medical-naive' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
-        case 'medical-sentences-jina-kmeans':
-            queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
-            retriever = retrieverFactory( 'medical-sentences-jina-kmeans' )
-            ranker = rankerFactory( 'medical-jina' )
-            summarizer = summarizerFactory( 'medical-naive' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
-
-        case 'medical-sentences-jina-faiss':
-            queryAnalyzer = queryAnalyzerFactory( 'dummy-jina' )
-            retriever = retrieverFactory( 'medical-sentences-jina-faiss' )
-            ranker = rankerFactory( 'medical-jina' )
+        case 'medical-sentences-bert-kmeans':
+            queryAnalyzer = queryAnalyzerFactory( 'naive-bert' )
+            retriever = retrieverFactory( 'medical-sentences-bert-kmeans' )
+            ranker = rankerFactory( 'medical-bert' )
             summarizer = summarizerFactory( 'medical-naive' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
@@ -281,6 +288,13 @@ def searchEngineFactory( option:str ):
             queryAnalyzer = queryAnalyzerFactory( 'dummy-bert-retrained' )
             retriever = retrieverFactory( 'medical-sentences-bert-retrained-faiss' )
             ranker = rankerFactory( 'medical-bert-retrained' )
+            summarizer = summarizerFactory( 'medical-naive' )
+            return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
+
+        case 'medical-sentences-jina-faiss':
+            queryAnalyzer = queryAnalyzerFactory( 'dummy-jina' )
+            retriever = retrieverFactory( 'medical-sentences-jina-faiss' )
+            ranker = rankerFactory( 'medical-jina' )
             summarizer = summarizerFactory( 'medical-naive' )
             return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
@@ -332,11 +346,10 @@ if __name__ == "__main__":
              'medical-lemm-2gram-tfidf' |\
              'medical-sentences-glove-bm25' |\
              'medical-sentences-glove-retrained-bm25' |\
-             'medical-sentences-jina-bm25' |\
-             'medical-sentences-jina-kmeans' |\
-             'medical-sentences-jina-faiss' |\
+             'medical-sentences-bert-kmeans' |\
              'medical-sentences-bert-faiss' |\
-             'medical-sentences-bert-retrained-faiss':
+             'medical-sentences-bert-retrained-faiss' |\
+             'medical-sentences-jina-faiss':
 
             engine = searchEngineFactory( option )
             results = engine.search( query )

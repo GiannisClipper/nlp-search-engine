@@ -159,6 +159,12 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
+        case 'naive-bert':
+            preprocessor = NaivePreprocessor()
+            tokenizer = SingleTokenizer()
+            model = SentenceTransformer( "all-MiniLM-L6-v2", trust_remote_code=True, local_files_only=True )
+            return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
+
         case 'dummy-bert':
             preprocessor = DummyPreprocessor()
             tokenizer = SingleTokenizer()

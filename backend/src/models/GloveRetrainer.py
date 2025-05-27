@@ -64,7 +64,7 @@ class GloveRetrainer:
         w2v_model.train(
             sentences_tokenized,
             total_examples=w2v_model.corpus_count,
-            epochs=30
+            epochs=10
         )
         print( f'(passed {timer.stop()} secs)' )
 
