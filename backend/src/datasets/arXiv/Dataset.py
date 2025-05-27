@@ -111,12 +111,8 @@ class Dataset:
                 lengths[ idoc ] = 0
             lengths[ idoc ] += 1
         lengths = [ v for k, v in lengths.items() ]
-        # min_sentence_length = min( lengths )
-        # mean_sentence_length = sum( lengths ) / len( lengths )
-        # max_sentence_length = max( lengths )
 
         print( "\nTotal sentences:", len( sentences ) )
-        # print( "Min-Mean-Max sentence length:", min_sentence_length, mean_sentence_length, max_sentence_length )
 
         lengths.sort()
         last_length = lengths[0]

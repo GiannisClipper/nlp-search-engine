@@ -45,17 +45,43 @@ class Dataset:
         return self._records
 
     def toListTitlesAbstracts( self ) -> list[str]:
-        return [ r[ 'title' ] + '-' + r[ 'abstract' ] for r in self._records ]
+        return [ r[ 'title' ] + ' - ' + r[ 'abstract' ] for r in self._records ]
     
     def toSentences( self ) -> tuple[list[str],list[str]]:
         sentences = []
         tags = []
-        for i, doc in enumerate( self.toListTitlesAbstracts() ):
-            some_sentences = sent_tokenize( doc )
-            for j, sentence in enumerate( some_sentences ):
+        for i, doc in enumerate( self.toList() ):
+            sentences.append( doc[ 'title' ] )
+            tags.append( f'{i}.0' )
+            more_sentences = sent_tokenize( doc[ 'abstract' ] )
+            for j, sentence in enumerate( more_sentences ):
                 sentences.append( sentence )
-                tags.append( f'{i}.{j}' )
+                tags.append( f'{i}.{j+1}' )
         return sentences, tags
+
+    def info_sentences( self ):
+
+        # analyze the sentences
+        sentences, tags = self.toSentences()
+        lengths = {}
+        for t in tags:
+            idoc = t.split('.')[0]
+            if not idoc in lengths:
+                lengths[ idoc ] = 0
+            lengths[ idoc ] += 1
+        lengths = [ v for k, v in lengths.items() ]
+
+        print( "\nTotal sentences:", len( sentences ) )
+
+        lengths.sort()
+        last_length = lengths[0]
+        counter = 0
+        for l in lengths:
+            if l != last_length:
+                print( f'Num of sentences:{last_length}, docs:{counter}' )
+                last_length = l
+                counter = 0
+            counter += 1
 
     def analyze( self ):
 
@@ -216,6 +242,10 @@ if __name__ == "__main__":
         case 'dataset':
             ds = Dataset()
             ds.analyze()
+
+        case 'info-sentences':
+            ds = Dataset()
+            ds.info_sentences()
 
         case 'queries':
             qr = Queries()

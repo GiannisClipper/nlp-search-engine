@@ -46,7 +46,7 @@ class EmbeddingsMaker:
 
             # Delay to handle machine temperature
             if i + 1000 < len( self._sentences ): 
-                secs = 1
+                secs = 10 if i % 10000 == 0 else 1
                 print( f'Waiting for {secs} secs to control machine temperature...' )
                 time.sleep( secs )
 

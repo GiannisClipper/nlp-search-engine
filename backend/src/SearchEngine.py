@@ -6,7 +6,7 @@ from scipy.sparse import spmatrix
 from .QueryAnalyzer import AbstractQueryAnalyzer, queryAnalyzerFactory
 from .Retriever import AbstractRetriever, retrieverFactory
 from .Ranker import AbstractRanker, rankerFactory
-from .Summarizer import summarizerFactory, AbstractSummarizer, NaiveSummarizer
+from .Summarizer import summarizerFactory, AbstractSummarizer, NaiveSummarizer, SimilaritySummarizer
 from .helpers.typing import QueryAnalyzedType
 
 # ------------------------------ #
@@ -83,7 +83,10 @@ class TermsSearchEngine( AbstractSearchEngine ):
         self._summarized = []
         for idoc, rank in self._ranked:
             query_repr = cast( spmatrix, self._query_analyzed[ 'repr' ] )
-            summarized = self._summarizer.summarize( int(idoc), query_repr )
+            if isinstance( self._summarizer, SimilaritySummarizer ):
+                summarized = self._summarizer.summarize( int(idoc), query_repr )
+            else:
+                summarized = self._summarizer.summarize( int(idoc) )
             self._summarized.append( ( idoc, rank, summarized ) )
 
     def search( self, query:str ) -> list[tuple[str,float,dict]]:

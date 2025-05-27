@@ -63,8 +63,8 @@ corpus = Dataset().toList()
 
 all_results = []
 
-# for iquery, query in enumerate( queries ):
-for iquery, query in enumerate( queries[5:6] ):
+for iquery, query in enumerate( queries ):
+# for iquery, query in enumerate( queries[5:6] ):
 
     results = engine.search( query )[:10] # results is a list of tuples [ ('docid', rate), ... ]
     # print( results )
