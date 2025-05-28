@@ -126,25 +126,27 @@ class BM25TermsFilter( AbstractTermsFilter ):
     def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
         # query = ' '.join( query_analyzed[ 'tokens' ] )
         # isents, scores = self._model.retrieve( bm25s.tokenize( query ), k=100 )
-        isents, scores = self._model.retrieve( [ query_analyzed[ 'tokens' ] ], k=200 )
+        isents, scores = self._model.retrieve( [ query_analyzed[ 'tokens' ] ], k=100 )
         isents = [ str(isent) for isent in isents[0] ]
         return isents
 
 
 class FaissTermsFilter( AbstractTermsFilter ):
 
-    def __init__( self, corpus_embeddings ):
+    def __init__( self, sentences_embeddings ):
         super().__init__()
-        embedding_dim = corpus_embeddings.shape[ 1 ]
+        embedding_dim = sentences_embeddings.shape[ 1 ]
+        faiss.normalize_L2( sentences_embeddings ) # normalize in place
         self._index = faiss.IndexFlatIP( embedding_dim )  # Inner product for cosine similarity
         # self._index = faiss.IndexFlatL2( embedding_dim )  # L2 = Euclidean distance
-        faiss.normalize_L2( corpus_embeddings )
-        self._index.add( corpus_embeddings ) # type: ignore
+        self._index.add( sentences_embeddings ) # type: ignore
+        # print( 'DEBUG-FaissTermsFilter-sentences.shape', corpus_embeddings.shape )
 
     def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
         embedding = sparse.lil_matrix( query_analyzed[ 'repr' ] ).toarray()
-        faiss.normalize_L2( embedding )
-        print( 'query_embedding.shape:', embedding.shape )
-        distances, indices = self._index.search( embedding, k=200 ) # type: ignore
+        faiss.normalize_L2( embedding ) # normalize in place
+        # print( 'DEBUG-FaissTermsFilter-query.shape:', embedding.shape )
+        distances, indices = self._index.search( embedding, k=100 ) # type: ignore
         isents = [ str(isent) for isent in indices[0] ]
+        # print( 'DEBUG-FaissTermsFilter-isents:', isents )
         return isents

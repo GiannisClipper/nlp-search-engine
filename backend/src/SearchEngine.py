@@ -74,7 +74,7 @@ class TermsSearchEngine( AbstractSearchEngine ):
     def _rank( self ) -> None:
         
         # Rank based on similarity between query and document/sentence vectors
-        print( f'Rank documents ({len(self._retrieved)})...' )
+        print( f'Rank documents/sentences ({len(self._retrieved)})...' )
         query_repr = cast( spmatrix, self._query_analyzed[ 'repr' ] )
         self._ranked = self._ranker.rank( query_repr, self._retrieved )
 
@@ -314,6 +314,7 @@ if __name__ == "__main__":
         option = sys.argv[ 1 ]
 
     query = "Are there any available papers about database management systems (both SQL and NoSQL), especially somehow relevant to semantics?"
+    # query = "Are there any available papers about machine learning (ML) or artificial intelligence (AI)?"
     if len( sys.argv ) >= 3:
         query = sys.argv[ 2 ]
 

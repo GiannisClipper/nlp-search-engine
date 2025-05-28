@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import sys
 import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import spmatrix
 from .helpers.Pickle import PickleLoader
 from .helpers.computators import compute_similarities0
@@ -63,7 +64,12 @@ class SentRanker( AbstractRanker ):
         filtered_repr = np.array( filtered_repr )
 
         # Compute the similarities
-        similarities = compute_similarities0( query_repr, filtered_repr )
+        # similarities = compute_similarities0( query_repr, filtered_repr )
+        similarities = cosine_similarity( query_repr, filtered_repr )
+        similarities = similarities[ 0 ]
+        # print( query_repr.shape )
+        # print( filtered_repr.shape )
+        # print( similarities.shape )
 
         # Aggregate similarities (per document)
         doc_result = {}

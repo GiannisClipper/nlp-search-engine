@@ -101,8 +101,15 @@ class TermsRetriever( AbstractRetriever ):
 
 class PeriodNamesTermsRetriever( PeriodRetriever, NamesRetriever, TermsRetriever ):
 
-    def __init__( self, periodFilter:PeriodFilter, namesFilter:NamesFilter, termsFilters:list[AbstractTermsFilter] ):
+    def __init__( 
+        self, 
+        periodFilter:PeriodFilter, 
+        namesFilter:NamesFilter, 
+        termsFilters:list[AbstractTermsFilter],
+        sentences_tags:list[str]|None=None
+    ):
         super().__init__( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
+        self._sentences_tags = sentences_tags
 
     def retrieve( self, query_analyzed:QueryAnalyzedType|None=None, names:list[str]|None=None, period:str|None=None ) -> list[str]:
 
@@ -123,11 +130,21 @@ class PeriodNamesTermsRetriever( PeriodRetriever, NamesRetriever, TermsRetriever
 
         # Filter by terms
         terms_result = TermsRetriever.retrieve( self, query_analyzed )
+        # print( 'DEBUG-Retriever-terms_result', terms_result )
         if not terms_result:
             return period_names_result
 
         # Intersect period, names, terms filters
-        result = list( set( period_names_result ) & set( terms_result ) )
+        if self._sentences_tags == None: # Documents matching
+            result = list( set( period_names_result ) & set( terms_result ) )
+
+        else: # Sentences matching
+            # get sentence tags for isents
+            sent_tags = [ self._sentences_tags[ int(r) ] for r in terms_result ]
+            # mark via tags which match with period-names result
+            sent_ok = [ True if t.split('.')[0] in period_names_result else False for t in sent_tags ] # both for idocs or isents 
+            # filter isents based on previous mark
+            result = [ res for res, ok in zip(terms_result, sent_ok) if ok ]
 
         return result
 
@@ -156,7 +173,11 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
                 WeightedTermsFilter( index=index, corpus=corpus, limit=200 )
             ]
 
-            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
+            return PeriodNamesTermsRetriever( 
+                periodFilter=periodFilter, 
+                namesFilter=namesFilter, 
+                termsFilters=termsFilters
+            )
 
         case 'arxiv-lemm-single':
             from .datasets.arXiv.Dataset import Dataset
@@ -178,7 +199,11 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
                 WeightedTermsFilter( index=index, corpus=corpus, limit=200 )
             ]
 
-            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
+            return PeriodNamesTermsRetriever( 
+                periodFilter=periodFilter, 
+                namesFilter=namesFilter, 
+                termsFilters=termsFilters
+            )
 
         case 'arxiv-lemm-2gram':
             from .datasets.arXiv.Dataset import Dataset
@@ -200,7 +225,11 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
                 WeightedTermsFilter( index=index, corpus=corpus, limit=200 )
             ]
 
-            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
+            return PeriodNamesTermsRetriever( 
+                periodFilter=periodFilter, 
+                namesFilter=namesFilter, 
+                termsFilters=termsFilters
+            )
 
         case 'arxiv-sentences-jina-kmeans':
             from .datasets.arXiv.Dataset import Dataset
@@ -217,7 +246,14 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             clusters_filename = f"{pickle_paths[ 'clusters' ]}/{clusters_descr}.pkl"
             clustering_model = PickleLoader( clusters_filename ).load()
             termsFilters = [ ClusteredTermsFilter( model=clustering_model ) ]
-            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
+            _, sentences_tags = ds.toSentences()
+
+            return PeriodNamesTermsRetriever( 
+                periodFilter=periodFilter, 
+                namesFilter=namesFilter, 
+                termsFilters=termsFilters,
+                sentences_tags=sentences_tags
+            )
 
         case 'arxiv-sentences-bm25':
             from .datasets.arXiv.Dataset import Dataset
@@ -229,7 +265,14 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             namesFilter = NamesFilter( names=names, tags=tags )
             sentences, tags = ds.toSentences()
             termsFilters = [ BM25TermsFilter( corpus=sentences ) ]
-            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
+            _, sentences_tags = ds.toSentences()
+
+            return PeriodNamesTermsRetriever( 
+                periodFilter=periodFilter, 
+                namesFilter=namesFilter, 
+                termsFilters=termsFilters,
+                sentences_tags=sentences_tags
+            )
 
         case 'arxiv-sentences-jina-faiss':
             from .datasets.arXiv.Dataset import Dataset
@@ -242,8 +285,15 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             descr = 'sentences-jina'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
             embeddings = PickleLoader( filename ).load()
-            termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
-            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
+            termsFilters = [ FaissTermsFilter( sentences_embeddings=embeddings ) ]
+            _, sentences_tags = ds.toSentences()
+
+            return PeriodNamesTermsRetriever( 
+                periodFilter=periodFilter, 
+                namesFilter=namesFilter, 
+                termsFilters=termsFilters,
+                sentences_tags=sentences_tags
+            )
 
         case 'arxiv-sentences-bert-faiss':
             from .datasets.arXiv.Dataset import Dataset
@@ -256,8 +306,15 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             descr = 'sentences-bert'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
             embeddings = PickleLoader( filename ).load()
-            termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
-            return PeriodNamesTermsRetriever( periodFilter=periodFilter, namesFilter=namesFilter, termsFilters=termsFilters )
+            _, sentences_tags = ds.toSentences()
+            termsFilters = [ FaissTermsFilter( sentences_embeddings=embeddings ) ]
+
+            return PeriodNamesTermsRetriever( 
+                periodFilter=periodFilter, 
+                namesFilter=namesFilter, 
+                termsFilters=termsFilters, 
+                sentences_tags=sentences_tags
+            )
 
         ###########
         # medical #
@@ -329,7 +386,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             descr = 'sentences-bert'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
             embeddings = PickleLoader( filename ).load()
-            termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
+            termsFilters = [ FaissTermsFilter( sentences_embeddings=embeddings ) ]
             return TermsRetriever( termsFilters=termsFilters )
 
         case 'medical-sentences-bert-retrained-faiss':
@@ -337,7 +394,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             descr = 'sentences-bert-retrained'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
             embeddings = PickleLoader( filename ).load()
-            termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
+            termsFilters = [ FaissTermsFilter( sentences_embeddings=embeddings ) ]
             return TermsRetriever( termsFilters=termsFilters )
 
         case 'medical-sentences-jina-faiss':
@@ -345,7 +402,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             descr = 'sentences-jina'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
             embeddings = PickleLoader( filename ).load()
-            termsFilters = [ FaissTermsFilter( corpus_embeddings=embeddings ) ]
+            termsFilters = [ FaissTermsFilter( sentences_embeddings=embeddings ) ]
             return TermsRetriever( termsFilters=termsFilters )
 
         case _:
