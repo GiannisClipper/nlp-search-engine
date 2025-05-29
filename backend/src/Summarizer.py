@@ -44,19 +44,33 @@ class SimilaritySummarizer( AbstractSummarizer ):
         self._sentences = sentences
         self._sent_repr = sent_repr
         self._limit = limit
+        self._index = {}
+        idoc = ''
+        for isent, sentence in enumerate( sentences ):
+            tag = sentence[ 1 ].split( '.' )
+            if idoc != tag[0]:
+                idoc = tag[0]
+                self._index[ idoc ] = isent
 
     def summarize( self, idoc:int, query_repr:spmatrix ) -> dict:
 
-        # get sentences' tags, compute similarities, sort
+        # get sentences and compute similarities
         results = []
-        for isent, sentence in enumerate( self._sentences ):
-            tag = sentence[ 1 ].split( '.' )
-            if str( idoc ) == tag[ 0 ] and tag[ 1 ] != '0': # sentence 0 is the title
+        isent = self._index[ str(idoc) ]
+        while True:
+            tag = self._sentences[ isent ][ 1 ].split( '.' )
+            if tag[ 0 ] != str(idoc):
+                break
+
+            if tag[ 1 ] != '0': # to omit the title
                 similarity = cosine_similarity( query_repr.reshape(1, -1), self._sent_repr[ isent ].reshape(1, -1) ) # type: ignore
                 results.append( [ self._sentences[isent][0], similarity ] )
-                if ( idoc ==2993 ):
-                    print( self._sentences[isent][0] )
 
+            isent += 1
+            if isent >= len( self._sentences ):
+                break
+
+        # summarizing process
         summarized = ''
         while True:
 

@@ -121,6 +121,10 @@ class PeriodNamesTermsSearchEngine( TermsSearchEngine ):
 
         # keep results regarding threshold
         self._ranked = [ r for r in self._ranked if r[1] >= self._threshold ]
+
+        # keep the top 10 results
+        self._ranked = self._ranked[:10]
+
         self._summarize()
 
         return self._summarized

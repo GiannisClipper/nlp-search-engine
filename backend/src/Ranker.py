@@ -64,7 +64,6 @@ class SentRanker( AbstractRanker ):
         filtered_repr = np.array( filtered_repr )
 
         # Compute the similarities
-        # similarities = compute_similarities0( query_repr, filtered_repr )
         similarities = cosine_similarity( query_repr, filtered_repr )
         similarities = similarities[ 0 ]
         # print( query_repr.shape )
