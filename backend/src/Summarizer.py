@@ -29,12 +29,19 @@ class NaiveSummarizer( AbstractSummarizer ):
         self._limit = limit
 
     def summarize( self, idoc:int ) -> dict:
-        title = self._corpus[ idoc ][ 'title' ]
         summarized = self._corpus[ idoc ][ 'summary' ].split( ' ' )
         summarized = [ s for s in summarized if len(s)>0 ]
         dots = '...' if len( summarized ) > self._limit else '' 
         summarized = ' '.join( summarized[:self._limit] ) + dots
-        return { 'title': title, 'summarized': summarized }
+        return { 
+            'idoc': idoc,
+            'id': self._corpus[ idoc ][ 'id' ],
+            'catg_ids': self._corpus[ idoc ][ 'catg_ids' ],
+            'authors': self._corpus[ idoc ][ 'authors' ],
+            'published': self._corpus[ idoc ][ 'published' ],
+            'title': self._corpus[ idoc ][ 'title' ], 
+            'summarized': summarized 
+        }
 
 
 class SimilaritySummarizer( AbstractSummarizer ):
@@ -100,8 +107,15 @@ class SimilaritySummarizer( AbstractSummarizer ):
                 results[imin-1][0] = results[imin-1][0] + ' (...)'
             results.pop( imin )
 
-        title = self._corpus[ idoc ][ 'title' ]
-        return { 'title': title, 'summarized': summarized }
+        return { 
+            'idoc': idoc,
+            'id': self._corpus[ idoc ][ 'id' ],
+            'catg_ids': self._corpus[ idoc ][ 'catg_ids' ],
+            'authors': self._corpus[ idoc ][ 'authors' ],
+            'published': self._corpus[ idoc ][ 'published' ],
+            'title': self._corpus[ idoc ][ 'title' ], 
+            'summarized': summarized 
+        }
 
 
 def summarizerFactory( option:str ) -> AbstractSummarizer:
@@ -153,7 +167,11 @@ def summarizerFactory( option:str ) -> AbstractSummarizer:
             from .datasets.medical.Dataset import Dataset
             corpus = Dataset().toList()
             for record in corpus:
-                record[ 'summary' ] = record[ 'abstract' ]
+                record[ 'id' ] = None # temporary solution to match both datasets
+                record[ 'catg_ids' ] = None # temporary solution to match both datasets
+                record[ 'authors' ] = None # temporary solution to match both datasets
+                record[ 'published' ] = None # temporary solution to match both datasets
+                record[ 'summary' ] = record[ 'abstract' ] # temporary solution to match both datasets
             return NaiveSummarizer( corpus )
 
         case _:

@@ -49,21 +49,12 @@ def clustersMakerFactory( option:str ):
 
     match option:
 
-        case 'arxiv-sentences-jina-kmeans':
+        case 'arxiv-sentences-bert-kmeans':
             from ..datasets.arXiv.settings import pickle_paths
-            representations_descr = 'sentences-jina'
+            representations_descr = 'sentences-bert'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
             representations = PickleLoader( representations_filename ).load()
-            clustering_descr = 'sentences-jina-kmeans'
-            clustering_filename = f"{pickle_paths[ 'clusters' ]}/{clustering_descr}.pkl"
-            return KMeansClustersMaker( representations, clustering_filename )
-
-        case 'medical-sentences-jina-kmeans':
-            from ..datasets.medical.settings import pickle_paths
-            representations_descr = 'sentences-jina'
-            representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            representations = PickleLoader( representations_filename ).load()
-            clustering_descr = 'sentences-jina-kmeans'
+            clustering_descr = 'sentences-bert-kmeans'
             clustering_filename = f"{pickle_paths[ 'clusters' ]}/{clustering_descr}.pkl"
             return KMeansClustersMaker( representations, clustering_filename )
 

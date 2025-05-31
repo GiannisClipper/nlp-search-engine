@@ -40,7 +40,7 @@ class OccuredTermsFilter( AbstractIndexedTermsFilter ):
         tokens = query_analyzed[ 'tokens' ]
 
         # keep only tokens existing in index
-        tokens = [ t for t in tokens if t in self._index ] 
+        tokens = [ t for t in tokens if t in self._index ]
 
         # extract the unique terms
         terms = list( set( tokens ) )
@@ -126,7 +126,7 @@ class BM25TermsFilter( AbstractTermsFilter ):
     def filter( self, query_analyzed:QueryAnalyzedType ) -> list[str]:
         # query = ' '.join( query_analyzed[ 'tokens' ] )
         # isents, scores = self._model.retrieve( bm25s.tokenize( query ), k=100 )
-        isents, scores = self._model.retrieve( [ query_analyzed[ 'tokens' ] ], k=100 )
+        isents, scores = self._model.retrieve( [ query_analyzed[ 'tokens' ] ], k=200 )
         isents = [ str(isent) for isent in isents[0] ]
         return isents
 
@@ -146,7 +146,7 @@ class FaissTermsFilter( AbstractTermsFilter ):
         embedding = sparse.lil_matrix( query_analyzed[ 'repr' ] ).toarray()
         faiss.normalize_L2( embedding ) # normalize in place
         # print( 'DEBUG-FaissTermsFilter-query.shape:', embedding.shape )
-        distances, indices = self._index.search( embedding, k=100 ) # type: ignore
+        distances, indices = self._index.search( embedding, k=200 ) # type: ignore
         isents = [ str(isent) for isent in indices[0] ]
         # print( 'DEBUG-FaissTermsFilter-isents:', isents )
         return isents

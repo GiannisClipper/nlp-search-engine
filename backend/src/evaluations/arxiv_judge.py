@@ -24,7 +24,8 @@ corpus = Dataset().toList()
 all_results = []
 
 for iquery, query in enumerate( queries ):
-# for iquery, query in enumerate( queries[5:6] ):
+    # if iquery not in [29]:
+    #     continue
 
     results = engine.search( query )[:10] # results is a list of tuples [ ('docid', rate), ... ]
     # print( results )

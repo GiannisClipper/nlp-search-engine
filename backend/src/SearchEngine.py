@@ -57,7 +57,7 @@ class AbstractSearchEngine( ABC ):
     def search( self, query:str ) -> list[tuple[str,float,dict]]:
         pass
 
-class TermsSearchEngine( AbstractSearchEngine ):
+class QuerySearchEngine( AbstractSearchEngine ):
 
     def _analyze( self, query:str ) -> None:
 
@@ -103,9 +103,15 @@ class TermsSearchEngine( AbstractSearchEngine ):
 
         return self._summarized
 
-class PeriodNamesTermsSearchEngine( TermsSearchEngine ):
+class QueryNamesPeriodSearchEngine( QuerySearchEngine ):
 
     def _retrieve( self, names:list[str]|None=None, period:str|None=None ) -> None:
+
+        # handle empty names as None
+        names = names if names != None and len( [ n for n in names if n.strip()!='' ] ) > 0 else None
+
+        # handle empty period as None
+        period = period if period != None and len( period.strip() ) > 0 else None
 
         # Retrieve documents or sentences based on query
         print( 'Retrieve docs/sentences...' )
@@ -142,63 +148,63 @@ def searchEngineFactory( option:str ):
             retriever = retrieverFactory( 'arxiv-stemm-single' )
             ranker = rankerFactory( option )
             summarizer = summarizerFactory( 'arxiv-naive' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=VEC_THRESHOLD )
+            return QueryNamesPeriodSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=VEC_THRESHOLD )
 
         case 'arxiv-lemm-single-tfidf':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'arxiv-lemm-single' )
             ranker = rankerFactory( option )
             summarizer = summarizerFactory( 'arxiv-naive' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=VEC_THRESHOLD )
+            return QueryNamesPeriodSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=VEC_THRESHOLD )
 
         case 'arxiv-lemm-2gram-tfidf':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'arxiv-lemm-2gram' )
             ranker = rankerFactory( option )
             summarizer = summarizerFactory( 'arxiv-naive' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=VEC_THRESHOLD )
+            return QueryNamesPeriodSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=VEC_THRESHOLD )
 
         case 'arxiv-sentences-glove-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'arxiv-naive-glove' )
             retriever = retrieverFactory( 'arxiv-sentences-bm25' )
             ranker = rankerFactory( 'arxiv-glove' )
             summarizer = summarizerFactory( 'arxiv-naive' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=EMB_THRESHOLD )
+            return QueryNamesPeriodSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=EMB_THRESHOLD )
 
         case 'arxiv-sentences-glove-retrained-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'arxiv-naive-glove-retrained' )
             retriever = retrieverFactory( 'arxiv-sentences-bm25' )
             ranker = rankerFactory( 'arxiv-glove-retrained' )
             summarizer = summarizerFactory( 'arxiv-glove-retrained-similarity' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=EMB_THRESHOLD )
+            return QueryNamesPeriodSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=EMB_THRESHOLD )
 
         case 'arxiv-sentences-jina-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
             retriever = retrieverFactory( 'arxiv-sentences-bm25' )
             ranker = rankerFactory( 'arxiv-jina' )
             summarizer = summarizerFactory( 'arxiv-jina-similarity' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=EMB_THRESHOLD )
+            return QueryNamesPeriodSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=EMB_THRESHOLD )
 
         case 'arxiv-sentences-jina-kmeans':
             queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
             retriever = retrieverFactory( 'arxiv-sentences-jina-kmeans' )
             ranker = rankerFactory( 'arxiv-jina' )
             summarizer = summarizerFactory( 'arxiv-jina-similarity' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=EMB_THRESHOLD )
+            return QueryNamesPeriodSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=EMB_THRESHOLD )
 
         case 'arxiv-sentences-jina-faiss':
             queryAnalyzer = queryAnalyzerFactory( 'dummy-jina' )
             retriever = retrieverFactory( 'arxiv-sentences-jina-faiss' )
             ranker = rankerFactory( 'arxiv-jina' )
             summarizer = summarizerFactory( 'arxiv-jina-similarity' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=EMB_THRESHOLD )
+            return QueryNamesPeriodSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=EMB_THRESHOLD )
 
         case 'arxiv-sentences-bert-faiss':
             queryAnalyzer = queryAnalyzerFactory( 'dummy-bert' )
             retriever = retrieverFactory( 'arxiv-sentences-bert-faiss' )
             ranker = rankerFactory( 'arxiv-bert' )
             summarizer = summarizerFactory( 'arxiv-bert-similarity' )
-            return PeriodNamesTermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=EMB_THRESHOLD )
+            return QueryNamesPeriodSearchEngine( queryAnalyzer, retriever, ranker, summarizer, threshold=EMB_THRESHOLD )
 
         ###########
         # medical #
@@ -209,98 +215,70 @@ def searchEngineFactory( option:str ):
             retriever = retrieverFactory( 'medical-stemm-single' )
             ranker = rankerFactory( option )
             summarizer = summarizerFactory( 'medical-naive' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
+            return QuerySearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
         case 'medical-lemm-single-tfidf':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'medical-lemm-single' )
             ranker = rankerFactory( option )
             summarizer = summarizerFactory( 'medical-naive' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
+            return QuerySearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
         case 'medical-lemm-2gram-tfidf':
             queryAnalyzer = queryAnalyzerFactory( option )
             retriever = retrieverFactory( 'medical-lemm-2gram' )
             ranker = rankerFactory( option )
             summarizer = summarizerFactory( 'medical-naive' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
+            return QuerySearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
         case 'medical-sentences-glove-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'medical-naive-glove' )
             retriever = retrieverFactory( 'medical-sentences-bm25' )
             ranker = rankerFactory( 'medical-glove' )
             summarizer = summarizerFactory( 'medical-naive' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
+            return QuerySearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
         case 'medical-sentences-glove-retrained-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'medical-naive-glove-retrained' )
             retriever = retrieverFactory( 'medical-sentences-bm25' )
             ranker = rankerFactory( 'medical-glove-retrained' )
             summarizer = summarizerFactory( 'medical-naive' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
-
-        # case 'medical-sentences-glove-faiss':
-        #     queryAnalyzer = queryAnalyzerFactory( 'medical-naive-glove' )
-        #     retriever = retrieverFactory( 'medical-sentences-glove-faiss' )
-        #     ranker = rankerFactory( 'medical-glove' )
-        #     summarizer = summarizerFactory( 'medical-naive' )
-        #     return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
-
-        # case 'medical-sentences-glove-retrained-faiss':
-        #     queryAnalyzer = queryAnalyzerFactory( 'medical-naive-glove-retrained' )
-        #     retriever = retrieverFactory( 'medical-sentences-glove-retrained-faiss' )
-        #     ranker = rankerFactory( 'medical-glove-retrained' )
-        #     summarizer = summarizerFactory( 'medical-naive' )
-        #     return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
-
-        # case 'medical-sentences-jina-bm25':
-        #     queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
-        #     retriever = retrieverFactory( 'medical-sentences-bm25' )
-        #     ranker = rankerFactory( 'medical-jina' )
-        #     summarizer = summarizerFactory( 'medical-naive' )
-        #     return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
-
-        # case 'medical-sentences-jina-kmeans':
-        #     queryAnalyzer = queryAnalyzerFactory( 'naive-jina' )
-        #     retriever = retrieverFactory( 'medical-sentences-jina-kmeans' )
-        #     ranker = rankerFactory( 'medical-jina' )
-        #     summarizer = summarizerFactory( 'medical-naive' )
-        #     return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
+            return QuerySearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
         case 'medical-sentences-bert-bm25':
             queryAnalyzer = queryAnalyzerFactory( 'naive-bert' )
             retriever = retrieverFactory( 'medical-sentences-bm25' )
             ranker = rankerFactory( 'medical-bert' )
             summarizer = summarizerFactory( 'medical-naive' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
+            return QuerySearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
         case 'medical-sentences-bert-kmeans':
             queryAnalyzer = queryAnalyzerFactory( 'naive-bert' )
             retriever = retrieverFactory( 'medical-sentences-bert-kmeans' )
             ranker = rankerFactory( 'medical-bert' )
             summarizer = summarizerFactory( 'medical-naive' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
+            return QuerySearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
         case 'medical-sentences-bert-faiss':
             queryAnalyzer = queryAnalyzerFactory( 'dummy-bert' )
             retriever = retrieverFactory( 'medical-sentences-bert-faiss' )
             ranker = rankerFactory( 'medical-bert' )
             summarizer = summarizerFactory( 'medical-naive' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker,summarizer )
+            return QuerySearchEngine( queryAnalyzer, retriever, ranker,summarizer )
 
         case 'medical-sentences-bert-retrained-faiss':
             queryAnalyzer = queryAnalyzerFactory( 'dummy-bert-retrained' )
             retriever = retrieverFactory( 'medical-sentences-bert-retrained-faiss' )
             ranker = rankerFactory( 'medical-bert-retrained' )
             summarizer = summarizerFactory( 'medical-naive' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
+            return QuerySearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
         case 'medical-sentences-jina-faiss':
             queryAnalyzer = queryAnalyzerFactory( 'dummy-jina' )
             retriever = retrieverFactory( 'medical-sentences-jina-faiss' )
             ranker = rankerFactory( 'medical-jina' )
             summarizer = summarizerFactory( 'medical-naive' )
-            return TermsSearchEngine( queryAnalyzer, retriever, ranker, summarizer )
+            return QuerySearchEngine( queryAnalyzer, retriever, ranker, summarizer )
 
         case _:
             raise Exception( 'searchEngineFactory(): No valid option.', option )

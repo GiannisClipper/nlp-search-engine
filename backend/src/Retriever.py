@@ -132,7 +132,8 @@ class PeriodNamesTermsRetriever( PeriodRetriever, NamesRetriever, TermsRetriever
         terms_result = TermsRetriever.retrieve( self, query_analyzed )
         # print( 'DEBUG-Retriever-terms_result', terms_result )
         if not terms_result:
-            return period_names_result
+            # return period_names_result # deprecated: if empty names and preiod returns all docs
+            return []
 
         # Intersect period, names, terms filters
         if self._sentences_tags == None: # Documents matching
