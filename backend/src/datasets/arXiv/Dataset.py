@@ -130,6 +130,29 @@ class Dataset:
                 counter = 0
             counter += 1
 
+    def info_tokens( self ):
+
+        corpus = self.toListTitlesSummaries()
+        lengths = { '50':0, '100':0, '150':0, '200':0, '500':0 }
+        total_tokens = 0
+        for doc in corpus:
+            tokens = doc.split( ' ' )
+            tokens = [ t for t in tokens if len(t) > 0 ]
+            if len( tokens ) <=50:
+                lengths[ '50' ] += 1
+            if len( tokens ) <=100:
+                lengths[ '100' ] += 1
+            if len( tokens ) <=150:
+                lengths[ '150' ] += 1
+            elif len( tokens ) <=200:
+                lengths[ '200' ] += 1
+            else:
+                lengths[ '500' ] += 1
+            total_tokens += len( tokens )
+
+        print( "\nTotal tokens:", total_tokens )
+        print( lengths )
+
     def info_authors( self ):
 
         authors, tags = self.toAuthors()
@@ -164,6 +187,10 @@ if __name__ == "__main__":
         case 'info-sentences':
             ds = Dataset()
             ds.info_sentences()
+
+        case 'info-tokens':
+            ds = Dataset()
+            ds.info_tokens()
 
         case 'info-authors':
             ds = Dataset()
