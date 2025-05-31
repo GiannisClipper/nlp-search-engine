@@ -39,10 +39,11 @@ input.query {
   width: calc( 100% - 80px );
 }
 
-button.go {
-  height: 40px;
+button.search-tool {
+  height: 42px;
   aspect-ratio: 2/2;
   font-size: large;
+  margin: 1px;
 }
 
 input.names, 

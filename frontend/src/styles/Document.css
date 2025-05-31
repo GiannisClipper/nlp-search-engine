@@ -3,6 +3,14 @@
   border: 1px dotted green;
 }
 
+.document.yes {
+  background: #bbffbb
+}
+
+.document.no {
+  background: #ffcccc;
+}
+
 .document * {
   font-size: small;
 }

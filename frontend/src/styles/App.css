@@ -9,6 +9,7 @@
 .header {
   position: sticky;
   top: 0;
+  background: #f6f6f6;
   margin-bottom: 2em;
   border-bottom: 3px dashed #e3e3e3;
   padding: 1em;

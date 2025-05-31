@@ -56,4 +56,19 @@ async function  requestSearch( { query, authors, published } ) {
     return await request( url, options )
 }
 
-export { requestInfo, requestSearch }
+async function  requestJudge( { query, idocs } ) {
+
+    const url = 'http://localhost:5000/judge'
+
+    const options = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        }, 
+        body: JSON.stringify( { query, idocs } )
+    }
+
+    return await request( url, options )
+}
+
+export { requestInfo, requestSearch, requestJudge }

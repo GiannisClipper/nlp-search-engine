@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import './styles/SearchOption.css'
-import { requestSearch } from './helpers/requests'
+import { requestSearch, requestJudge } from './helpers/requests'
 import Document from './Document'
 
 function SearchOption( { onRequest, setOnRequest } ) {
@@ -11,7 +11,7 @@ function SearchOption( { onRequest, setOnRequest } ) {
     const [ documents, setDocuments ] = useState( [] )
 
     useEffect( () => {
-        if ( onRequest === 'go request' ) {
+        if ( onRequest === 'go search' ) {
             const request = async () => {
                 const result = await requestSearch( { query, authors, published } )
                 if ( result.error ) {
@@ -20,6 +20,25 @@ function SearchOption( { onRequest, setOnRequest } ) {
                 } else {
                     console.log( result )
                     setDocuments( result.data )
+                    setOnRequest( null )
+                }
+            }
+            request()
+            setOnRequest( 'waiting' )
+        }
+        if ( onRequest === 'go judge' ) {
+            const request = async () => {
+                const idocs = documents.map( d => d[ 'idoc' ] )
+                const result = await requestJudge( { query, idocs } )
+                if ( result.error ) {
+                    alert( result.error.message )
+                    setOnRequest( null )
+                } else {
+                    console.log( result )
+                    for ( let i=0; i<documents.length; i++ ) {
+                        documents[ i ][ 'judge' ] = result.data[ i ][ documents[ i ][ 'idoc' ] ]
+                    }
+                    setDocuments( [ ...documents ] )
                     setOnRequest( null )
                 }
             }
@@ -44,13 +63,22 @@ function SearchOption( { onRequest, setOnRequest } ) {
                     ! 
                     onRequest
                     ?
+                    <>
                     <button 
-                        className='go' 
-                        onClick={() => setOnRequest( 'go request' )}
+                        className='search-tool' 
+                        onClick={() => setOnRequest( 'go search' )}
                         disabled={onRequest?true:false}
                     >
-                        [Go]
+                        [Find]
                     </button>
+                    <button 
+                        className='search-tool' 
+                        onClick={() => setOnRequest( 'go judge' )}
+                        disabled={onRequest?true:false}
+                    >
+                        [Eval]
+                    </button>
+                    </>
                     :
                     <div 
                         className='loader'

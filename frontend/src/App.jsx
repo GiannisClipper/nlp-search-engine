@@ -9,7 +9,7 @@ function App() {
     const [ engineOption, setEngineOption ] = useState( 'unknown' )
     const [ option, setOption ] = useState( 'search' )
     const [ onRequest, setOnRequest ] = useState( null )
-
+ 
     useEffect( () => {
         const request = async () => {
             const result = await requestInfo()
@@ -35,7 +35,7 @@ function App() {
                 </div>
             </div>
             <div className='right'>
-                <div className={'search'+(option==='search'?' selected':'' )}>
+                {/* <div className={'search'+(option==='search'?' selected':'' )}>
                     <button 
                         onClick={() => setOption( 'search' )}
                         disabled={onRequest?true:false}
@@ -51,7 +51,7 @@ function App() {
                     >
                         History
                     </button>
-                </div>
+                </div> */}
             </div>
         </div>
         <div className='main'>
