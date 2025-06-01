@@ -69,21 +69,21 @@ function SearchOption( { onRequest, setOnRequest } ) {
                         onClick={() => setOnRequest( 'go search' )}
                         disabled={onRequest?true:false}
                     >
-                        [Find]
+                        [Search]
                     </button>
                     <button 
                         className='search-tool' 
                         onClick={() => setOnRequest( 'go judge' )}
                         disabled={onRequest?true:false}
                     >
-                        [Eval]
+                        [Judge]
                     </button>
                     </>
                     :
                     <div 
                         className='loader'
                     >
-                        ...
+                        waiting...
                     </div>
                     }
                 </div>
