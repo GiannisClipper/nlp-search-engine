@@ -100,7 +100,6 @@ How to Parse XML in Python
 https://scrapingant.com/blog/python-parse-xml
 
 
-
 +-------+
 | regex |
 +-------+
@@ -144,4 +143,41 @@ https://www.youtube.com/watch?v=K8L6KVGG-7o
 # ?     - 0 or 1
 # {3}   - Exact number
 # {3,5} - Range (min,max)
+
+
+
++-------------+
+| draft stuff |
++-------------+
+
+How to Make Your Own Search Engine: Semantic Search With LLM Embeddings
+https://blog.scottlogic.com/2023/08/11/how-to-make-your-own-search-engine.html
+
+Ultimate Guide to Understand and Implement Natural Language Processing (with codes in Python)
+https://www.analyticsvidhya.com/blog/2017/01/ultimate-guide-to-understand-implement-natural-language-processing-codes-in-python/?utm_source=blog&utm_medium=top_5_sentence_embedding
+
+Guide to Pretrained Word Embeddings for NLP Practitioners
+https://www.analyticsvidhya.com/blog/2020/03/pretrained-word-embeddings-nlp/?utm_source=blog&utm_medium=top_5_sentence_embedding
+
+Top 4 Sentence Embedding Techniques using Python
+https://www.analyticsvidhya.com/blog/2020/08/top-4-sentence-embedding-techniques-using-python/
+
+Practical Guide To Doc2Vec & How To Tutorial In Python
+https://spotintelligence.com/2023/09/06/doc2vec/
+
+A doc2vec search engine CORD19 (New Version)
+https://www.kaggle.com/code/hgilles06/a-doc2vec-search-engine-cord19-new-version
+
+--> How to build a search engine with word embeddings
+--> https://dev.to/mage_ai/how-to-build-a-search-engine-with-word-embeddings-56jd
+
+BM25 for Python: Achieving high performance while simplifying dependencies with BM25S
+https://huggingface.co/blog/xhluca/bm25s
+
+GloVe: Global Vectors for Word Representation
+https://nlp.stanford.edu/projects/glove/
+
+jinaai/jina-embeddings-v2-base-en
+https://huggingface.co/jinaai/jina-embeddings-v2-base-en
+
 

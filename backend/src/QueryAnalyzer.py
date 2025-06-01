@@ -129,7 +129,7 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             from .datasets.medical.settings import pickle_paths
             preprocessor = LemmPreprocessor()
             tokenizer = SingleTokenizer()
-            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
+            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True ) #, local_files_only=True
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
@@ -148,27 +148,27 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
         case 'naive-jina':
             preprocessor = NaivePreprocessor()
             tokenizer = SingleTokenizer()
-            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
+            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True ) #, local_files_only=True
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case 'dummy-jina':
             preprocessor = DummyPreprocessor()
             tokenizer = SingleTokenizer()
-            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
+            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True ) #, local_files_only=True
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case 'naive-bert':
             preprocessor = NaivePreprocessor()
             tokenizer = SingleTokenizer()
-            model = SentenceTransformer( "all-MiniLM-L6-v2", trust_remote_code=True, local_files_only=True )
+            model = SentenceTransformer( "all-MiniLM-L6-v2", trust_remote_code=True ) #, local_files_only=True
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case 'dummy-bert':
             preprocessor = DummyPreprocessor()
             tokenizer = SingleTokenizer()
-            model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True, local_files_only=True )
+            model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True ) #, local_files_only=True
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case 'dummy-bert-retrained':
@@ -176,7 +176,7 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             tokenizer = SingleTokenizer()
             from .datasets.medical.settings import pickle_paths
             model_folder = f"{pickle_paths[ 'corpus_repr' ]}/bert-retrained"
-            model = SentenceTransformer( model_folder, trust_remote_code=True, local_files_only=True )
+            model = SentenceTransformer( model_folder, trust_remote_code=True ) #, local_files_only=True
             return QueryAnalyzerWithPretrained( preprocessor, tokenizer, model )
 
         case _:

@@ -100,7 +100,7 @@ def embeddingsMakerFactory( option:str ):
         case 'arxiv-sentences-bert':
             from ..datasets.arXiv.Dataset import Dataset
             from ..datasets.arXiv.settings import pickle_paths
-            model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True, local_files_only=True )
+            model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True ) #, local_files_only=True
             sentences, tags = Dataset().toSentences()
             embeddings_descr = 'sentences-bert'
             embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
@@ -110,7 +110,7 @@ def embeddingsMakerFactory( option:str ):
         case 'arxiv-sentences-jina':
             from ..datasets.arXiv.Dataset import Dataset
             from ..datasets.arXiv.settings import pickle_paths
-            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
+            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True ) #, local_files_only=True
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             sentences, tags = Dataset().toSentences()
             embeddings_descr = 'sentences-jina'
@@ -141,7 +141,7 @@ def embeddingsMakerFactory( option:str ):
         case 'medical-sentences-jina':
             from ..datasets.medical.Dataset import Dataset
             from ..datasets.medical.settings import pickle_paths
-            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True, local_files_only=True )
+            model = SentenceTransformer( "jinaai/jina-embeddings-v2-base-en", trust_remote_code=True ) #, local_files_only=True
             model.max_seq_length = 1024 # control your input sequence length up to 8192
             sentences, tags = Dataset().toSentences()
             embeddings_descr = 'sentences-jina'
@@ -152,7 +152,7 @@ def embeddingsMakerFactory( option:str ):
         case 'medical-sentences-bert':
             from ..datasets.medical.Dataset import Dataset
             from ..datasets.medical.settings import pickle_paths
-            model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True, local_files_only=True )
+            model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True ) #, local_files_only=True
             sentences, tags = Dataset().toSentences()
             embeddings_descr = 'sentences-bert'
             embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"
@@ -163,7 +163,7 @@ def embeddingsMakerFactory( option:str ):
             from ..datasets.medical.Dataset import Dataset
             from ..datasets.medical.settings import pickle_paths
             model_folder = f"{pickle_paths[ 'corpus_repr' ]}/bert-retrained"
-            model = SentenceTransformer( model_folder, trust_remote_code=True, local_files_only=True )
+            model = SentenceTransformer( model_folder, trust_remote_code=True ) #, local_files_only=True
             sentences, tags = Dataset().toSentences()
             embeddings_descr = 'sentences-bert-retrained'
             embeddings_filename_base = f"{pickle_paths[ 'temp' ]}/{embeddings_descr}"

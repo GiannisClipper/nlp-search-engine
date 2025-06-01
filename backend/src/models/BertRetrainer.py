@@ -19,7 +19,7 @@ class BertRetrainer:
         # Load the pre-trained model
         timer = Timer( start=True )
         print( f"Loading pretrained model..." )
-        model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True, local_files_only=True )
+        model = SentenceTransformer( 'all-MiniLM-L6-v2', trust_remote_code=True ) #, local_files_only=True
         print( f'(passed {timer.stop()} secs)' )
 
         # Create training examples (SimCSE-style: same sentence twice)
