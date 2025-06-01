@@ -6,6 +6,7 @@ conda deactivate (in case of an existing conda venv)
 python3 -m venv appvenv
 source appvenv/bin/activate
 pip freeze > requirements.txt
+pip list --format=freeze > requirements.txt (as an alternative to bypass entries like file:///)
 deactivate
 
 +-----------------------+
