@@ -79,11 +79,11 @@ class Dataset:
             for catg_id in record[ 'catg_ids' ]:
                 catg_ids[ catg_id ] += 1
 
-            l = len( record[ 'summary' ] )
-            if l <= 128: summary_lengths[ 'le128' ] += 1
-            elif l <= 256: summary_lengths[ 'le256' ] += 1
-            elif l <= 512: summary_lengths[ 'le512' ] += 1
-            else: summary_lengths[ 'gt512' ] += 1
+            # l = len( record[ 'summary' ] )
+            # if l <= 128: summary_lengths[ 'le128' ] += 1
+            # elif l <= 256: summary_lengths[ 'le256' ] += 1
+            # elif l <= 512: summary_lengths[ 'le512' ] += 1
+            # else: summary_lengths[ 'gt512' ] += 1
 
         # print results
         print( "\nTotal records:", len( records ) )
@@ -94,8 +94,8 @@ class Dataset:
             print( f'{id} {descr} {catg_ids.get(id,0)}' )
         print( "---------------------")
 
-        print( "Sum of records per category (possible records in more than 1 category):", sum( catg_ids.values() ) )
-        print( "Summary lengths (in chars):", summary_lengths )
+        print( "Sum of records from categories (possible records in more than 1 category):", sum( catg_ids.values() ) )
+        # print( "Summary lengths (in chars):", summary_lengths )
 
 
         # to check records encountered in many categories
