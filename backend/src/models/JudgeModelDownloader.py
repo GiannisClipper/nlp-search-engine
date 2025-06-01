@@ -22,7 +22,7 @@ if __name__ == "__main__":
     model_id = "google/flan-t5-base" # better responses than 'small' model
 
     if os.path.exists( pretrained_models[ 'judge-model-tokenizer' ] ):
-        print( f'{pretrained_models[ 'judge-model-tokenizer' ]} already exists.' )
+        print( f"{pretrained_models[ 'judge-model-tokenizer' ]} already exists." )
     else:
         print( f'Loading {model_id} tokenizer...' )
         tokenizer = AutoTokenizer.from_pretrained( model_id )
@@ -30,7 +30,7 @@ if __name__ == "__main__":
         tokenizer.save_pretrained( pretrained_models[ 'judge-model-tokenizer' ] )
 
     if os.path.exists( pretrained_models[ 'judge-model' ] ):
-        print( f'{pretrained_models[ 'judge-model' ]} already exists.' )
+        print( f"{pretrained_models[ 'judge-model' ]} already exists." )
     else:
         print( f'Loading {model_id} model...' )
         # model = AutoModelForCausalLM.from_pretrained( model_id )
