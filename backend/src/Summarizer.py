@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from scipy.sparse import spmatrix
 from sklearn.metrics.pairwise import cosine_similarity
-from .helpers.Pickle import PickleLoader
+from .helpers.Pickle import PickleLoader, CachedPickleLoader
 from .helpers.computators import compute_similarities0
 
 class AbstractSummarizer( ABC ):
@@ -136,7 +136,7 @@ def summarizerFactory( option:str ) -> AbstractSummarizer:
             sentences = [ ( text, tag ) for text, tag in zip( texts, tags ) ] 
             representations_descr = 'sentences-glove-retrained'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            sent_repr = PickleLoader( representations_filename ).load()
+            sent_repr = CachedPickleLoader( representations_filename ).load()
             return SimilaritySummarizer( corpus, sentences, sent_repr )
 
         case 'arxiv-jina-similarity':
@@ -148,7 +148,7 @@ def summarizerFactory( option:str ) -> AbstractSummarizer:
             sentences = [ ( text, tag ) for text, tag in zip( texts, tags ) ] 
             representations_descr = 'sentences-jina'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            sent_repr = PickleLoader( representations_filename ).load()
+            sent_repr = CachedPickleLoader( representations_filename ).load()
             return SimilaritySummarizer( corpus, sentences, sent_repr )
 
         case 'arxiv-bert-similarity':
@@ -160,7 +160,7 @@ def summarizerFactory( option:str ) -> AbstractSummarizer:
             sentences = [ ( text, tag ) for text, tag in zip( texts, tags ) ] 
             representations_descr = 'sentences-bert'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            sent_repr = PickleLoader( representations_filename ).load()
+            sent_repr = CachedPickleLoader( representations_filename ).load()
             return SimilaritySummarizer( corpus, sentences, sent_repr )
 
         case 'medical-naive':

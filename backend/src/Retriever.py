@@ -7,7 +7,7 @@ from .TermsFilter import AbstractTermsFilter, OccuredTermsFilter, WeightedTermsF
 from .TermsFilter import ClusteredTermsFilter, BM25TermsFilter, FaissTermsFilter
 from .NameFilter import NamesFilter
 from .PeriodFilter import PeriodFilter
-from .helpers.Pickle import PickleLoader
+from .helpers.Pickle import PickleLoader, CachedPickleLoader
 from .helpers.DocViewer import DocViewer
 
 # ----------------------------------------------------------- #
@@ -167,7 +167,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
 
             index_descr = 'title-summary_lower-punct-specials-stops-stemm_single'
             index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-            index = PickleLoader( index_filename ).load()
+            index = CachedPickleLoader( index_filename ).load()
             corpus = ds.toList()
             termsFilters = [
                 OccuredTermsFilter( index=index, threshold=0.5 ),
@@ -193,7 +193,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
 
             index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
             index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-            index = PickleLoader( index_filename ).load()
+            index = CachedPickleLoader( index_filename ).load()
             corpus = ds.toList()
             termsFilters = [
                 OccuredTermsFilter( index=index, threshold=0.5 ),
@@ -219,7 +219,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
 
             index_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram'
             index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-            index = PickleLoader( index_filename ).load()
+            index = CachedPickleLoader( index_filename ).load()
             corpus = ds.toList()
             termsFilters = [
                 OccuredTermsFilter( index=index, threshold=0.5 ),
@@ -245,7 +245,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
 
             clusters_descr = 'sentences-jina-kmeans'
             clusters_filename = f"{pickle_paths[ 'clusters' ]}/{clusters_descr}.pkl"
-            clustering_model = PickleLoader( clusters_filename ).load()
+            clustering_model = CachedPickleLoader( clusters_filename ).load()
             termsFilters = [ ClusteredTermsFilter( model=clustering_model ) ]
             _, sentences_tags = ds.toSentences()
 
@@ -285,7 +285,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             namesFilter = NamesFilter( names=names, tags=tags )
             descr = 'sentences-jina'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
-            embeddings = PickleLoader( filename ).load()
+            embeddings = CachedPickleLoader( filename ).load()
             termsFilters = [ FaissTermsFilter( sentences_embeddings=embeddings ) ]
             _, sentences_tags = ds.toSentences()
 
@@ -306,7 +306,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             namesFilter = NamesFilter( names=names, tags=tags )
             descr = 'sentences-bert'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
-            embeddings = PickleLoader( filename ).load()
+            embeddings = CachedPickleLoader( filename ).load()
             _, sentences_tags = ds.toSentences()
             termsFilters = [ FaissTermsFilter( sentences_embeddings=embeddings ) ]
 
@@ -327,7 +327,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             ds = Dataset()
             index_descr = 'title-summary_lower-punct-specials-stops-stemm_single'
             index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-            index = PickleLoader( index_filename ).load()
+            index = CachedPickleLoader( index_filename ).load()
             corpus = ds.toList()
             termsFilters:list[AbstractTermsFilter] = [
                 OccuredTermsFilter( index=index, threshold=0.5 ),
@@ -341,7 +341,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             ds = Dataset()
             index_descr = 'title-summary_lower-punct-specials-stops-lemm_single'
             index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-            index = PickleLoader( index_filename ).load()
+            index = CachedPickleLoader( index_filename ).load()
             corpus = ds.toList()
             termsFilters:list[AbstractTermsFilter] = [
                 OccuredTermsFilter( index=index, threshold=0.5 ),
@@ -355,7 +355,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             ds = Dataset()
             index_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram'
             index_filename = f"{pickle_paths[ 'indexes' ]}/{index_descr}.pkl"
-            index = PickleLoader( index_filename ).load()
+            index = CachedPickleLoader( index_filename ).load()
             corpus = ds.toList()
             termsFilters:list[AbstractTermsFilter] = [
                 OccuredTermsFilter( index=index, threshold=0.5 ),
@@ -373,7 +373,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             from .datasets.medical.settings import pickle_paths
             clusters_descr = 'sentences-bert-kmeans'
             clusters_filename = f"{pickle_paths[ 'clusters' ]}/{clusters_descr}.pkl"
-            clustering_model = PickleLoader( clusters_filename ).load()
+            clustering_model = CachedPickleLoader( clusters_filename ).load()
             # from .datasets.medical.Dataset import Dataset
             # sentences, tags = Dataset().toSentences()
             termsFilters = [
@@ -386,7 +386,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             from .datasets.medical.settings import pickle_paths
             descr = 'sentences-bert'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
-            embeddings = PickleLoader( filename ).load()
+            embeddings = CachedPickleLoader( filename ).load()
             termsFilters = [ FaissTermsFilter( sentences_embeddings=embeddings ) ]
             return TermsRetriever( termsFilters=termsFilters )
 
@@ -394,7 +394,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             from .datasets.medical.settings import pickle_paths
             descr = 'sentences-bert-retrained'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
-            embeddings = PickleLoader( filename ).load()
+            embeddings = CachedPickleLoader( filename ).load()
             termsFilters = [ FaissTermsFilter( sentences_embeddings=embeddings ) ]
             return TermsRetriever( termsFilters=termsFilters )
 
@@ -402,7 +402,7 @@ def retrieverFactory( option:str ) -> AbstractRetriever:
             from .datasets.medical.settings import pickle_paths
             descr = 'sentences-jina'
             filename = f"{pickle_paths[ 'corpus_repr' ]}/{descr}.pkl"
-            embeddings = PickleLoader( filename ).load()
+            embeddings = CachedPickleLoader( filename ).load()
             termsFilters = [ FaissTermsFilter( sentences_embeddings=embeddings ) ]
             return TermsRetriever( termsFilters=termsFilters )
 

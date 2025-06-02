@@ -3,7 +3,7 @@ import sys
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import spmatrix
-from .helpers.Pickle import PickleLoader
+from .helpers.Pickle import PickleLoader, CachedPickleLoader
 from .helpers.computators import compute_similarities0
 
 # ------------------------------------------------- #
@@ -96,21 +96,21 @@ def rankerFactory( option:str ):
             from .datasets.arXiv.settings import pickle_paths
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
-            corpus_repr = PickleLoader( corpus_repr_filename ).load()
+            corpus_repr = CachedPickleLoader( corpus_repr_filename ).load()
             return DocRanker( corpus_repr )
 
         case 'arxiv-lemm-single-tfidf':
             from .datasets.arXiv.settings import pickle_paths
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
-            corpus_repr = PickleLoader( corpus_repr_filename ).load()
+            corpus_repr = CachedPickleLoader( corpus_repr_filename ).load()
             return DocRanker( corpus_repr )
 
         case 'arxiv-lemm-2gram-tfidf':
             from .datasets.arXiv.settings import pickle_paths
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram_tfidf'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
-            corpus_repr = PickleLoader( corpus_repr_filename ).load()
+            corpus_repr = CachedPickleLoader( corpus_repr_filename ).load()
             return DocRanker( corpus_repr )
 
         case 'arxiv-glove':
@@ -118,7 +118,7 @@ def rankerFactory( option:str ):
             from .datasets.arXiv.settings import pickle_paths
             representations_descr = 'sentences-glove'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            representations = PickleLoader( representations_filename ).load()
+            representations = CachedPickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
@@ -127,7 +127,7 @@ def rankerFactory( option:str ):
             from .datasets.arXiv.settings import pickle_paths
             representations_descr = 'sentences-glove-retrained'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            representations = PickleLoader( representations_filename ).load()
+            representations = CachedPickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
@@ -136,7 +136,7 @@ def rankerFactory( option:str ):
             from .datasets.arXiv.settings import pickle_paths
             representations_descr = 'sentences-bert'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            representations = PickleLoader( representations_filename ).load()
+            representations = CachedPickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
@@ -145,7 +145,7 @@ def rankerFactory( option:str ):
             from .datasets.arXiv.settings import pickle_paths
             representations_descr = 'sentences-jina'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            representations = PickleLoader( representations_filename ).load()
+            representations = CachedPickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
@@ -157,21 +157,21 @@ def rankerFactory( option:str ):
             from .datasets.medical.settings import pickle_paths
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
-            corpus_repr = PickleLoader( corpus_repr_filename ).load()
+            corpus_repr = CachedPickleLoader( corpus_repr_filename ).load()
             return DocRanker( corpus_repr )
 
         case 'medical-lemm-single-tfidf':
             from .datasets.medical.settings import pickle_paths
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
-            corpus_repr = PickleLoader( corpus_repr_filename ).load()
+            corpus_repr = CachedPickleLoader( corpus_repr_filename ).load()
             return DocRanker( corpus_repr )
 
         case 'medical-lemm-2gram-tfidf':
             from .datasets.medical.settings import pickle_paths
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram_tfidf'
             corpus_repr_filename = f"{pickle_paths[ 'corpus_repr' ]}/{vectorizer_descr}.pkl"
-            corpus_repr = PickleLoader( corpus_repr_filename ).load()
+            corpus_repr = CachedPickleLoader( corpus_repr_filename ).load()
             return DocRanker( corpus_repr )
 
         case 'medical-glove':
@@ -179,7 +179,7 @@ def rankerFactory( option:str ):
             from .datasets.medical.settings import pickle_paths
             representations_descr = 'sentences-glove'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            representations = PickleLoader( representations_filename ).load()
+            representations = CachedPickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
@@ -188,7 +188,7 @@ def rankerFactory( option:str ):
             from .datasets.medical.settings import pickle_paths
             representations_descr = 'sentences-glove-retrained'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            representations = PickleLoader( representations_filename ).load()
+            representations = CachedPickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
@@ -197,7 +197,7 @@ def rankerFactory( option:str ):
             from .datasets.medical.settings import pickle_paths
             representations_descr = 'sentences-jina'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            representations = PickleLoader( representations_filename ).load()
+            representations = CachedPickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
@@ -206,7 +206,7 @@ def rankerFactory( option:str ):
             from .datasets.medical.settings import pickle_paths
             representations_descr = 'sentences-bert'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            representations = PickleLoader( representations_filename ).load()
+            representations = CachedPickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 
@@ -215,7 +215,7 @@ def rankerFactory( option:str ):
             from .datasets.medical.settings import pickle_paths
             representations_descr = 'sentences-bert-retrained'
             representations_filename = f"{pickle_paths[ 'corpus_repr' ]}/{representations_descr}.pkl"
-            representations = PickleLoader( representations_filename ).load()
+            representations = CachedPickleLoader( representations_filename ).load()
             sentences, tags = Dataset().toSentences()
             return SentRanker( representations, tags )
 

@@ -6,7 +6,7 @@ from sentence_transformers import SentenceTransformer
 
 from .Preprocessor import Preprocessor, DummyPreprocessor, LowerWordsPreprocessor, NaivePreprocessor, LemmPreprocessor, StemmPreprocessor
 from .makers.Tokenizer import AbstractTokenizer, SingleTokenizer, SingleAndTwogramTokenizer
-from .helpers.Pickle import PickleLoader
+from .helpers.Pickle import PickleLoader, CachedPickleLoader
 from .helpers.typing import QueryAnalyzedType
 from .models.GloveModel import GloveModel, gloveModelFactory
 
@@ -61,7 +61,7 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             tokenizer = SingleTokenizer()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
-            vectorizer = PickleLoader( vectorizer_filename ).load()
+            vectorizer = CachedPickleLoader( vectorizer_filename ).load()
             return QueryAnalyzerWithVectorizer( preprocessor, tokenizer, vectorizer )
 
         case 'arxiv-lemm-single-tfidf':
@@ -70,7 +70,7 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             tokenizer = SingleTokenizer()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
-            vectorizer = PickleLoader( vectorizer_filename ).load()
+            vectorizer = CachedPickleLoader( vectorizer_filename ).load()
             return QueryAnalyzerWithVectorizer( preprocessor, tokenizer, vectorizer )
 
         case 'arxiv-lemm-2gram-tfidf':
@@ -79,7 +79,7 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             tokenizer = SingleAndTwogramTokenizer()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram_tfidf'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
-            vectorizer = PickleLoader( vectorizer_filename ).load()
+            vectorizer = CachedPickleLoader( vectorizer_filename ).load()
             return QueryAnalyzerWithVectorizer( preprocessor, tokenizer, vectorizer )
 
         case 'arxiv-naive-glove':
@@ -104,7 +104,7 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             tokenizer = SingleTokenizer()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-stemm_single_count'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
-            vectorizer = PickleLoader( vectorizer_filename ).load()
+            vectorizer = CachedPickleLoader( vectorizer_filename ).load()
             return QueryAnalyzerWithVectorizer( preprocessor, tokenizer, vectorizer )
 
         case 'medical-lemm-single-tfidf':
@@ -113,7 +113,7 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             tokenizer = SingleTokenizer()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_single_tfidf'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
-            vectorizer = PickleLoader( vectorizer_filename ).load()
+            vectorizer = CachedPickleLoader( vectorizer_filename ).load()
             return QueryAnalyzerWithVectorizer( preprocessor, tokenizer, vectorizer )
 
         case 'medical-lemm-2gram-tfidf':
@@ -122,7 +122,7 @@ def queryAnalyzerFactory( option:str ) -> AbstractQueryAnalyzer:
             tokenizer = SingleAndTwogramTokenizer()
             vectorizer_descr = 'title-summary_lower-punct-specials-stops-lemm_2gram_tfidf'
             vectorizer_filename = f"{pickle_paths[ 'vectorizers' ]}/{vectorizer_descr}.pkl"
-            vectorizer = PickleLoader( vectorizer_filename ).load()
+            vectorizer = CachedPickleLoader( vectorizer_filename ).load()
             return QueryAnalyzerWithVectorizer( preprocessor, tokenizer, vectorizer )
 
         case 'medical-lemm-single-jina':
